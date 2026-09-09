@@ -17,6 +17,30 @@ export async function authedFetch(input: string, init: RequestInit = {}): Promis
 declare const google: any;
 
 /**
+ * Safely parses a backend response as JSON and throws a clear error if
+ * either the request failed or the response wasn't valid JSON (e.g. a
+ * platform crash page). Without this, `await res.json()` on a non-JSON
+ * error page throws a confusing "Unexpected token..." parse error instead
+ * of something a user (or a caller's catch block) can actually act on.
+ */
+export async function parseJsonResponse(res: Response): Promise<any> {
+  let body: any;
+  try {
+    body = await res.json();
+  } catch {
+    throw new Error(
+      res.ok
+        ? 'The server sent back something unexpected. Please try again.'
+        : `Something went wrong (status ${res.status}). Please try again.`
+    );
+  }
+  if (!res.ok || body?.error) {
+    throw new Error(body?.error || `Request failed (status ${res.status}).`);
+  }
+  return body;
+}
+
+/**
  * Requests a short-lived Google Drive read-only access token via Google
  * Identity Services (already loaded in index.html). This is separate from
  * Firebase Auth login — a user can sign in with email/password and still

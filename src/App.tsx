@@ -25,7 +25,7 @@ import { UpgradeModal } from './components/UpgradeModal';
 import { ActiveTab, MediaItem, CaptionHistoryItem, User, SocialAccount, SocialPost, SocialPlatform, SubscriptionPlan } from './types';
 import { INITIAL_SAMPLE_MEDIA } from './data/sampleDriveMedia';
 import { onAuthChange, signInWithEmail, signInWithGoogle, signOutUser, signUpWithEmail } from './lib/firebase';
-import { authedFetch, requestDriveAccessToken } from './lib/api';
+import { authedFetch, parseJsonResponse, requestDriveAccessToken } from './lib/api';
 
 export default function App() {
   // Routing State: 'landing' | 'login' | 'signup' | 'onboarding' | 'app'
@@ -216,10 +216,8 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    const result = await res.json();
-    if (result.brandVoiceProfile) {
-      setUser((prev) => ({ ...prev, brandVoiceProfile: result.brandVoiceProfile }));
-    }
+    const result = await parseJsonResponse(res);
+    setUser((prev) => ({ ...prev, brandVoiceProfile: result.brandVoiceProfile }));
   };
 
   const handleUpdateBrandVoice = async (data: { brandName: string; description: string; voiceTraits: string[]; writingSample?: string }) => {
@@ -228,10 +226,8 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    const result = await res.json();
-    if (result.brandVoiceProfile) {
-      setUser((prev) => ({ ...prev, brandVoiceProfile: result.brandVoiceProfile }));
-    }
+    const result = await parseJsonResponse(res);
+    setUser((prev) => ({ ...prev, brandVoiceProfile: result.brandVoiceProfile }));
   };
 
   const handleUpgradePlan = async (plan: SubscriptionPlan) => {

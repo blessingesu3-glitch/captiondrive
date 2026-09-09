@@ -39,6 +39,7 @@ export const BrandOnboardingFlow: React.FC<BrandOnboardingFlowProps> = ({
   const [loading, setLoading] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [showDrivePrompt, setShowDrivePrompt] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const toggleTrait = (traitId: string) => {
     if (selectedTraits.includes(traitId)) {
@@ -52,6 +53,7 @@ export const BrandOnboardingFlow: React.FC<BrandOnboardingFlowProps> = ({
 
   const handleFinishOnboarding = async () => {
     setLoading(true);
+    setSaveError(null);
     try {
       await onCompleteOnboarding({
         brandName: brandName.trim() || 'My Brand',
@@ -61,8 +63,9 @@ export const BrandOnboardingFlow: React.FC<BrandOnboardingFlowProps> = ({
       });
       setShowReview(false);
       setShowDrivePrompt(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to save brand onboarding:', err);
+      setSaveError(err?.message || 'Something went wrong saving your brand profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -391,6 +394,12 @@ export const BrandOnboardingFlow: React.FC<BrandOnboardingFlowProps> = ({
                   <span>{loading ? 'Saving Profile...' : 'Looks Good →'}</span>
                 </button>
               </div>
+
+              {saveError && (
+                <div className="p-3 rounded-xl bg-[#FFF1ED] border border-[#FADCD5] text-xs font-semibold text-[#E94B35]">
+                  {saveError}
+                </div>
+              )}
             </div>
           )}
 
