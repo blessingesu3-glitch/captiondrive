@@ -1,5 +1,7 @@
 import { db } from './firebaseAdmin';
-import { FieldValue } from 'firebase-admin/firestore';
+import admin from 'firebase-admin';
+
+const { FieldValue } = admin.firestore;
 
 export const PLAN_LIMITS: Record<'free' | 'creator' | 'pro', number> = {
   free: 20,

@@ -1,15 +1,21 @@
-import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
-import { getAuth, type Auth } from 'firebase-admin/auth';
-import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+// Deliberately using the classic firebase-admin default-export API
+// (admin.initializeApp / admin.auth() / admin.firestore()) rather than the
+// newer subpath imports (firebase-admin/app, firebase-admin/auth,
+// firebase-admin/firestore). Those subpaths rely on Node's package "exports"
+// resolution, which some serverless bundlers (Vercel's own Node function
+// builder among them, historically) don't fully support for firebase-admin's
+// export map — causing every route in the module to fail at import time,
+// not just the ones that touch Firebase. This form resolves via the
+// package's plain "main" field instead, which is a much safer bet here.
+import admin from 'firebase-admin';
 
-// Reads credentials from three separate env vars rather than one JSON blob —
-// this avoids newline-escaping issues that are common when pasting a private
-// key into Vercel's env var UI.
+type App = admin.app.App;
+type Auth = admin.auth.Auth;
+type Firestore = admin.firestore.Firestore;
+
 function buildAdminApp(): App {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  // Vercel (and most dashboards) store multi-line values with literal \n
-  // sequences instead of real newlines, so this needs to be unescaped.
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
   if (!projectId || !clientEmail || !privateKey) {
@@ -19,25 +25,22 @@ function buildAdminApp(): App {
     );
   }
 
-  return initializeApp({
-    credential: cert({ projectId, clientEmail, privateKey }),
+  return admin.initializeApp({
+    credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
   });
 }
 
 let cachedApp: App | null = null;
 function getAdminApp(): App {
   if (!cachedApp) {
-    cachedApp = getApps().length ? getApps()[0] : buildAdminApp();
+    cachedApp = admin.apps.length ? (admin.apps[0] as App) : buildAdminApp();
   }
   return cachedApp;
 }
 
-// adminAuth/db are lazily initialized behind a Proxy rather than at module
-// load. If Firebase credentials are missing, this means the server still
-// boots and serves everything that doesn't touch Firebase (landing page,
-// static assets, health checks) — only the specific request that hits
-// requireAuth or Firestore fails, with a clear error, instead of the whole
-// process crashing on startup and taking every route down with it.
+// Lazy behind a Proxy so a missing/broken credential only fails the specific
+// request that needs Firebase, not the whole module (and therefore every
+// route) at import/cold-start time.
 function lazy<T extends object>(factory: () => T): T {
   let instance: T | null = null;
   return new Proxy({} as T, {
@@ -49,5 +52,5 @@ function lazy<T extends object>(factory: () => T): T {
   });
 }
 
-export const adminAuth: Auth = lazy(() => getAuth(getAdminApp()));
-export const db: Firestore = lazy(() => getFirestore(getAdminApp()));
+export const adminAuth: Auth = lazy(() => getAdminApp().auth());
+export const db: Firestore = lazy(() => getAdminApp().firestore());
