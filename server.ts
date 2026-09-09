@@ -1,12 +1,14 @@
 import express from 'express';
 import path from 'path';
-import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
 
-dotenv.config();
+import { requireAuth } from './lib/authMiddleware';
+import * as store from './lib/firestoreStore';
+
+dotenv.config({ quiet: true });
 
 const app = express();
 const PORT = 3000;
@@ -22,185 +24,49 @@ const getGeminiClient = () => {
   return new GoogleGenAI({ apiKey: apiKey || '' });
 };
 
-const PLAN_LIMITS: Record<'free' | 'creator' | 'pro', number> = {
-  free: 20,
-  creator: 200,
-  pro: 500
-};
-
-// In-Memory Storage for Multi-User state & Brand Voice persistence
-interface UserAccount {
-  id: string;
-  name: string;
-  email: string;
-  password?: string;
-  avatar: string;
-  isDriveConnected: boolean;
-  connectedDriveEmail?: string;
-  driveAccessToken?: string;
-  plan?: 'free' | 'creator' | 'pro';
-  captionsGenerated?: number;
-  billingCycleReset?: string;
-  brandVoiceProfile?: {
-    brandName: string;
-    description: string;
-    voiceTraits: string[];
-    writingSample?: string;
-    inferredStyle?: {
-      summary: string;
-      formality: string;
-      emojiUsage: string;
-      ctaStyle: string;
-    };
-    updatedAt?: string;
-  };
-}
-
-let activeUserEmail: string | null = null;
-
-const usersStore = new Map<string, UserAccount>([
-  ['blessingesu3@gmail.com', {
-    id: 'usr_default_01',
-    name: 'Blessing Esu',
-    email: 'blessingesu3@gmail.com',
-    password: 'password123',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    isDriveConnected: false,
-    connectedDriveEmail: undefined,
-    driveAccessToken: undefined,
-    brandVoiceProfile: {
-      brandName: 'CaptionDrive Studio',
-      description: 'Creative studio turning raw media assets into high-converting social copy for modern creators.',
-      voiceTraits: ['Conversational', 'Inspirational', 'Professional'],
-      writingSample: 'The biggest breakthrough in tech isn\'t code—it\'s how fast you empower people to build.',
-      inferredStyle: {
-        summary: 'Clear, authoritative and engaging with relatable storytelling',
-        formality: 'Semi-Formal / Professional',
-        emojiUsage: 'Moderate & Relevant',
-        ctaStyle: 'Question-based engagement prompt'
-      },
-      updatedAt: new Date().toISOString()
-    }
-  }]
-]);
-
-function getCurrentUser(): UserAccount | null {
-  if (!activeUserEmail) return null;
-  let u = usersStore.get(activeUserEmail);
-  if (!u) {
-    u = {
-      id: `usr_${Date.now()}`,
-      name: 'Creator',
-      email: activeUserEmail,
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      isDriveConnected: false,
-    };
-    usersStore.set(activeUserEmail, u);
-  }
-  return u;
-}
-
-// Proxy wrapper for backward compatibility with existing handlers referencing userSession
-const userSession = {
-  get id() { return getCurrentUser()?.id || ''; },
-  get name() { return getCurrentUser()?.name || ''; },
-  set name(v: string) { const u = getCurrentUser(); if (u) u.name = v; },
-  get email() { return getCurrentUser()?.email || ''; },
-  set email(v: string) { const u = getCurrentUser(); if (u) u.email = v; },
-  get avatar() { return getCurrentUser()?.avatar || ''; },
-  set avatar(v: string) { const u = getCurrentUser(); if (u) u.avatar = v; },
-  get isDriveConnected() { return getCurrentUser()?.isDriveConnected || false; },
-  set isDriveConnected(v: boolean) { const u = getCurrentUser(); if (u) u.isDriveConnected = v; },
-  get connectedDriveEmail() { return getCurrentUser()?.connectedDriveEmail; },
-  set connectedDriveEmail(v: string | undefined) { const u = getCurrentUser(); if (u) u.connectedDriveEmail = v; },
-  get driveAccessToken() { return getCurrentUser()?.driveAccessToken; },
-  set driveAccessToken(v: string | undefined) { const u = getCurrentUser(); if (u) u.driveAccessToken = v; },
-  get brandVoiceProfile() { return getCurrentUser()?.brandVoiceProfile; },
-  set brandVoiceProfile(v: any) { const u = getCurrentUser(); if (u) u.brandVoiceProfile = v; }
-};
-
-let customMediaStore: any[] = [];
-let favoriteIds: string[] = ['media_001', 'media_002', 'media_005'];
-let captionHistoryStore: any[] = [
-  {
-    id: 'hist_101',
-    media_id: 'media_001',
-    media_filename: 'Founder_Keynote_TechConf_2026.jpg',
-    media_thumbnail: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1000&q=80',
-    media_type: 'image',
-    platform: 'LinkedIn',
-    tone: 'Inspirational',
-    length: 'Medium',
-    target_audience: 'Entrepreneurs',
-    caption_variation: {
-      id: 'var_01',
-      style_title: 'Inspiring Leadership',
-      hook: 'The biggest breakthrough in tech isn\'t code—it\'s how fast you empower people to build.',
-      body: 'Standing on stage at TechConf 2026, I looked out at 2,000+ creators building the next generation of AI tools. 5 years ago, ideas took months to prototype. Today, a solo builder can turn a napkin sketch into a global app in 48 hours.\n\nThe real moat isn\'t just technology anymore. It\'s velocity, empathy, and ruthless focus on solving real human problems.',
-      cta: 'What is the one project you would launch if execution took 10x less time? Let\'s discuss below 👇',
-      hashtags: ['#TechLeadership', '#ArtificialIntelligence', '#Entrepreneurship', '#FutureOfWork', '#BuildInPublic']
-    },
-    created_at: new Date(Date.now() - 3600000 * 4).toISOString()
-  }
-];
-
+// In-memory for now — social publishing is still a fake/demo integration
+// (see /api/social/publish below). Not moved to Firestore because it
+// shouldn't be presented as real until Phase 2 actually builds it out.
 let socialAccountsStore: any[] = [
   {
     id: 'soc_01',
     platform: 'Instagram',
-    account_name: 'Blessing Esu Creator',
-    handle: '@blessing_creator',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    is_connected: true,
-    connected_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    account_name: 'Your Instagram',
+    handle: '@your_handle',
+    avatar: '',
+    is_connected: false,
     page_type: 'Instagram Business Account'
   },
   {
     id: 'soc_02',
     platform: 'LinkedIn',
-    account_name: 'Blessing Esu',
-    handle: 'in/blessingesu',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    is_connected: true,
-    connected_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    account_name: 'Your LinkedIn',
+    handle: 'in/your-handle',
+    avatar: '',
+    is_connected: false,
     page_type: 'LinkedIn Creator Profile'
   },
   {
     id: 'soc_03',
     platform: 'X',
-    account_name: 'Blessing Esu',
-    handle: '@blessingesu_ai',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    account_name: 'Your X',
+    handle: '@your_handle',
+    avatar: '',
     is_connected: false,
     page_type: 'X Creator Account'
   },
   {
     id: 'soc_04',
     platform: 'Facebook',
-    account_name: 'CaptionDrive Page',
-    handle: 'fb.com/captiondrive',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    account_name: 'Your Facebook Page',
+    handle: 'fb.com/yourpage',
+    avatar: '',
     is_connected: false,
     page_type: 'Facebook Business Page'
   }
 ];
 
-let socialPostsStore: any[] = [
-  {
-    id: 'post_001',
-    caption_history_id: 'hist_101',
-    media_filename: 'Founder_Keynote_TechConf_2026.jpg',
-    media_thumbnail: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1000&q=80',
-    platform: 'LinkedIn',
-    account_handle: 'in/blessingesu',
-    caption_text: "The biggest breakthrough in tech isn't code—it's how fast you empower people to build.\n\nStanding on stage at TechConf 2026, I looked out at 2,000+ creators building the next generation of AI tools...\n\n#TechLeadership #BuildInPublic",
-    status: 'published',
-    user_approved: true,
-    approved_at: new Date(Date.now() - 3600000 * 3).toISOString(),
-    published_at: new Date(Date.now() - 3600000 * 2.8).toISOString(),
-    post_url: 'https://linkedin.com/posts/blessingesu_techconf2026'
-  }
-];
+let socialPostsStore: any[] = [];
 
 // Helper to sanitize Gemini JSON responses
 function extractJsonFromText(text: string): any {
@@ -211,16 +77,13 @@ function extractJsonFromText(text: string): any {
       const jsonStr = text.substring(start, end + 1);
       return JSON.parse(jsonStr);
     }
-    
-    // Attempt simple repair if closing brace is missing
+
     if (start !== -1 && end === -1) {
       let jsonStr = text.substring(start).trim();
-      // If ends with a comma, remove it
       if (jsonStr.endsWith(',')) {
         jsonStr = jsonStr.slice(0, -1);
       }
-      
-      // Auto-append missing closing braces and brackets
+
       let openBraces = (jsonStr.match(/{/g) || []).length;
       let closeBraces = (jsonStr.match(/}/g) || []).length;
       let openBrackets = (jsonStr.match(/\[/g) || []).length;
@@ -314,125 +177,52 @@ function generateFallbackAnalysis(filename: string, file_type: string, folder: s
 // API ROUTES
 // -------------------------------------------------------------
 
-function getUserUsage(user: UserAccount) {
-  const plan = user.plan || 'free';
-  const limit = PLAN_LIMITS[plan] || 20;
-  const resetDate = user.billingCycleReset || new Date(Date.now() + 30 * 86400000).toISOString();
-  return {
-    plan,
-    captionsGenerated: user.captionsGenerated || 0,
-    limit,
-    billingCycleReset: resetDate
-  };
-}
-
 // 1. User & Auth Status
-app.get('/api/auth/me', (req, res) => {
-  const current = getCurrentUser();
-  if (!current) {
-    return res.json({ user: null });
+// Auth itself (signup/login/password) is handled client-side by the Firebase
+// Auth SDK now — this endpoint just verifies the resulting ID token and
+// upserts/returns the matching Firestore profile.
+app.get('/api/auth/me', requireAuth, async (req, res) => {
+  try {
+    const user = await store.getOrCreateUser(req.uid!, req.userEmail!, req.userName, req.userPicture);
+    const usage = store.getUserUsage(user);
+    res.json({
+      user: {
+        id: req.uid,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        isDriveConnected: user.isDriveConnected,
+        connectedDriveEmail: user.connectedDriveEmail,
+        brandVoiceProfile: user.brandVoiceProfile,
+        plan: usage.plan,
+        usage
+      }
+    });
+  } catch (err: any) {
+    console.error('Failed to load user profile:', err);
+    res.status(500).json({ error: 'Failed to load user profile' });
   }
-  const usage = getUserUsage(current);
-  res.json({
-    user: {
-      id: current.id,
-      name: current.name,
-      email: current.email,
-      avatar: current.avatar,
-      isDriveConnected: current.isDriveConnected,
-      connectedDriveEmail: current.connectedDriveEmail,
-      brandVoiceProfile: current.brandVoiceProfile,
-      plan: usage.plan,
-      usage
-    }
-  });
 });
 
-app.post('/api/user/plan', (req, res) => {
-  const current = getCurrentUser();
-  if (!current) {
-    return res.status(401).json({ error: 'Unauthenticated' });
-  }
+app.post('/api/user/plan', requireAuth, async (req, res) => {
   const { plan } = req.body;
   if (!plan || !['free', 'creator', 'pro'].includes(plan)) {
     return res.status(400).json({ error: 'Invalid plan selected' });
   }
-  current.plan = plan;
-  const usage = getUserUsage(current);
-  res.json({ success: true, plan: current.plan, usage });
-});
-
-app.post('/api/auth/signup', (req, res) => {
-  const { name, email, password } = req.body;
-  if (!email || !name) {
-    return res.status(400).json({ error: 'Name and email are required' });
-  }
-
-  const existing = usersStore.get(email);
-  if (existing) {
-    activeUserEmail = email;
-    return res.json({ success: true, user: existing, message: 'Welcome back!' });
-  }
-
-  const newUser: UserAccount = {
-    id: `usr_${Date.now()}`,
-    name,
-    email,
-    password: password || 'password123',
-    avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80`,
-    isDriveConnected: false,
-  };
-
-  usersStore.set(email, newUser);
-  activeUserEmail = email;
-
-  res.json({ success: true, user: newUser });
-});
-
-app.post('/api/auth/login', (req, res) => {
-  const { email, password, name } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
-  }
-
-  let user = usersStore.get(email);
-  if (!user) {
-    user = {
-      id: `usr_${Date.now()}`,
-      name: name || email.split('@')[0],
-      email,
-      password: password || 'password123',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      isDriveConnected: false,
-    };
-    usersStore.set(email, user);
-  }
-
-  activeUserEmail = email;
-  res.json({ success: true, user });
-});
-
-app.post('/api/auth/logout', (req, res) => {
-  activeUserEmail = null;
-  res.json({ success: true });
+  await store.updateUser(req.uid!, { plan });
+  const user = await store.getUser(req.uid!);
+  const usage = store.getUserUsage(user!);
+  res.json({ success: true, plan, usage });
 });
 
 // Brand Voice Profile API
-app.get('/api/brand-voice', (req, res) => {
-  const current = getCurrentUser();
-  if (!current) {
-    return res.status(401).json({ error: 'Unauthenticated' });
-  }
-  res.json({ brandVoiceProfile: current.brandVoiceProfile });
+app.get('/api/brand-voice', requireAuth, async (req, res) => {
+  const user = await store.getUser(req.uid!);
+  res.json({ brandVoiceProfile: user?.brandVoiceProfile });
 });
 
-app.post('/api/brand-voice', async (req, res) => {
+app.post('/api/brand-voice', requireAuth, async (req, res) => {
   try {
-    const current = getCurrentUser();
-    if (!current) {
-      return res.status(401).json({ error: 'Unauthenticated' });
-    }
-
     const { brandName, description, voiceTraits, writingSample } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -481,8 +271,9 @@ DO NOT include markdown backticks or any conversational text. ONLY return valid 
       }
     }
 
+    const user = await store.getUser(req.uid!);
     const brandVoiceProfile = {
-      brandName: brandName || current.name,
+      brandName: brandName || user?.name,
       description: description || '',
       voiceTraits: voiceTraits || ['Conversational'],
       writingSample: writingSample || '',
@@ -490,94 +281,137 @@ DO NOT include markdown backticks or any conversational text. ONLY return valid 
       updatedAt: new Date().toISOString()
     };
 
-    current.brandVoiceProfile = brandVoiceProfile;
+    await store.updateUser(req.uid!, { brandVoiceProfile });
     res.json({ success: true, brandVoiceProfile });
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Failed to save Brand Voice Profile' });
   }
 });
 
-// 2. Google Drive OAuth URL & Connect
-app.get('/api/drive/connect-url', (req, res) => {
-  const appUrl = process.env.APP_URL || 'http://localhost:3000';
-  const redirectUri = `${appUrl}/api/drive/callback`;
-  
-  // Scopes requested for Drive read-only
-  const scopes = [
-    'https://www.googleapis.com/auth/drive.readonly',
-    'https://www.googleapis.com/auth/userinfo.profile',
-    'https://www.googleapis.com/auth/userinfo.email'
-  ];
+// 2. Google Drive OAuth / token handling
+// The frontend uses Google Identity Services (already loaded in index.html)
+// to obtain a short-lived Drive access token directly in the browser, then
+// hands it to us here. We keep it in Firestore just long enough to serve
+// /api/drive/files and /api/drive/thumbnail for the rest of that session —
+// it is NOT a refresh token and will need to be re-requested by the client
+// roughly every hour (Google access tokens are short-lived; this app does
+// not implement offline/refresh-token storage in Phase 1).
+app.get('/api/drive/connect-url', requireAuth, (req, res) => {
+  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID || '';
+  res.json({
+    clientId,
+    dynamicClientConfigured: Boolean(clientId),
+    scopes: [
+      'https://www.googleapis.com/auth/drive.readonly',
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email'
+    ]
+  });
+});
 
-  let googleClientId = '';
+// Called by the frontend once it has a Drive access token from Google
+// Identity Services. Verifies the token actually works, then persists
+// connection state + the token for this session.
+app.post('/api/drive/sync', requireAuth, async (req, res) => {
   try {
-    const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
-    if (fs.existsSync(configPath)) {
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-      googleClientId = config.oAuthClientId || '';
+    const { access_token } = req.body;
+    if (!access_token) {
+      return res.status(400).json({ error: 'access_token is required' });
     }
-  } catch (err) {
-    console.error('Failed to read firebase config:', err);
-  }
 
-  res.json({
-    clientId: googleClientId,
-    redirectUri,
-    scopes,
-    note: 'Google Drive OAuth configured'
-  });
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token });
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
+    const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+
+    const [filesRes, profileRes] = await Promise.all([
+      drive.files.list({
+        q: "(mimeType contains 'image/' or mimeType contains 'video/') and trashed = false",
+        pageSize: 50,
+        fields: 'files(id, name, mimeType, thumbnailLink, webViewLink, createdTime, size)',
+      }),
+      oauth2.userinfo.get().catch(() => null),
+    ]);
+
+    const connectedEmail = profileRes?.data?.email;
+
+    await store.updateUser(req.uid!, {
+      isDriveConnected: true,
+      connectedDriveEmail: connectedEmail || req.userEmail,
+      driveAccessToken: access_token,
+      driveTokenObtainedAt: new Date().toISOString(),
+    } as any);
+
+    const files = (filesRes.data.files || []).map((file) => {
+      const isVideo = file.mimeType?.startsWith('video/');
+      return {
+        id: `drive_${file.id}`,
+        drive_file_id: file.id || '',
+        filename: file.name || 'Untitled',
+        file_type: isVideo ? 'video' : 'image',
+        mime_type: file.mimeType || (isVideo ? 'video/mp4' : 'image/jpeg'),
+        thumbnail: `/api/drive/thumbnail/${file.id}?uid=${req.uid}`,
+        web_view_link: file.webViewLink || '#',
+        folder: 'Google Drive Root',
+        uploaded_at: file.createdTime || new Date().toISOString(),
+        size_formatted: file.size ? `${(parseInt(file.size) / (1024 * 1024)).toFixed(1)} MB` : '1.2 MB',
+      };
+    });
+
+    res.json({ success: true, userEmail: connectedEmail, files });
+  } catch (err: any) {
+    console.error('Drive sync failed:', err);
+    res.status(400).json({ error: 'Could not verify Drive access. Please reconnect.' });
+  }
 });
 
-// Connect Google Drive toggle (Simulated sync or OAuth connection)
-app.post('/api/drive/connect', (req, res) => {
-  const { connectedEmail, accessToken } = req.body;
-  userSession.isDriveConnected = true;
-  userSession.connectedDriveEmail = connectedEmail || userSession.email;
-  if (accessToken) {
-    userSession.driveAccessToken = accessToken;
-  }
-  res.json({
-    success: true,
-    isDriveConnected: true,
-    connectedDriveEmail: userSession.connectedDriveEmail,
-    message: 'Google Drive connected successfully!'
-  });
-});
-
-app.post('/api/drive/disconnect', (req, res) => {
-  userSession.isDriveConnected = false;
-  userSession.connectedDriveEmail = undefined;
-  userSession.driveAccessToken = undefined;
+app.post('/api/drive/disconnect', requireAuth, async (req, res) => {
+  await store.updateUser(req.uid!, {
+    isDriveConnected: false,
+    connectedDriveEmail: undefined,
+    driveAccessToken: undefined,
+  } as any);
   res.json({ success: true, isDriveConnected: false });
 });
 
-// Proxy endpoint for Google Drive thumbnails to bypass CORS / Referrer policies
+// Proxy endpoint for Google Drive thumbnails. This is loaded via a plain
+// <img src="..."> tag in the browser, which can't attach an Authorization
+// header — so identity is passed as a query param instead. This is weaker
+// than header-based auth (the URL itself becomes bearer-ish for the file's
+// thumbnail only, not the rest of the API) but is the standard tradeoff for
+// embeddable image proxies; the fileId is also unpredictable Google Drive
+// output so this isn't practically enumerable.
 app.get('/api/drive/thumbnail/:fileId', async (req, res) => {
   try {
     const { fileId } = req.params;
-    if (!userSession.isDriveConnected || !userSession.driveAccessToken) {
+    const uid = req.query.uid as string;
+    if (!uid) {
+      return res.redirect('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=400&q=80');
+    }
+
+    const user = await store.getUser(uid) as any;
+    if (!user?.isDriveConnected || !user?.driveAccessToken) {
       return res.redirect('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=400&q=80');
     }
 
     const oauth2Client = new google.auth.OAuth2();
-    oauth2Client.setCredentials({ access_token: userSession.driveAccessToken });
+    oauth2Client.setCredentials({ access_token: user.driveAccessToken });
     const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
     const fileMetadata = await drive.files.get({
-      fileId: fileId,
+      fileId,
       fields: 'thumbnailLink,mimeType'
     });
 
     const thumbnailLink = fileMetadata.data.thumbnailLink;
     if (!thumbnailLink) {
       const isVideo = fileMetadata.data.mimeType?.startsWith('video/');
-      return res.redirect(isVideo 
+      return res.redirect(isVideo
         ? 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=400&q=80'
         : 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=400&q=80'
       );
     }
 
-    // Fetch Google Drive thumbnail content via server-side fetch request
     const imgResponse = await fetch(thumbnailLink);
     if (!imgResponse.ok) {
       throw new Error(`Failed to fetch thumbnail: ${imgResponse.statusText}`);
@@ -585,7 +419,7 @@ app.get('/api/drive/thumbnail/:fileId', async (req, res) => {
 
     const contentType = imgResponse.headers.get('content-type') || 'image/jpeg';
     res.setHeader('Content-Type', contentType);
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24h
+    res.setHeader('Cache-Control', 'private, max-age=86400');
 
     const arrayBuffer = await imgResponse.arrayBuffer();
     return res.send(Buffer.from(arrayBuffer));
@@ -595,23 +429,26 @@ app.get('/api/drive/thumbnail/:fileId', async (req, res) => {
   }
 });
 
-// 3. Scan / Fetch Google Drive Files
-app.get('/api/drive/files', async (req, res) => {
+// 3. Fetch Google Drive Files (+ this user's imported/custom media)
+app.get('/api/drive/files', requireAuth, async (req, res) => {
   try {
-    // If real Drive access token exists, fetch from Google Drive REST API
-    if (userSession.isDriveConnected && userSession.driveAccessToken) {
+    const user = await store.getUser(req.uid!) as any;
+    const importedMedia = await store.listImportedMedia(req.uid!);
+
+    if (user?.isDriveConnected && user?.driveAccessToken) {
       try {
         const oauth2Client = new google.auth.OAuth2();
-        oauth2Client.setCredentials({ access_token: userSession.driveAccessToken });
+        oauth2Client.setCredentials({ access_token: user.driveAccessToken });
         const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
         const response = await drive.files.list({
           q: "(mimeType contains 'image/' or mimeType contains 'video/') and trashed = false",
           pageSize: 50,
-          fields: 'files(id, name, mimeType, thumbnailLink, webViewLink, createdTime, size, videoMediaMetadata, imageMediaMetadata)',
+          fields: 'files(id, name, mimeType, thumbnailLink, webViewLink, createdTime, size)',
         });
 
         const files = response.data.files || [];
+        const favoriteIds = user.favoriteIds || [];
         const formatted = files.map((file) => {
           const isVideo = file.mimeType?.startsWith('video/');
           return {
@@ -620,7 +457,7 @@ app.get('/api/drive/files', async (req, res) => {
             filename: file.name || 'Untitled',
             file_type: isVideo ? 'video' : 'image',
             mime_type: file.mimeType || (isVideo ? 'video/mp4' : 'image/jpeg'),
-            thumbnail: `/api/drive/thumbnail/${file.id}`,
+            thumbnail: `/api/drive/thumbnail/${file.id}?uid=${req.uid}`,
             web_view_link: file.webViewLink || '#',
             folder: 'Google Drive Root',
             uploaded_at: file.createdTime || new Date().toISOString(),
@@ -629,23 +466,22 @@ app.get('/api/drive/files', async (req, res) => {
           };
         });
 
-        return res.json({ files: [...formatted, ...customMediaStore] });
+        return res.json({ files: [...formatted, ...importedMedia] });
       } catch (err) {
-        console.warn('Real Drive API error, falling back to cached drive media:', err);
+        console.warn('Real Drive API error, falling back to imported media only:', err);
       }
     }
 
-    res.json({ files: customMediaStore });
+    res.json({ files: importedMedia });
   } catch (error: any) {
     res.status(500).json({ error: error.message || 'Failed to fetch Drive files' });
   }
 });
 
-// Import custom media file to drive library
-app.post('/api/drive/import', (req, res) => {
+// Import custom media file to this user's library
+app.post('/api/drive/import', requireAuth, async (req, res) => {
   const { filename, file_type, thumbnail, preview_url, folder, size_formatted, duration, ai_analysis } = req.body;
-  const newMedia = {
-    id: `custom_${Date.now()}`,
+  const media = await store.addImportedMedia(req.uid!, {
     drive_file_id: `drive_f_${Date.now()}`,
     filename: filename || 'Imported_Media.jpg',
     file_type: file_type || 'image',
@@ -653,38 +489,47 @@ app.post('/api/drive/import', (req, res) => {
     thumbnail: thumbnail || 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80',
     preview_url: preview_url || thumbnail,
     folder: folder || '01_Imported_Drive',
-    uploaded_at: new Date().toISOString(),
     size_formatted: size_formatted || '2.5 MB',
-    duration: duration,
+    duration,
     is_favorite: false,
     ai_analysis
-  };
-  customMediaStore.unshift(newMedia);
-  res.json({ success: true, media: newMedia });
+  });
+  res.json({ success: true, media });
 });
 
 // 4. AI Content Analysis Endpoint (Multimodal Gemini Vision)
-app.post('/api/ai/analyze', async (req, res) => {
+app.post('/api/ai/analyze', requireAuth, async (req, res) => {
   try {
     const { id, drive_file_id, filename, file_type, preview_url, folder } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
+    // Cache check first — per brief: "the same file should not trigger
+    // unnecessary AI requests."
+    const cacheKey = drive_file_id || id;
+    if (cacheKey) {
+      const cached = await store.getCachedAnalysis(req.uid!, cacheKey);
+      if (cached) {
+        return res.json({ success: true, analysis: cached, cached: true });
+      }
+    }
+
     if (!apiKey) {
-      return res.json({ success: true, analysis: generateFallbackAnalysis(filename, file_type, folder) });
+      const fallback = generateFallbackAnalysis(filename, file_type, folder);
+      if (cacheKey) await store.setCachedAnalysis(req.uid!, cacheKey, fallback);
+      return res.json({ success: true, analysis: fallback });
     }
 
     const ai = getGeminiClient();
     const isVideo = file_type === 'video';
+    const user = await store.getUser(req.uid!) as any;
 
-    // 1. Attempt to fetch visual content to send to Gemini as multimodal input
     let imagePart: any = null;
     try {
-      if (drive_file_id && userSession.isDriveConnected && userSession.driveAccessToken) {
+      if (drive_file_id && user?.isDriveConnected && user?.driveAccessToken) {
         const oauth2Client = new google.auth.OAuth2();
-        oauth2Client.setCredentials({ access_token: userSession.driveAccessToken });
+        oauth2Client.setCredentials({ access_token: user.driveAccessToken });
         const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
-        // Fetch file metadata to get the thumbnail link
         const fileMetadata = await drive.files.get({
           fileId: drive_file_id,
           fields: 'thumbnailLink,mimeType'
@@ -760,6 +605,8 @@ DO NOT include markdown backticks or any conversational text. ONLY return valid 
     const outputText = response.text || '';
     const analysisJson = extractJsonFromText(outputText);
 
+    if (cacheKey) await store.setCachedAnalysis(req.uid!, cacheKey, analysisJson);
+
     res.json({ success: true, analysis: analysisJson });
   } catch (error: any) {
     console.error('AI Analysis Error, returning fallback:', error);
@@ -769,15 +616,15 @@ DO NOT include markdown backticks or any conversational text. ONLY return valid 
 });
 
 // 5. AI Caption Generator Endpoint
-app.post('/api/ai/generate-captions', async (req, res) => {
+app.post('/api/ai/generate-captions', requireAuth, async (req, res) => {
   try {
     const { media, settings } = req.body;
     const { platform, tone, length, target_audience, custom_notes } = settings || {};
     const apiKey = process.env.GEMINI_API_KEY;
 
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      const usage = getUserUsage(currentUser);
+    const user = await store.getUser(req.uid!);
+    if (user) {
+      const usage = store.getUserUsage(user);
       if (usage.captionsGenerated >= usage.limit) {
         return res.status(403).json({
           success: false,
@@ -790,15 +637,14 @@ app.post('/api/ai/generate-captions', async (req, res) => {
 
     if (!apiKey) {
       console.log('No GEMINI_API_KEY set, generating tailored fallback captions.');
-      if (currentUser) {
-        currentUser.captionsGenerated = (currentUser.captionsGenerated || 0) + 1;
-      }
-      const updatedUsage = currentUser ? getUserUsage(currentUser) : undefined;
+      if (user) await store.incrementCaptionsGenerated(req.uid!);
+      const updatedUser = user ? await store.getUser(req.uid!) : null;
+      const updatedUsage = updatedUser ? store.getUserUsage(updatedUser) : undefined;
       return res.json({ success: true, variations: generateFallbackCaptions(media, settings), usage: updatedUsage });
     }
 
     const ai = getGeminiClient();
-    const brandVoice = currentUser?.brandVoiceProfile;
+    const brandVoice = user?.brandVoiceProfile;
 
     const prompt = `You are a world-class social media copywriter and growth marketer creating viral content for ${platform || 'Instagram'}.
 
@@ -874,10 +720,9 @@ DO NOT include markdown backticks or any extra text outside the JSON.`;
     const outputText = response.text || '';
     const resultJson = extractJsonFromText(outputText);
 
-    if (currentUser) {
-      currentUser.captionsGenerated = (currentUser.captionsGenerated || 0) + 1;
-    }
-    const updatedUsage = currentUser ? getUserUsage(currentUser) : undefined;
+    if (user) await store.incrementCaptionsGenerated(req.uid!);
+    const updatedUser = user ? await store.getUser(req.uid!) : null;
+    const updatedUsage = updatedUser ? store.getUserUsage(updatedUser) : undefined;
 
     if (resultJson?.variations?.length) {
       res.json({ success: true, variations: resultJson.variations, usage: updatedUsage });
@@ -891,7 +736,7 @@ DO NOT include markdown backticks or any extra text outside the JSON.`;
 });
 
 // 6. Smart Natural Language Search
-app.post('/api/ai/smart-search', async (req, res) => {
+app.post('/api/ai/smart-search', requireAuth, async (req, res) => {
   try {
     const { query, mediaList } = req.body;
     if (!query || !mediaList || !mediaList.length) {
@@ -937,47 +782,48 @@ If no items match, return {"matched_ids": []}. Return ONLY valid JSON.`;
 });
 
 // 7. Favorites Management
-app.get('/api/favorites', (req, res) => {
-  res.json({ favorites: favoriteIds });
+app.get('/api/favorites', requireAuth, async (req, res) => {
+  const user = await store.getUser(req.uid!);
+  res.json({ favorites: user?.favoriteIds || [] });
 });
 
-app.post('/api/favorites/toggle', (req, res) => {
+app.post('/api/favorites/toggle', requireAuth, async (req, res) => {
   const { mediaId } = req.body;
   if (!mediaId) return res.status(400).json({ error: 'mediaId required' });
+  const favorites = await store.toggleFavorite(req.uid!, mediaId);
+  res.json({ success: true, favorites });
+});
 
-  if (favoriteIds.includes(mediaId)) {
-    favoriteIds = favoriteIds.filter(id => id !== mediaId);
-  } else {
-    favoriteIds.push(mediaId);
-  }
-  res.json({ success: true, favorites: favoriteIds });
+// Matches the frontend's per-item favorite toggle call.
+app.post('/api/media/:id/favorite', requireAuth, async (req, res) => {
+  const favorites = await store.toggleFavorite(req.uid!, req.params.id);
+  res.json({ success: true, favorites });
 });
 
 // 8. Caption History Management
-app.get('/api/captions/history', (req, res) => {
-  res.json({ history: captionHistoryStore });
+app.get('/api/captions/history', requireAuth, async (req, res) => {
+  const history = await store.listCaptionHistory(req.uid!);
+  res.json({ history });
 });
 
-app.post('/api/captions/history', (req, res) => {
+app.post('/api/captions/history', requireAuth, async (req, res) => {
   const { item } = req.body;
   if (!item) return res.status(400).json({ error: 'Item required' });
-
-  const newItem = {
-    ...item,
-    id: `hist_${Date.now()}`,
-    created_at: new Date().toISOString()
-  };
-  captionHistoryStore.unshift(newItem);
+  const newItem = await store.addCaptionHistoryItem(req.uid!, item);
   res.json({ success: true, item: newItem });
 });
 
-app.delete('/api/captions/history/:id', (req, res) => {
-  const { id } = req.params;
-  captionHistoryStore = captionHistoryStore.filter(item => item.id !== id);
-  res.json({ success: true, history: captionHistoryStore });
+app.delete('/api/captions/history/:id', requireAuth, async (req, res) => {
+  await store.deleteCaptionHistoryItem(req.uid!, req.params.id);
+  const history = await store.listCaptionHistory(req.uid!);
+  res.json({ success: true, history });
 });
 
-// 9. Social Media Accounts, Real OAuth Flows & Auto-Posting
+// 9. Social Media Accounts — STILL A DEMO/FAKE INTEGRATION.
+// Locked behind auth (it wasn't before — /api/social/credentials in
+// particular accepted writes from anyone), but the underlying publish flow
+// remains simulated. Per the product brief, real social publishing is an
+// explicit Phase 2+ decision, not part of this pass.
 let oauthCredentialsStore: Record<string, { clientId: string; clientSecret: string }> = {
   Instagram: { clientId: process.env.INSTAGRAM_CLIENT_ID || '', clientSecret: process.env.INSTAGRAM_CLIENT_SECRET || '' },
   LinkedIn: { clientId: process.env.LINKEDIN_CLIENT_ID || '', clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '' },
@@ -985,11 +831,11 @@ let oauthCredentialsStore: Record<string, { clientId: string; clientSecret: stri
   Facebook: { clientId: process.env.FACEBOOK_CLIENT_ID || '', clientSecret: process.env.FACEBOOK_CLIENT_SECRET || '' }
 };
 
-app.get('/api/social/accounts', (req, res) => {
+app.get('/api/social/accounts', requireAuth, (req, res) => {
   res.json({ accounts: socialAccountsStore, credentials: oauthCredentialsStore });
 });
 
-app.post('/api/social/credentials', (req, res) => {
+app.post('/api/social/credentials', requireAuth, (req, res) => {
   const { platform, clientId, clientSecret } = req.body;
   if (platform && oauthCredentialsStore[platform]) {
     oauthCredentialsStore[platform] = { clientId: clientId || '', clientSecret: clientSecret || '' };
@@ -997,8 +843,7 @@ app.post('/api/social/credentials', (req, res) => {
   res.json({ success: true, credentials: oauthCredentialsStore });
 });
 
-// OAuth URL Generator Endpoint according to oauth-integration skill
-app.get('/api/social/oauth/url', (req, res) => {
+app.get('/api/social/oauth/url', requireAuth, (req, res) => {
   const platform = (req.query.platform as string) || 'LinkedIn';
   const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
   const redirectUri = `${baseUrl}/api/social/oauth/callback`;
@@ -1045,12 +890,10 @@ app.get('/api/social/oauth/url', (req, res) => {
   res.json({ url: authUrl, redirectUri, platform, hasConfiguredKeys: Boolean(creds.clientId) });
 });
 
-// OAuth Popup Callback Endpoint with postMessage according to oauth-integration skill
 app.get(['/api/social/oauth/callback', '/api/social/oauth/callback/'], (req, res) => {
   const { code, state, error } = req.query;
   const platformStr = typeof state === 'string' ? state.split('_')[0] : 'Social';
 
-  // Mark account as connected in server store upon authorization
   if (platformStr && ['Instagram', 'LinkedIn', 'X', 'Facebook'].includes(platformStr)) {
     const acc = socialAccountsStore.find(a => a.platform === platformStr);
     if (acc) {
@@ -1088,11 +931,7 @@ app.get(['/api/social/oauth/callback', '/api/social/oauth/callback/'], (req, res
   `);
 });
 
-app.post('/api/social/connect', (req, res) => {
-  res.json({ accounts: socialAccountsStore });
-});
-
-app.post('/api/social/connect', (req, res) => {
+app.post('/api/social/connect', requireAuth, (req, res) => {
   const { platform, handle, account_name, page_type } = req.body;
   const existing = socialAccountsStore.find(a => a.platform === platform);
   if (existing) {
@@ -1106,7 +945,7 @@ app.post('/api/social/connect', (req, res) => {
       platform,
       account_name: account_name || `${platform} Creator Page`,
       handle: handle || `@${platform.toLowerCase()}_creator`,
-      avatar: userSession.avatar,
+      avatar: req.userPicture || '',
       is_connected: true,
       connected_at: new Date().toISOString(),
       page_type: page_type || `${platform} Page`
@@ -1115,34 +954,34 @@ app.post('/api/social/connect', (req, res) => {
   res.json({ success: true, accounts: socialAccountsStore });
 });
 
-app.post('/api/social/disconnect', (req, res) => {
+app.post('/api/social/disconnect', requireAuth, (req, res) => {
   const { platform } = req.body;
-  socialAccountsStore = socialAccountsStore.map(a => 
+  socialAccountsStore = socialAccountsStore.map(a =>
     a.platform === platform ? { ...a, is_connected: false } : a
   );
   res.json({ success: true, accounts: socialAccountsStore });
 });
 
-app.get('/api/social/posts', (req, res) => {
+app.get('/api/social/posts', requireAuth, (req, res) => {
   res.json({ posts: socialPostsStore });
 });
 
-app.post('/api/social/publish', (req, res) => {
+app.post('/api/social/publish', requireAuth, (req, res) => {
   const { media_filename, media_thumbnail, platform, account_handle, caption_text, user_approved, scheduled_for } = req.body;
 
   if (!user_approved) {
-    return res.status(400).json({ 
-      error: 'User approval is strictly required before posting to social media.' 
+    return res.status(400).json({
+      error: 'User approval is strictly required before posting to social media.'
     });
   }
 
   const isScheduled = Boolean(scheduled_for);
   const postId = `post_${Date.now()}`;
-  const mockPostUrl = platform === 'Instagram' 
-    ? `https://instagram.com/p/${postId.slice(-6)}` 
-    : platform === 'LinkedIn' 
+  const mockPostUrl = platform === 'Instagram'
+    ? `https://instagram.com/p/${postId.slice(-6)}`
+    : platform === 'LinkedIn'
     ? `https://linkedin.com/feed/update/urn:li:activity:${Date.now()}`
-    : platform === 'X' 
+    : platform === 'X'
     ? `https://x.com/${account_handle || 'user'}/status/${Date.now()}`
     : `https://facebook.com/posts/${postId}`;
 
@@ -1166,7 +1005,7 @@ app.post('/api/social/publish', (req, res) => {
   res.json({
     success: true,
     post: newPost,
-    message: isScheduled 
+    message: isScheduled
       ? `Post approved & scheduled for ${new Date(scheduled_for).toLocaleString()} on ${platform} (${account_handle})`
       : `Post approved & published live to ${platform} (${account_handle})!`
   });

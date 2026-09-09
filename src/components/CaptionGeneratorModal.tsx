@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authedFetch } from '../lib/api';
 import { 
   X, 
   Sparkles, 
@@ -93,7 +94,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
     setVariations([]);
     setIsEditing(false);
     try {
-      const response = await fetch('/api/ai/generate-captions', {
+      const response = await authedFetch('/api/ai/generate-captions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ media, settings })

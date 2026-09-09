@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authedFetch } from '../lib/api';
 import { 
   Send, 
   CheckCircle2, 
@@ -55,7 +56,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
 
   // Fetch credentials on mount
   useEffect(() => {
-    fetch('/api/social/accounts')
+    authedFetch('/api/social/accounts')
       .then(r => r.json())
       .then(data => {
         if (data.credentials) setApiKeys(data.credentials);
@@ -93,7 +94,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
   const handleLaunchOAuthPopup = async (plat: SocialPlatform) => {
     setIsConnecting(plat);
     try {
-      const res = await fetch(`/api/social/oauth/url?platform=${plat}`);
+      const res = await authedFetch(`/api/social/oauth/url?platform=${plat}`);
       const data = await res.json();
       
       if (data.url) {
@@ -135,7 +136,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
   const handleSaveCredentials = async () => {
     try {
       const current = apiKeys[selectedCredPlatform];
-      await fetch('/api/social/credentials', {
+      await authedFetch('/api/social/credentials', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
