@@ -24,8 +24,8 @@ import { UpgradeModal } from './components/UpgradeModal';
 
 import { ActiveTab, MediaItem, CaptionHistoryItem, User, SocialAccount, SocialPost, SocialPlatform, SubscriptionPlan } from './types';
 import { INITIAL_SAMPLE_MEDIA } from './data/sampleDriveMedia';
-
-declare const google: any;
+import { onAuthChange, signInWithEmail, signInWithGoogle, signOutUser, signUpWithEmail } from './lib/firebase';
+import { authedFetch, requestDriveAccessToken } from './lib/api';
 
 export default function App() {
   // Routing State: 'landing' | 'login' | 'signup' | 'onboarding' | 'app'
@@ -43,14 +43,14 @@ export default function App() {
 
   // User & Drive State
   const [user, setUser] = useState<User>({
-    id: 'usr_default_01',
-    name: 'Blessing Esu',
-    email: 'blessingesu3@gmail.com',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    isDriveConnected: true,
-    connectedDriveEmail: 'blessingesu3@gmail.com'
+    id: '',
+    name: '',
+    email: '',
+    avatar: '',
+    isDriveConnected: false,
   });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authChecked, setAuthChecked] = useState<boolean>(false);
 
   // Data Stores
   const [mediaItems, setMediaItems] = useState<MediaItem[]>(INITIAL_SAMPLE_MEDIA);
@@ -122,8 +122,8 @@ export default function App() {
   const loadSocialData = async () => {
     try {
       const [accRes, postRes] = await Promise.all([
-        fetch('/api/social/accounts'),
-        fetch('/api/social/posts')
+        authedFetch('/api/social/accounts'),
+        authedFetch('/api/social/posts')
       ]);
       const accData = await accRes.json();
       const postData = await postRes.json();
@@ -134,27 +134,19 @@ export default function App() {
     }
   };
 
-  // Load Auth Me & App Data
-  useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.user) {
-          setUser(data.user);
-          setIsAuthenticated(true);
-          if (route === 'login') {
-            navigateTo('app');
-          }
-        } else {
-          setIsAuthenticated(false);
-          if (route === 'app' || route === 'onboarding') {
-            navigateTo('login');
-          }
-        }
-      })
-      .catch((err) => console.log('Auth check error:', err));
+  const loadAppData = async () => {
+    try {
+      const meRes = await authedFetch('/api/auth/me');
+      const meData = await meRes.json();
+      if (meData.user) {
+        setUser(meData.user);
+        setIsAuthenticated(true);
+      }
+    } catch (err) {
+      console.log('Auth check error:', err);
+    }
 
-    fetch('/api/drive/files')
+    authedFetch('/api/drive/files')
       .then((res) => res.json())
       .then((data) => {
         if (data.files && data.files.length > 0) {
@@ -166,7 +158,7 @@ export default function App() {
       })
       .catch((err) => console.log('Fetch Drive files error:', err));
 
-    fetch('/api/captions/history')
+    authedFetch('/api/captions/history')
       .then((res) => res.json())
       .then((data) => {
         if (data.history) {
@@ -176,34 +168,50 @@ export default function App() {
       .catch((err) => console.log('Fetch captions history error:', err));
 
     loadSocialData();
-  }, [route]);
+  };
 
-  // Auth Handlers
-  const handleAuthenticate = async (data: { mode: 'login' | 'signup'; name?: string; email: string; password?: string }) => {
-    const endpoint = data.mode === 'signup' ? '/api/auth/signup' : '/api/auth/login';
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const result = await res.json();
-    if (!res.ok || result.error) {
-      throw new Error(result.error || 'Authentication failed');
-    }
-
-    if (result.user) {
-      setUser(result.user);
-      setIsAuthenticated(true);
-      if (data.mode === 'signup') {
-        navigateTo('onboarding');
+  // Firebase is the source of truth for whether someone is signed in. When it
+  // fires, we either load this user's data from our backend or send them to
+  // the login screen — replacing the old model where a global server
+  // variable decided who was "logged in" for every visitor.
+  useEffect(() => {
+    const unsubscribe = onAuthChange((firebaseUser) => {
+      setAuthChecked(true);
+      if (firebaseUser) {
+        loadAppData();
+        if (route === 'login' || route === 'landing') {
+          navigateTo('app');
+        }
       } else {
-        navigateTo('app');
+        setIsAuthenticated(false);
+        if (route === 'app' || route === 'onboarding') {
+          navigateTo('login');
+        }
       }
+    });
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auth Handlers — Firebase Auth SDK does the actual sign-in/sign-up now;
+  // this just decides where to route afterwards.
+  const handleAuthenticate = async (data: { mode: 'login' | 'signup'; name?: string; email: string; password?: string }) => {
+    if (data.mode === 'signup') {
+      await signUpWithEmail(data.name || '', data.email, data.password || '');
+      navigateTo('onboarding');
+    } else {
+      await signInWithEmail(data.email, data.password || '');
+      navigateTo('app');
     }
   };
 
+  const handleGoogleAuth = async () => {
+    const { isNewUser } = await signInWithGoogle();
+    navigateTo(isNewUser ? 'onboarding' : 'app');
+  };
+
   const handleCompleteBrandOnboarding = async (data: { brandName: string; description: string; voiceTraits: string[]; writingSample?: string }) => {
-    const res = await fetch('/api/brand-voice', {
+    const res = await authedFetch('/api/brand-voice', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -215,7 +223,7 @@ export default function App() {
   };
 
   const handleUpdateBrandVoice = async (data: { brandName: string; description: string; voiceTraits: string[]; writingSample?: string }) => {
-    const res = await fetch('/api/brand-voice', {
+    const res = await authedFetch('/api/brand-voice', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -227,7 +235,7 @@ export default function App() {
   };
 
   const handleUpgradePlan = async (plan: SubscriptionPlan) => {
-    const res = await fetch('/api/user/plan', {
+    const res = await authedFetch('/api/user/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ plan })
@@ -253,17 +261,19 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await signOutUser();
     setIsAuthenticated(false);
     navigateTo('landing');
   };
 
-  // Connect Google Drive handler with OAuth Token Client
+  // Connect Google Drive: request a Drive-scoped access token via Google
+  // Identity Services, then hand it to the backend to verify + persist for
+  // this session (see /api/drive/sync).
   const handleConnectDrive = async () => {
     try {
       if (user.isDriveConnected) {
         try {
-          const driveRes = await fetch('/api/drive/files');
+          const driveRes = await authedFetch('/api/drive/files');
           const driveData = await driveRes.json();
           if (driveData.files) {
             setMediaItems(driveData.files);
@@ -277,40 +287,32 @@ export default function App() {
         return;
       }
 
-      const res = await fetch('/api/drive/connect-url');
+      const res = await authedFetch('/api/drive/connect-url');
       const data = await res.json();
 
-      if (data.dynamicClientConfigured && typeof google !== 'undefined' && google.accounts?.oauth2) {
-        const client = google.accounts.oauth2.initTokenClient({
-          client_id: data.clientId,
-          scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-          callback: async (tokenResponse: any) => {
-            if (tokenResponse.access_token) {
-              const syncRes = await fetch('/api/drive/sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ access_token: tokenResponse.access_token })
-              });
-              const syncData = await syncRes.json();
-              if (syncData.success) {
-                setUser((prev) => ({
-                  ...prev,
-                  isDriveConnected: true,
-                  connectedDriveEmail: syncData.userEmail || prev.email
-                }));
-                if (syncData.files) {
-                  setMediaItems(syncData.files);
-                }
-              }
-            }
-          }
-        });
-        client.requestAccessToken();
+      if (!data.dynamicClientConfigured) {
+        alert('Google Drive isn\'t configured on the server yet (missing GOOGLE_OAUTH_CLIENT_ID).');
         return;
       }
 
-      if (data.url) {
-        window.location.href = data.url;
+      const accessToken = await requestDriveAccessToken(data.clientId);
+      const syncRes = await authedFetch('/api/drive/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: accessToken })
+      });
+      const syncData = await syncRes.json();
+      if (syncData.success) {
+        setUser((prev) => ({
+          ...prev,
+          isDriveConnected: true,
+          connectedDriveEmail: syncData.userEmail || prev.email
+        }));
+        if (syncData.files) {
+          setMediaItems(syncData.files);
+        }
+      } else {
+        alert(syncData.error || 'Could not connect Google Drive.');
       }
     } catch (err) {
       console.error('Connect Drive Error:', err);
@@ -320,7 +322,7 @@ export default function App() {
 
   const handleDisconnectDrive = async () => {
     try {
-      await fetch('/api/drive/disconnect', { method: 'POST' });
+      await authedFetch('/api/drive/disconnect', { method: 'POST' });
       setUser((prev) => ({
         ...prev,
         isDriveConnected: false,
@@ -338,7 +340,7 @@ export default function App() {
     );
 
     try {
-      await fetch(`/api/media/${item.id}/favorite`, {
+      await authedFetch(`/api/media/${item.id}/favorite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_favorite: nextState })
@@ -351,7 +353,7 @@ export default function App() {
   const handleAnalyzeWithAI = async (item: MediaItem) => {
     setIsAnalyzing(true);
     try {
-      const res = await fetch('/api/ai/analyze', {
+      const res = await authedFetch('/api/ai/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -381,7 +383,7 @@ export default function App() {
   const handleSaveToHistory = async (newHistoryItem: CaptionHistoryItem) => {
     setCaptionHistory((prev) => [newHistoryItem, ...prev]);
     try {
-      await fetch('/api/captions/history', {
+      await authedFetch('/api/captions/history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newHistoryItem)
@@ -394,7 +396,7 @@ export default function App() {
   const handleDeleteHistoryItem = async (id: string) => {
     setCaptionHistory((prev) => prev.filter((item) => item.id !== id));
     try {
-      await fetch(`/api/captions/history/${id}`, { method: 'DELETE' });
+      await authedFetch(`/api/captions/history/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error('Failed to delete history item:', err);
     }
@@ -416,7 +418,7 @@ export default function App() {
 
   const handleApproveAndPublishPost = async (postData: any) => {
     try {
-      const res = await fetch('/api/social/posts/publish', {
+      const res = await authedFetch('/api/social/publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(postData)
@@ -431,6 +433,17 @@ export default function App() {
   };
 
   // Route Render Logic
+  // Wait for Firebase to resolve the session before rendering any route —
+  // otherwise a signed-in user on a deep link like /app briefly flashes the
+  // landing page while the auth check is still in flight.
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-[#F7F3ED] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#E94B35] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   if (route === 'landing') {
     return (
       <LandingPage
@@ -445,6 +458,7 @@ export default function App() {
       <AuthView
         initialMode="login"
         onAuthenticate={handleAuthenticate}
+        onGoogleAuth={handleGoogleAuth}
         onBackToLanding={() => navigateTo('landing')}
       />
     );
@@ -455,6 +469,7 @@ export default function App() {
       <AuthView
         initialMode="signup"
         onAuthenticate={handleAuthenticate}
+        onGoogleAuth={handleGoogleAuth}
         onBackToLanding={() => navigateTo('landing')}
       />
     );

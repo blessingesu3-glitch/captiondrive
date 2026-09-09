@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { authedFetch } from '../lib/api';
 import { X, Search, Sparkles, ArrowRight, Check } from 'lucide-react';
 import { MediaItem } from '../types';
 
@@ -36,7 +37,7 @@ export const SmartSearchModal: React.FC<SmartSearchModalProps> = ({
     setMatchedResults([]);
 
     try {
-      const response = await fetch('/api/ai/smart-search', {
+      const response = await authedFetch('/api/ai/smart-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: activeQuery, mediaList })

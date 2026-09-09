@@ -45,7 +45,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onDisconnectDrive,
   darkMode,
   onToggleDarkMode,
-  onUpdateBrandVoice
+  onUpdateBrandVoice,
+  onOpenUpgradeModal
 }) => {
   const brandVoice = user.brandVoiceProfile;
 
