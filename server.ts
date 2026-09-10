@@ -1,6 +1,5 @@
 import express from 'express';
 import path from 'path';
-import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
@@ -1016,6 +1015,13 @@ app.post('/api/social/publish', requireAuth, (req, res) => {
 // -------------------------------------------------------------
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
+    // Dynamic import so 'vite' — a dev-server-only dependency never needed
+    // on Vercel — is never even loaded in production. This function only
+    // runs at all when !process.env.VERCEL (see the bottom of this file),
+    // but the previous static top-level `import ... from 'vite'` still
+    // executed unconditionally on every cold start regardless of that
+    // guard, which is a real risk in a serverless environment.
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
