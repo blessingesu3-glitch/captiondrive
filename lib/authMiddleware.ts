@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { adminAuth } from './firebaseAdmin';
+import { adminAuth } from './firebaseAdmin.js';
 
 // Augment Express's Request type so req.uid / req.userEmail are typed
 // everywhere they're used, instead of casting `req as any` at every call site.

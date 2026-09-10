@@ -4,8 +4,8 @@ import { GoogleGenAI } from '@google/genai';
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
 
-import { requireAuth } from './lib/authMiddleware';
-import * as store from './lib/firestoreStore';
+import { requireAuth } from './lib/authMiddleware.js';
+import * as store from './lib/firestoreStore.js';
 
 dotenv.config({ quiet: true });
 
