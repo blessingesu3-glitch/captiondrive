@@ -13,15 +13,45 @@ type App = admin.app.App;
 type Auth = admin.auth.Auth;
 type Firestore = admin.firestore.Firestore;
 
+/**
+ * Firebase private keys get mangled in predictable ways when copy-pasted
+ * through a JSON file into a single-line-oriented UI like Vercel's env var
+ * form: literal `\n` sequences instead of real newlines, stray wrapping
+ * quote marks carried over from the JSON string, or leading/trailing
+ * whitespace. Node's crypto decoder fails with an opaque
+ * "DECODER routines::unsupported" error for any of these — this function
+ * defensively normalizes all of them rather than assuming one exact cause.
+ */
+function normalizePrivateKey(raw: string): string {
+  let key = raw.trim();
+  if (
+    (key.startsWith('"') && key.endsWith('"')) ||
+    (key.startsWith("'") && key.endsWith("'"))
+  ) {
+    key = key.slice(1, -1).trim();
+  }
+  key = key.replace(/\\n/g, '\n');
+  return key;
+}
+
 function buildAdminApp(): App {
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
+  const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
+  const privateKey = rawPrivateKey ? normalizePrivateKey(rawPrivateKey) : undefined;
 
   if (!projectId || !clientEmail || !privateKey) {
     throw new Error(
       'Missing Firebase Admin credentials. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, ' +
       'and FIREBASE_PRIVATE_KEY in your environment.'
+    );
+  }
+
+  if (!privateKey.includes('-----BEGIN PRIVATE KEY-----') || !privateKey.includes('-----END PRIVATE KEY-----')) {
+    throw new Error(
+      'FIREBASE_PRIVATE_KEY does not look like a valid PEM key (missing BEGIN/END markers). ' +
+      'Check that the full private_key value from the service account JSON was pasted, including ' +
+      'both markers, without surrounding quotes.'
     );
   }
 
