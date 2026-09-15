@@ -7,7 +7,9 @@ import {
   BarChart2,
   Bookmark,
   Settings,
-  Zap
+  Zap,
+  Send,
+  History
 } from 'lucide-react';
 import { ActiveTab, User } from '../types';
 
@@ -52,6 +54,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Calendar,
     },
     {
+      id: 'social' as ActiveTab,
+      label: 'Publish',
+      icon: Send,
+    },
+    {
       id: 'analytics' as ActiveTab,
       label: 'Analytics',
       icon: BarChart2,
@@ -64,6 +71,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Saved',
       icon: Bookmark,
       badge: favoritesCount > 0 ? favoritesCount.toString() : null,
+    },
+    {
+      id: 'captions' as ActiveTab,
+      label: 'Caption History',
+      icon: History,
+      badge: captionsCount > 0 ? captionsCount.toString() : null,
     },
     {
       id: 'settings' as ActiveTab,
