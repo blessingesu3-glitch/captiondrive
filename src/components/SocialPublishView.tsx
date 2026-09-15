@@ -26,6 +26,7 @@ interface SocialPublishViewProps {
   onDisconnectAccount: (platform: SocialPlatform) => Promise<void>;
   onApproveAndPublishPost: (postData: any) => Promise<void>;
   onRefreshPosts: () => Promise<void>;
+  onRefreshAccounts: () => Promise<void>;
 }
 
 export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
@@ -34,7 +35,8 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
   onConnectAccount,
   onDisconnectAccount,
   onApproveAndPublishPost,
-  onRefreshPosts
+  onRefreshPosts,
+  onRefreshAccounts
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'accounts' | 'queue' | 'history' | 'oauth_guide'>('accounts');
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
@@ -67,18 +69,24 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
   // OAuth postMessage event listener
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      const origin = event.origin;
-      if (!origin.endsWith('.run.app') && !origin.includes('localhost')) {
+      // Only accept messages from our own popup (same origin) — the previous
+      // check only allowed .run.app/localhost origins, a leftover from this
+      // project's original Cloud Run deployment that silently broke every
+      // OAuth popup once the app moved to Vercel, since messages from
+      // caption-drive.vercel.app never matched either condition.
+      if (event.origin !== window.location.origin) {
         return;
       }
-      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+      if (event.data?.type === 'INSTAGRAM_AUTH_SUCCESS') {
+        onRefreshAccounts().catch(console.error);
+      } else if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
         const plat = (event.data.platform as SocialPlatform) || 'LinkedIn';
         onConnectAccount(plat, `@${plat.toLowerCase()}_official`, `${plat} Creator Page`);
       }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [onConnectAccount]);
+  }, [onConnectAccount, onRefreshAccounts]);
 
   const getPlatformIcon = (plat: SocialPlatform) => {
     switch (plat) {
@@ -94,9 +102,16 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
   const handleLaunchOAuthPopup = async (plat: SocialPlatform) => {
     setIsConnecting(plat);
     try {
-      const res = await authedFetch(`/api/social/oauth/url?platform=${plat}`);
+      const res = await authedFetch(
+        plat === 'Instagram' ? '/api/social/instagram/connect-url' : `/api/social/oauth/url?platform=${plat}`
+      );
       const data = await res.json();
-      
+
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+
       if (data.url) {
         const popup = window.open(
           data.url,

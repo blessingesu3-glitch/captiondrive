@@ -25,6 +25,33 @@ export interface UserDoc {
   billingCycleReset: string;
   brandVoiceProfile?: any;
   favoriteIds: string[];
+  instagramConnection?: InstagramConnection;
+}
+
+export interface InstagramConnection {
+  pageId: string;
+  pageName: string;
+  igUserId: string;
+  igUsername: string;
+  // Long-lived Page access token derived from a long-lived user token — in
+  // practice these don't expire as long as the user doesn't revoke access,
+  // but Meta doesn't formally guarantee that, so connectedAt is kept to
+  // support a future "reconnect if older than N days" prompt.
+  pageAccessToken: string;
+  connectedAt: string;
+}
+
+export interface SocialPostDoc {
+  platform: 'Instagram';
+  mediaUrl: string;
+  caption: string;
+  status: 'scheduled' | 'publishing' | 'published' | 'failed';
+  scheduledFor?: string;
+  publishedAt?: string;
+  igMediaId?: string;
+  postUrl?: string;
+  error?: string;
+  createdAt: string;
 }
 
 function usersCol() {
@@ -134,6 +161,71 @@ export async function addImportedMedia(uid: string, media: Record<string, any>) 
 export async function getCachedAnalysis(uid: string, fileId: string) {
   const snap = await usersCol().doc(uid).collection('mediaAnalysisCache').doc(fileId).get();
   return snap.exists ? snap.data()?.analysis : null;
+}
+
+// ---- OAuth state bridging (top-level collection: oauthStates) ----
+// Facebook's OAuth redirect is a plain GET request with no way to attach our
+// Firebase ID token, so we can't use requireAuth on the callback route. This
+// bridges the gap: connect-url stores {uid, createdAt} under a random state
+// token before redirecting to Facebook, and the callback looks the uid up
+// from the state Facebook hands back, then deletes it (single use).
+export async function createOAuthState(uid: string, platform: string): Promise<string> {
+  const state = `${platform}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  await db.collection('oauthStates').doc(state).set({ uid, platform, createdAt: new Date().toISOString() });
+  return state;
+}
+
+export async function consumeOAuthState(state: string): Promise<{ uid: string; platform: string } | null> {
+  const ref = db.collection('oauthStates').doc(state);
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+  const data = snap.data() as { uid: string; platform: string; createdAt: string };
+  await ref.delete();
+  // Reject states older than 10 minutes — an abandoned OAuth attempt
+  // shouldn't stay valid indefinitely.
+  if (Date.now() - new Date(data.createdAt).getTime() > 10 * 60 * 1000) return null;
+  return { uid: data.uid, platform: data.platform };
+}
+
+// ---- Instagram connection (stored on the user doc) ----
+export async function setInstagramConnection(uid: string, connection: InstagramConnection) {
+  await updateUser(uid, { instagramConnection: connection });
+}
+
+export async function clearInstagramConnection(uid: string) {
+  await usersCol().doc(uid).update({ instagramConnection: FieldValue.delete() });
+}
+
+// ---- Social posts (subcollection: users/{uid}/socialPosts) ----
+export async function listSocialPosts(uid: string) {
+  const snap = await usersCol().doc(uid).collection('socialPosts').orderBy('createdAt', 'desc').get();
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function addSocialPost(uid: string, post: Omit<SocialPostDoc, 'createdAt'>) {
+  const createdAt = new Date().toISOString();
+  const ref = await usersCol().doc(uid).collection('socialPosts').add({ ...post, createdAt });
+  return { id: ref.id, ...post, createdAt };
+}
+
+export async function updateSocialPost(uid: string, postId: string, patch: Partial<SocialPostDoc>) {
+  await usersCol().doc(uid).collection('socialPosts').doc(postId).set(patch, { merge: true });
+}
+
+// Used by the cron endpoint — scans every user's socialPosts subcollection
+// for ones due to publish. Firestore collection group queries let us do
+// this without iterating every user doc first.
+export async function listDueScheduledPosts(nowIso: string) {
+  const snap = await db
+    .collectionGroup('socialPosts')
+    .where('status', '==', 'scheduled')
+    .where('scheduledFor', '<=', nowIso)
+    .get();
+  return snap.docs.map((d) => ({
+    id: d.id,
+    uid: d.ref.parent.parent!.id,
+    ...(d.data() as SocialPostDoc),
+  }));
 }
 
 export async function setCachedAnalysis(uid: string, fileId: string, analysis: any) {

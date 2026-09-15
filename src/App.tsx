@@ -22,7 +22,7 @@ import { AuthView } from './components/AuthView';
 import { BrandOnboardingFlow } from './components/BrandOnboardingFlow';
 import { UpgradeModal } from './components/UpgradeModal';
 
-import { ActiveTab, MediaItem, CaptionHistoryItem, User, SocialAccount, SocialPost, SocialPlatform, SubscriptionPlan } from './types';
+import { ActiveTab, MediaItem, CaptionHistoryItem, CaptionSettings, CaptionVariation, User, SocialAccount, SocialPost, SocialPlatform, SubscriptionPlan } from './types';
 import { INITIAL_SAMPLE_MEDIA } from './data/sampleDriveMedia';
 import { onAuthChange, signInWithEmail, signInWithGoogle, signOutUser, signUpWithEmail } from './lib/firebase';
 import { authedFetch, parseJsonResponse, requestDriveAccessToken } from './lib/api';
@@ -63,6 +63,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [smartSearchFilter, setSmartSearchFilter] = useState<string[] | null>(null);
   const [smartSearchQuery, setSmartSearchQuery] = useState<string>('');
+  const [isLoadingSmartSearch, setIsLoadingSmartSearch] = useState<boolean>(false);
 
   // Modals
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
@@ -335,14 +336,15 @@ export default function App() {
     }
   };
 
-  const handleToggleFavorite = async (item: MediaItem) => {
-    const nextState = !item.is_favorite;
+  const handleToggleFavorite = async (id: string, _e: React.MouseEvent) => {
+    const current = mediaItems.find((m) => m.id === id);
+    const nextState = !current?.is_favorite;
     setMediaItems((prev) =>
-      prev.map((m) => (m.id === item.id ? { ...m, is_favorite: nextState } : m))
+      prev.map((m) => (m.id === id ? { ...m, is_favorite: nextState } : m))
     );
 
     try {
-      await authedFetch(`/api/media/${item.id}/favorite`, {
+      await authedFetch(`/api/media/${id}/favorite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_favorite: nextState })
@@ -382,14 +384,31 @@ export default function App() {
     }
   };
 
-  const handleSaveToHistory = async (newHistoryItem: CaptionHistoryItem) => {
-    setCaptionHistory((prev) => [newHistoryItem, ...prev]);
+  const handleSaveToHistory = async (media: MediaItem, settings: CaptionSettings, variation: CaptionVariation) => {
+    const localItem: CaptionHistoryItem = {
+      id: `temp_${Date.now()}`,
+      media_id: media.id,
+      media_filename: media.filename,
+      media_thumbnail: media.thumbnail,
+      media_type: media.file_type,
+      platform: settings.platform,
+      tone: settings.tone,
+      length: settings.length,
+      target_audience: settings.target_audience,
+      caption_variation: variation,
+      created_at: new Date().toISOString(),
+    };
+    setCaptionHistory((prev) => [localItem, ...prev]);
     try {
-      await authedFetch('/api/captions/history', {
+      const res = await authedFetch('/api/captions/history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newHistoryItem)
+        body: JSON.stringify({ item: localItem })
       });
+      const data = await parseJsonResponse(res);
+      if (data.item) {
+        setCaptionHistory((prev) => prev.map((h) => (h.id === localItem.id ? data.item : h)));
+      }
     } catch (err) {
       console.error('Failed to save caption history item:', err);
     }
@@ -408,14 +427,64 @@ export default function App() {
     setMediaItems((prev) => [newItem, ...prev]);
   };
 
-  const handleApplySmartSearchMatches = (matchedIds: string[], query: string) => {
-    setSmartSearchFilter(matchedIds);
-    setSmartSearchQuery(query);
+  const handleApplySmartSearchMatches = (matched: MediaItem[], queryText: string) => {
+    setSmartSearchFilter(matched.map((m) => m.id));
+    setSmartSearchQuery(queryText);
+  };
+
+  const handleRunSmartSearch = async (promptText: string) => {
+    if (!promptText.trim()) return;
+    setIsLoadingSmartSearch(true);
+    try {
+      const res = await authedFetch('/api/ai/smart-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: promptText, mediaList: mediaItems })
+      });
+      const data = await parseJsonResponse(res);
+      if (data.matched_ids && Array.isArray(data.matched_ids)) {
+        setSmartSearchFilter(data.matched_ids);
+        setSmartSearchQuery(promptText);
+      }
+    } catch (err) {
+      console.error('Smart search failed:', err);
+    } finally {
+      setIsLoadingSmartSearch(false);
+    }
   };
 
   const handleClearSmartSearch = () => {
     setSmartSearchFilter(null);
     setSmartSearchQuery('');
+  };
+
+  const handleConnectAccount = async (platform: SocialPlatform, handle?: string, account_name?: string) => {
+    try {
+      const res = await authedFetch('/api/social/connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platform, handle, account_name })
+      });
+      const data = await parseJsonResponse(res);
+      if (data.accounts) setSocialAccounts(data.accounts);
+    } catch (err) {
+      console.error('Failed to connect account:', err);
+    }
+  };
+
+  const handleDisconnectAccount = async (platform: SocialPlatform) => {
+    try {
+      const endpoint = platform === 'Instagram' ? '/api/social/instagram/disconnect' : '/api/social/disconnect';
+      const res = await authedFetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platform })
+      });
+      await parseJsonResponse(res);
+      await loadSocialData();
+    } catch (err) {
+      console.error('Failed to disconnect account:', err);
+    }
   };
 
   const handleApproveAndPublishPost = async (postData: any) => {
@@ -533,11 +602,9 @@ export default function App() {
               captionHistory={captionHistory}
               onSelectMedia={(item) => setSelectedMedia(item)}
               onGenerateCaption={(item) => setCaptionMedia(item)}
-              onToggleFavorite={handleToggleFavorite}
               onConnectDrive={handleConnectDrive}
-              onOpenLibrary={() => setActiveTab('media')}
-              onOpenGenerator={() => setActiveTab('generator')}
-              onOpenSmartSearch={() => setShowSmartSearch(true)}
+              onOpenMediaLibrary={() => setActiveTab('media')}
+              onSelectTab={setActiveTab}
               onOpenImportModal={() => setShowImportModal(true)}
             />
           )}
@@ -548,10 +615,11 @@ export default function App() {
               onSelectMedia={(item) => setSelectedMedia(item)}
               onGenerateCaption={(item) => setCaptionMedia(item)}
               onToggleFavorite={handleToggleFavorite}
-              searchQuery={searchQuery}
-              onOpenImportModal={() => setShowImportModal(true)}
+              onRunSmartSearch={handleRunSmartSearch}
+              isLoadingSmartSearch={isLoadingSmartSearch}
+              globalSearchQuery={searchQuery}
               smartSearchFilter={smartSearchFilter}
-              smartSearchQuery={smartSearchQuery}
+              smartSearchQueryText={smartSearchQuery}
               onClearSmartSearch={handleClearSmartSearch}
             />
           )}
@@ -569,9 +637,13 @@ export default function App() {
 
           {activeTab === 'social' && (
             <SocialPublishView
-              accounts={socialAccounts}
-              posts={socialPosts}
-              onRefreshData={loadSocialData}
+              socialAccounts={socialAccounts}
+              socialPosts={socialPosts}
+              onConnectAccount={handleConnectAccount}
+              onDisconnectAccount={handleDisconnectAccount}
+              onApproveAndPublishPost={handleApproveAndPublishPost}
+              onRefreshPosts={loadSocialData}
+              onRefreshAccounts={loadSocialData}
             />
           )}
 

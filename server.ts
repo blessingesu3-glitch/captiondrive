@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 
 import { requireAuth } from './lib/authMiddleware.js';
 import * as store from './lib/firestoreStore.js';
+import * as instagram from './lib/instagram.js';
 
 dotenv.config({ quiet: true });
 
@@ -23,19 +24,11 @@ const getGeminiClient = () => {
   return new GoogleGenAI({ apiKey: apiKey || '' });
 };
 
-// In-memory for now — social publishing is still a fake/demo integration
-// (see /api/social/publish below). Not moved to Firestore because it
-// shouldn't be presented as real until Phase 2 actually builds it out.
+// LinkedIn/X/Facebook remain in-memory fake/demo integrations for this pass
+// — only Instagram was scoped to go real. See real Instagram endpoints
+// further down (/api/social/instagram/*) which use Firestore + the Graph
+// API for genuine publishing.
 let socialAccountsStore: any[] = [
-  {
-    id: 'soc_01',
-    platform: 'Instagram',
-    account_name: 'Your Instagram',
-    handle: '@your_handle',
-    avatar: '',
-    is_connected: false,
-    page_type: 'Instagram Business Account'
-  },
   {
     id: 'soc_02',
     platform: 'LinkedIn',
@@ -64,8 +57,6 @@ let socialAccountsStore: any[] = [
     page_type: 'Facebook Business Page'
   }
 ];
-
-let socialPostsStore: any[] = [];
 
 // Helper to sanitize Gemini JSON responses
 function extractJsonFromText(text: string): any {
@@ -818,20 +809,41 @@ app.delete('/api/captions/history/:id', requireAuth, async (req, res) => {
   res.json({ success: true, history });
 });
 
-// 9. Social Media Accounts — STILL A DEMO/FAKE INTEGRATION.
-// Locked behind auth (it wasn't before — /api/social/credentials in
-// particular accepted writes from anyone), but the underlying publish flow
-// remains simulated. Per the product brief, real social publishing is an
-// explicit Phase 2+ decision, not part of this pass.
+// 9. Social Media — Instagram is now REAL (Meta Graph API). LinkedIn/X/
+// Facebook remain simulated/demo for this pass; locked behind auth.
 let oauthCredentialsStore: Record<string, { clientId: string; clientSecret: string }> = {
-  Instagram: { clientId: process.env.INSTAGRAM_CLIENT_ID || '', clientSecret: process.env.INSTAGRAM_CLIENT_SECRET || '' },
   LinkedIn: { clientId: process.env.LINKEDIN_CLIENT_ID || '', clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '' },
   X: { clientId: process.env.TWITTER_CLIENT_ID || '', clientSecret: process.env.TWITTER_CLIENT_SECRET || '' },
   Facebook: { clientId: process.env.FACEBOOK_CLIENT_ID || '', clientSecret: process.env.FACEBOOK_CLIENT_SECRET || '' }
 };
 
-app.get('/api/social/accounts', requireAuth, (req, res) => {
-  res.json({ accounts: socialAccountsStore, credentials: oauthCredentialsStore });
+app.get('/api/social/accounts', requireAuth, async (req, res) => {
+  const user = await store.getUser(req.uid!) as any;
+  const ig = user?.instagramConnection;
+  const accounts = [
+    ig
+      ? {
+          id: 'soc_instagram',
+          platform: 'Instagram',
+          account_name: ig.pageName,
+          handle: `@${ig.igUsername}`,
+          avatar: '',
+          is_connected: true,
+          connected_at: ig.connectedAt,
+          page_type: 'Instagram Business Account'
+        }
+      : {
+          id: 'soc_instagram',
+          platform: 'Instagram',
+          account_name: 'Your Instagram',
+          handle: '@your_handle',
+          avatar: '',
+          is_connected: false,
+          page_type: 'Instagram Business Account'
+        },
+    ...socialAccountsStore
+  ];
+  res.json({ accounts, credentials: oauthCredentialsStore });
 });
 
 app.post('/api/social/credentials', requireAuth, (req, res) => {
@@ -842,10 +854,110 @@ app.post('/api/social/credentials', requireAuth, (req, res) => {
   res.json({ success: true, credentials: oauthCredentialsStore });
 });
 
+// ---- Real Instagram OAuth (Meta Graph API via a linked Facebook Page) ----
+function getAppBaseUrl(req: express.Request): string {
+  return process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+}
+
+app.get('/api/social/instagram/connect-url', requireAuth, async (req, res) => {
+  try {
+    const appId = instagram.getMetaAppId();
+    const state = await store.createOAuthState(req.uid!, 'Instagram');
+    const redirectUri = `${getAppBaseUrl(req)}/api/social/instagram/callback`;
+    const params = new URLSearchParams({
+      client_id: appId,
+      redirect_uri: redirectUri,
+      // instagram_content_publish + instagram_basic: read/write the linked
+      // IG account. pages_show_list + pages_read_engagement: find which of
+      // the user's Pages has Instagram linked. business_management: some
+      // Meta app review tiers require this to return page access tokens.
+      scope: 'pages_show_list,pages_read_engagement,instagram_basic,instagram_content_publish,business_management',
+      response_type: 'code',
+      state,
+    });
+    res.json({ url: `https://www.facebook.com/v21.0/dialog/oauth?${params}` });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Instagram is not configured on the server yet.' });
+  }
+});
+
+app.get(['/api/social/instagram/callback', '/api/social/instagram/callback/'], async (req, res) => {
+  const { code, state, error, error_description } = req.query;
+  const redirectUri = `${getAppBaseUrl(req)}/api/social/instagram/callback`;
+
+  const sendResult = (success: boolean, message: string) => {
+    res.send(`
+      <!doctype html>
+      <html>
+        <head>
+          <title>Instagram Connection</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 40px; background: #0f172a; color: white; }
+            .card { background: #1e293b; padding: 24px; border-radius: 12px; border: 1px solid #334155; display: inline-block; max-width: 420px; }
+            .btn { background: #4f46e5; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h2>${success ? 'Instagram Connected!' : 'Connection Failed'}</h2>
+            <p>${message}</p>
+            <p>This popup window will close automatically.</p>
+            <button class="btn" onclick="window.close()">Close Window</button>
+          </div>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ type: 'INSTAGRAM_AUTH_${success ? 'SUCCESS' : 'FAILURE'}' }, '*');
+              setTimeout(function() { window.close(); }, 2000);
+            }
+          </script>
+        </body>
+      </html>
+    `);
+  };
+
+  if (error) {
+    return sendResult(false, String(error_description || error));
+  }
+
+  try {
+    const stateData = await store.consumeOAuthState(String(state));
+    if (!stateData) {
+      return sendResult(false, 'This connection link expired or was already used. Please try connecting again.');
+    }
+
+    const shortLivedToken = await instagram.exchangeCodeForUserToken(String(code), redirectUri);
+    const longLivedToken = await instagram.exchangeForLongLivedToken(shortLivedToken);
+    const discovered = await instagram.discoverInstagramAccount(longLivedToken);
+
+    if (!discovered) {
+      return sendResult(false, 'No Instagram Business or Creator account was found linked to any of your Facebook Pages. Link one in Meta Business Suite and try again.');
+    }
+
+    await store.setInstagramConnection(stateData.uid, {
+      pageId: discovered.pageId,
+      pageName: discovered.pageName,
+      igUserId: discovered.igUserId,
+      igUsername: discovered.igUsername,
+      pageAccessToken: discovered.pageAccessToken,
+      connectedAt: new Date().toISOString(),
+    });
+
+    sendResult(true, `Connected to @${discovered.igUsername} via the "${discovered.pageName}" Page.`);
+  } catch (err: any) {
+    console.error('Instagram OAuth callback error:', err);
+    sendResult(false, err.message || 'Something went wrong connecting your Instagram account.');
+  }
+});
+
+app.post('/api/social/instagram/disconnect', requireAuth, async (req, res) => {
+  await store.clearInstagramConnection(req.uid!);
+  res.json({ success: true });
+});
+
+// ---- Still-fake LinkedIn/X/Facebook OAuth (unchanged from before) ----
 app.get('/api/social/oauth/url', requireAuth, (req, res) => {
   const platform = (req.query.platform as string) || 'LinkedIn';
-  const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
-  const redirectUri = `${baseUrl}/api/social/oauth/callback`;
+  const redirectUri = `${getAppBaseUrl(req)}/api/social/oauth/callback`;
   const creds = oauthCredentialsStore[platform] || { clientId: '' };
 
   let authUrl = '';
@@ -860,12 +972,12 @@ app.get('/api/social/oauth/url', requireAuth, (req, res) => {
       scope: 'r_liteprofile w_member_social'
     });
     authUrl = `https://www.linkedin.com/oauth/v2/authorization?${params}`;
-  } else if (platform === 'Instagram' || platform === 'Facebook') {
+  } else if (platform === 'Facebook') {
     const clientId = creds.clientId || 'demo_meta_app_id';
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
-      scope: 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement',
+      scope: 'pages_show_list,pages_read_engagement',
       response_type: 'code',
       state: `${platform}_${Date.now()}`
     });
@@ -893,7 +1005,7 @@ app.get(['/api/social/oauth/callback', '/api/social/oauth/callback/'], (req, res
   const { code, state, error } = req.query;
   const platformStr = typeof state === 'string' ? state.split('_')[0] : 'Social';
 
-  if (platformStr && ['Instagram', 'LinkedIn', 'X', 'Facebook'].includes(platformStr)) {
+  if (platformStr && ['LinkedIn', 'X', 'Facebook'].includes(platformStr)) {
     const acc = socialAccountsStore.find(a => a.platform === platformStr);
     if (acc) {
       acc.is_connected = true;
@@ -902,7 +1014,7 @@ app.get(['/api/social/oauth/callback', '/api/social/oauth/callback/'], (req, res
   }
 
   res.send(`
-    <!Valid HTML>
+    <!doctype html>
     <html>
       <head>
         <title>OAuth Authorization Complete</title>
@@ -961,12 +1073,14 @@ app.post('/api/social/disconnect', requireAuth, (req, res) => {
   res.json({ success: true, accounts: socialAccountsStore });
 });
 
-app.get('/api/social/posts', requireAuth, (req, res) => {
-  res.json({ posts: socialPostsStore });
+// ---- Posts (Firestore-backed, per-user, for every platform) ----
+app.get('/api/social/posts', requireAuth, async (req, res) => {
+  const posts = await store.listSocialPosts(req.uid!);
+  res.json({ posts });
 });
 
-app.post('/api/social/publish', requireAuth, (req, res) => {
-  const { media_filename, media_thumbnail, platform, account_handle, caption_text, user_approved, scheduled_for } = req.body;
+app.post('/api/social/publish', requireAuth, async (req, res) => {
+  const { media_thumbnail, platform, caption_text, user_approved, scheduled_for } = req.body;
 
   if (!user_approved) {
     return res.status(400).json({
@@ -974,40 +1088,130 @@ app.post('/api/social/publish', requireAuth, (req, res) => {
     });
   }
 
-  const isScheduled = Boolean(scheduled_for);
+  const isScheduled = Boolean(scheduled_for) && new Date(scheduled_for).getTime() > Date.now();
+
+  // ---- Real Instagram publishing ----
+  if (platform === 'Instagram') {
+    const user = await store.getUser(req.uid!) as any;
+    const ig = user?.instagramConnection;
+    if (!ig) {
+      return res.status(400).json({ error: 'Connect your Instagram account first.' });
+    }
+    if (!media_thumbnail || !/^https?:\/\//.test(media_thumbnail)) {
+      return res.status(400).json({ error: 'Instagram requires a publicly accessible image URL.' });
+    }
+
+    if (isScheduled) {
+      const post = await store.addSocialPost(req.uid!, {
+        platform: 'Instagram',
+        mediaUrl: media_thumbnail,
+        caption: caption_text || '',
+        status: 'scheduled',
+        scheduledFor: new Date(scheduled_for).toISOString(),
+      });
+      return res.json({
+        success: true,
+        post,
+        message: `Post scheduled for ${new Date(scheduled_for).toLocaleString()} on Instagram (@${ig.igUsername}).`
+      });
+    }
+
+    try {
+      const result = await instagram.publishImageToInstagram(ig.igUserId, ig.pageAccessToken, media_thumbnail, caption_text || '');
+      const post = await store.addSocialPost(req.uid!, {
+        platform: 'Instagram',
+        mediaUrl: media_thumbnail,
+        caption: caption_text || '',
+        status: 'published',
+        publishedAt: new Date().toISOString(),
+        igMediaId: result.igMediaId,
+        postUrl: result.postUrl,
+      });
+      return res.json({
+        success: true,
+        post,
+        message: `Published live to Instagram (@${ig.igUsername})!`
+      });
+    } catch (err: any) {
+      console.error('Instagram publish failed:', err);
+      await store.addSocialPost(req.uid!, {
+        platform: 'Instagram',
+        mediaUrl: media_thumbnail,
+        caption: caption_text || '',
+        status: 'failed',
+        error: err.message,
+      });
+      return res.status(500).json({ error: err.message || 'Instagram publish failed.' });
+    }
+  }
+
+  // ---- LinkedIn/X/Facebook: still simulated, but now persisted per-user ----
   const postId = `post_${Date.now()}`;
-  const mockPostUrl = platform === 'Instagram'
-    ? `https://instagram.com/p/${postId.slice(-6)}`
-    : platform === 'LinkedIn'
+  const mockPostUrl = platform === 'LinkedIn'
     ? `https://linkedin.com/feed/update/urn:li:activity:${Date.now()}`
     : platform === 'X'
-    ? `https://x.com/${account_handle || 'user'}/status/${Date.now()}`
+    ? `https://x.com/user/status/${Date.now()}`
     : `https://facebook.com/posts/${postId}`;
 
-  const newPost = {
-    id: postId,
-    media_filename: media_filename || 'Media_Asset',
-    media_thumbnail: media_thumbnail || 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=800&q=80',
-    platform: platform || 'Instagram',
-    account_handle: account_handle || '@creator',
-    caption_text: caption_text || '',
-    status: isScheduled ? 'approved' : 'published',
-    user_approved: true,
-    approved_at: new Date().toISOString(),
-    published_at: isScheduled ? undefined : new Date().toISOString(),
-    scheduled_for: scheduled_for || undefined,
-    post_url: mockPostUrl
-  };
-
-  socialPostsStore.unshift(newPost);
+  const post = await store.addSocialPost(req.uid!, {
+    platform,
+    mediaUrl: media_thumbnail || '',
+    caption: caption_text || '',
+    status: isScheduled ? 'scheduled' : 'published',
+    scheduledFor: isScheduled ? new Date(scheduled_for).toISOString() : undefined,
+    publishedAt: isScheduled ? undefined : new Date().toISOString(),
+    postUrl: mockPostUrl,
+  } as any);
 
   res.json({
     success: true,
-    post: newPost,
+    post,
     message: isScheduled
-      ? `Post approved & scheduled for ${new Date(scheduled_for).toLocaleString()} on ${platform} (${account_handle})`
-      : `Post approved & published live to ${platform} (${account_handle})!`
+      ? `Post approved & scheduled for ${new Date(scheduled_for).toLocaleString()} on ${platform} (simulated — not yet a real integration).`
+      : `Post approved & published to ${platform} (simulated — not yet a real integration).`
   });
+});
+
+// ---- Cron: fires scheduled Instagram posts whose time has come ----
+// Not behind requireAuth (a cron trigger has no Firebase ID token) — instead
+// protected by a shared secret. Vercel Cron on the Hobby plan is limited to
+// daily triggers, which isn't fine-grained enough for "schedule for later"
+// at anything less than a full day's notice; call this from an external
+// scheduler (e.g. a free account at cron-job.org, or a GitHub Actions
+// scheduled workflow) hitting it every few minutes instead, or upgrade to
+// Vercel Pro for finer-grained native Cron.
+app.all('/api/cron/publish-scheduled-posts', async (req, res) => {
+  const providedSecret = req.headers['x-cron-secret'] || req.query.secret;
+  const expectedSecret = process.env.CRON_SECRET;
+  if (!expectedSecret || providedSecret !== expectedSecret) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const due = await store.listDueScheduledPosts(new Date().toISOString());
+  const results: any[] = [];
+
+  for (const post of due) {
+    if (post.platform !== 'Instagram') continue; // only Instagram publishes for real
+    try {
+      const user = await store.getUser(post.uid) as any;
+      const ig = user?.instagramConnection;
+      if (!ig) throw new Error('Instagram is no longer connected for this user.');
+
+      const result = await instagram.publishImageToInstagram(ig.igUserId, ig.pageAccessToken, post.mediaUrl, post.caption);
+      await store.updateSocialPost(post.uid, post.id, {
+        status: 'published',
+        publishedAt: new Date().toISOString(),
+        igMediaId: result.igMediaId,
+        postUrl: result.postUrl,
+      });
+      results.push({ id: post.id, status: 'published' });
+    } catch (err: any) {
+      await store.updateSocialPost(post.uid, post.id, { status: 'failed', error: err.message });
+      results.push({ id: post.id, status: 'failed', error: err.message });
+    }
+  }
+
+  res.json({ processed: results.length, results });
 });
 
 // -------------------------------------------------------------
