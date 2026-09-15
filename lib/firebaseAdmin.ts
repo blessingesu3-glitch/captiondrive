@@ -30,7 +30,13 @@ function normalizePrivateKey(raw: string): string {
   ) {
     key = key.slice(1, -1).trim();
   }
-  key = key.replace(/\\n/g, '\n');
+  // Handles both single- and double-escaped newlines (double-escaping can
+  // happen if the value passed through JSON.stringify twice somewhere in a
+  // copy/paste or scripting pipeline).
+  key = key.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n');
+  // Strip stray carriage returns from CRLF line endings, which corrupt the
+  // base64 body even though the BEGIN/END markers still look intact.
+  key = key.replace(/\r/g, '');
   return key;
 }
 
@@ -55,9 +61,25 @@ function buildAdminApp(): App {
     );
   }
 
-  return admin.initializeApp({
-    credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
-  });
+  try {
+    return admin.initializeApp({
+      credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
+    });
+  } catch (err) {
+    // Never log the key itself — only structural facts that can't leak the
+    // secret but pinpoint what's actually malformed about it.
+    console.error('FIREBASE_PRIVATE_KEY failed to parse. Structural diagnostics (no key content):', {
+      length: privateKey.length,
+      lineCount: privateKey.split('\n').length,
+      containsCarriageReturn: privateKey.includes('\r'),
+      startsWithBegin: privateKey.startsWith('-----BEGIN PRIVATE KEY-----'),
+      endsWithEndMarkerPlusNewline: privateKey.endsWith('-----END PRIVATE KEY-----\n'),
+      endsWithEndMarkerNoNewline: privateKey.trimEnd().endsWith('-----END PRIVATE KEY-----'),
+      firstLineLength: privateKey.split('\n')[0]?.length,
+      hasDoubleEscapedNewlines: rawPrivateKey?.includes('\\\\n') ?? false,
+    });
+    throw err;
+  }
 }
 
 let cachedApp: App | null = null;

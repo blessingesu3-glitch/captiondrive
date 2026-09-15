@@ -284,7 +284,13 @@ export default function App() {
       }
 
       const res = await authedFetch('/api/drive/connect-url');
-      const data = await res.json();
+
+      if (res.status === 401) {
+        alert('Your session has expired or failed to verify. Please sign out and sign back in, then try again.');
+        return;
+      }
+
+      const data = await parseJsonResponse(res);
 
       if (!data.dynamicClientConfigured) {
         alert('Google Drive isn\'t configured on the server yet (missing GOOGLE_OAUTH_CLIENT_ID).');
@@ -310,9 +316,9 @@ export default function App() {
       } else {
         alert(syncData.error || 'Could not connect Google Drive.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Connect Drive Error:', err);
-      alert('Could not initialize Google Drive connection. Check console for details.');
+      alert(err?.message || 'Could not initialize Google Drive connection. Check console for details.');
     }
   };
 
