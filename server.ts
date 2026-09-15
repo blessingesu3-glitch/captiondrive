@@ -11,6 +11,13 @@ import * as instagram from './lib/instagram.js';
 dotenv.config({ quiet: true });
 
 const app = express();
+// Vercel proxies requests to this function — without this, Express sees the
+// internal connection as plain HTTP even though the real client connection
+// was HTTPS, so req.protocol reports 'http'. That silently produced an
+// http:// redirect_uri when building OAuth URLs (e.g. for Instagram/Meta),
+// which Meta rejects with an "insecure connection" error since it doesn't
+// match the https:// URI actually registered on the app.
+app.set('trust proxy', true);
 const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
