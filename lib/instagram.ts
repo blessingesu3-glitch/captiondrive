@@ -111,15 +111,41 @@ export async function discoverInstagramAccount(longLivedUserToken: string): Prom
   return null;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Instagram processes an uploaded image asynchronously after container
+ * creation — publishing before it's finished fails with "Media ID is not
+ * available". This polls the container's status_code until it's FINISHED
+ * (or ERROR / timeout), which is the documented pattern for this API. */
+async function waitForContainerReady(containerId: string, accessToken: string, timeoutMs = 30000): Promise<void> {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    const status = await graphGet(`/${containerId}`, {
+      access_token: accessToken,
+      fields: 'status_code',
+    });
+    if (status.status_code === 'FINISHED') return;
+    if (status.status_code === 'ERROR') {
+      throw new Error('Instagram failed to process the image. Check that it meets Instagram\'s size/aspect-ratio requirements.');
+    }
+    await sleep(1500);
+  }
+  throw new Error('Timed out waiting for Instagram to finish processing the image.');
+}
+
 export interface PublishResult {
   igMediaId: string;
   postUrl: string;
 }
 
 /** Publishes a single image to Instagram. imageUrl must be publicly
- * fetchable by Meta's servers (no auth header support) — our Drive
- * thumbnail proxy and imported-media URLs both qualify. Video/Reels are not
- * supported by this function; that's a separate, more complex async flow. */
+ * fetchable by Meta's servers (no auth header support), and should be a
+ * full-resolution image — Google Drive's small thumbnailLink crop can fail
+ * Instagram's minimum resolution/aspect-ratio requirements. Video/Reels are
+ * not supported by this function; that's a separate, more complex async
+ * flow. */
 export async function publishImageToInstagram(
   igUserId: string,
   pageAccessToken: string,
@@ -131,6 +157,8 @@ export async function publishImageToInstagram(
     caption,
     access_token: pageAccessToken,
   });
+
+  await waitForContainerReady(container.id, pageAccessToken);
 
   const published = await graphPost(`/${igUserId}/media_publish`, {
     creation_id: container.id,

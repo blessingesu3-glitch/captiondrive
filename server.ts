@@ -426,7 +426,42 @@ app.get('/api/drive/thumbnail/:fileId', async (req, res) => {
   }
 });
 
-// 3. Fetch Google Drive Files (+ this user's imported/custom media)
+// Full-resolution image proxy — used for Instagram publishing, where
+// Google Drive's thumbnailLink (a small, cropped preview) can fail
+// Instagram's minimum resolution/aspect-ratio requirements. Same
+// query-param-auth pattern as the thumbnail proxy above, since Meta's
+// server-side fetcher can't send our Authorization header either.
+app.get('/api/drive/full-image/:fileId', async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    const uid = req.query.uid as string;
+    if (!uid) return res.status(400).json({ error: 'uid is required' });
+
+    const user = await store.getUser(uid) as any;
+    if (!user?.isDriveConnected || !user?.driveAccessToken) {
+      return res.status(400).json({ error: 'Drive is not connected for this user' });
+    }
+
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: user.driveAccessToken });
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
+
+    const fileMetadata = await drive.files.get({ fileId, fields: 'mimeType' });
+    const fileResponse = await drive.files.get(
+      { fileId, alt: 'media' },
+      { responseType: 'arraybuffer' }
+    );
+
+    res.setHeader('Content-Type', fileMetadata.data.mimeType || 'image/jpeg');
+    res.setHeader('Cache-Control', 'private, max-age=86400');
+    return res.send(Buffer.from(fileResponse.data as ArrayBuffer));
+  } catch (err: any) {
+    console.error('Failed to proxy full-resolution image:', err);
+    return res.status(500).json({ error: 'Failed to fetch the full-resolution image from Drive' });
+  }
+});
+
+
 app.get('/api/drive/files', requireAuth, async (req, res) => {
   try {
     const user = await store.getUser(req.uid!) as any;
@@ -1107,12 +1142,19 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
     if (!media_thumbnail) {
       return res.status(400).json({ error: 'Instagram requires an image to publish.' });
     }
-    // Drive-sourced thumbnails come through as a relative path (our own
-    // /api/drive/thumbnail proxy) — Meta's servers need an absolute URL to
-    // fetch the image at all, so resolve it against our own domain here.
-    const absoluteMediaUrl = /^https?:\/\//.test(media_thumbnail)
-      ? media_thumbnail
-      : `${getAppBaseUrl(req)}${media_thumbnail.startsWith('/') ? '' : '/'}${media_thumbnail}`;
+    // Drive-sourced thumbnails come through as our own proxy URL
+    // (/api/drive/thumbnail/{fileId}?uid=...) which is a small, cropped
+    // preview — Instagram's minimum resolution/aspect-ratio requirements
+    // can reject it. When we can recognize that shape, swap in the
+    // full-resolution proxy instead, using the same fileId.
+    const driveThumbMatch = media_thumbnail.match(/\/api\/drive\/thumbnail\/([^/?]+)/);
+    const resolvedMediaUrl = driveThumbMatch
+      ? `/api/drive/full-image/${driveThumbMatch[1]}?uid=${req.uid}`
+      : media_thumbnail;
+
+    const absoluteMediaUrl = /^https?:\/\//.test(resolvedMediaUrl)
+      ? resolvedMediaUrl
+      : `${getAppBaseUrl(req)}${resolvedMediaUrl.startsWith('/') ? '' : '/'}${resolvedMediaUrl}`;
 
     if (isScheduled) {
       const post = await store.addSocialPost(req.uid!, {
