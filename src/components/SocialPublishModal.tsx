@@ -29,6 +29,8 @@ interface SocialPublishModalProps {
     caption_text: string;
     user_approved: boolean;
     scheduled_for?: string;
+    media_thumbnail?: string;
+    media_filename?: string;
   }) => Promise<any>;
 }
 
@@ -78,7 +80,9 @@ export const SocialPublishModal: React.FC<SocialPublishModalProps> = ({
         account_handle: currentAccount?.handle || `@${selectedPlatform.toLowerCase()}_creator`,
         caption_text: editedCaption,
         user_approved: true,
-        scheduled_for: isScheduling ? scheduledTime : undefined
+        scheduled_for: isScheduling ? scheduledTime : undefined,
+        media_thumbnail: mediaThumbnail,
+        media_filename: mediaFilename
       });
 
       setPublishResult({

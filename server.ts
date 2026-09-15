@@ -1097,14 +1097,20 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
     if (!ig) {
       return res.status(400).json({ error: 'Connect your Instagram account first.' });
     }
-    if (!media_thumbnail || !/^https?:\/\//.test(media_thumbnail)) {
-      return res.status(400).json({ error: 'Instagram requires a publicly accessible image URL.' });
+    if (!media_thumbnail) {
+      return res.status(400).json({ error: 'Instagram requires an image to publish.' });
     }
+    // Drive-sourced thumbnails come through as a relative path (our own
+    // /api/drive/thumbnail proxy) — Meta's servers need an absolute URL to
+    // fetch the image at all, so resolve it against our own domain here.
+    const absoluteMediaUrl = /^https?:\/\//.test(media_thumbnail)
+      ? media_thumbnail
+      : `${getAppBaseUrl(req)}${media_thumbnail.startsWith('/') ? '' : '/'}${media_thumbnail}`;
 
     if (isScheduled) {
       const post = await store.addSocialPost(req.uid!, {
         platform: 'Instagram',
-        mediaUrl: media_thumbnail,
+        mediaUrl: absoluteMediaUrl,
         caption: caption_text || '',
         status: 'scheduled',
         scheduledFor: new Date(scheduled_for).toISOString(),
@@ -1117,10 +1123,10 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
     }
 
     try {
-      const result = await instagram.publishImageToInstagram(ig.igUserId, ig.pageAccessToken, media_thumbnail, caption_text || '');
+      const result = await instagram.publishImageToInstagram(ig.igUserId, ig.pageAccessToken, absoluteMediaUrl, caption_text || '');
       const post = await store.addSocialPost(req.uid!, {
         platform: 'Instagram',
-        mediaUrl: media_thumbnail,
+        mediaUrl: absoluteMediaUrl,
         caption: caption_text || '',
         status: 'published',
         publishedAt: new Date().toISOString(),
@@ -1136,7 +1142,7 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
       console.error('Instagram publish failed:', err);
       await store.addSocialPost(req.uid!, {
         platform: 'Instagram',
-        mediaUrl: media_thumbnail,
+        mediaUrl: absoluteMediaUrl,
         caption: caption_text || '',
         status: 'failed',
         error: err.message,

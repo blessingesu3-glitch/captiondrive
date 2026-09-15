@@ -488,19 +488,16 @@ export default function App() {
   };
 
   const handleApproveAndPublishPost = async (postData: any) => {
-    try {
-      const res = await authedFetch('/api/social/publish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(postData)
-      });
-      const data = await res.json();
-      if (data.success && data.post) {
-        setSocialPosts((prev) => [data.post, ...prev]);
-      }
-    } catch (err) {
-      console.error('Publish error:', err);
+    const res = await authedFetch('/api/social/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(postData)
+    });
+    const data = await parseJsonResponse(res);
+    if (data.post) {
+      setSocialPosts((prev) => [data.post, ...prev]);
     }
+    return data;
   };
 
   // Route Render Logic
