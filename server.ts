@@ -1122,7 +1122,7 @@ app.get('/api/social/posts', requireAuth, async (req, res) => {
 });
 
 app.post('/api/social/publish', requireAuth, async (req, res) => {
-  const { media_thumbnail, platform, caption_text, user_approved, scheduled_for } = req.body;
+  const { media_thumbnail, media_filename, platform, account_handle, caption_text, user_approved, scheduled_for } = req.body;
 
   if (!user_approved) {
     return res.status(400).json({
@@ -1160,6 +1160,8 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
       const post = await store.addSocialPost(req.uid!, {
         platform: 'Instagram',
         mediaUrl: absoluteMediaUrl,
+        mediaFilename: media_filename || '',
+        accountHandle: `@${ig.igUsername}`,
         caption: caption_text || '',
         status: 'scheduled',
         scheduledFor: new Date(scheduled_for).toISOString(),
@@ -1176,6 +1178,8 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
       const post = await store.addSocialPost(req.uid!, {
         platform: 'Instagram',
         mediaUrl: absoluteMediaUrl,
+        mediaFilename: media_filename || '',
+        accountHandle: `@${ig.igUsername}`,
         caption: caption_text || '',
         status: 'published',
         publishedAt: new Date().toISOString(),
@@ -1192,6 +1196,8 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
       await store.addSocialPost(req.uid!, {
         platform: 'Instagram',
         mediaUrl: absoluteMediaUrl,
+        mediaFilename: media_filename || '',
+        accountHandle: `@${ig.igUsername}`,
         caption: caption_text || '',
         status: 'failed',
         error: err.message,
@@ -1211,6 +1217,8 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
   const post = await store.addSocialPost(req.uid!, {
     platform,
     mediaUrl: media_thumbnail || '',
+    mediaFilename: media_filename || '',
+    accountHandle: account_handle || '',
     caption: caption_text || '',
     status: isScheduled ? 'scheduled' : 'published',
     scheduledFor: isScheduled ? new Date(scheduled_for).toISOString() : undefined,

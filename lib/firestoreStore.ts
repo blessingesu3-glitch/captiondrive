@@ -42,8 +42,10 @@ export interface InstagramConnection {
 }
 
 export interface SocialPostDoc {
-  platform: 'Instagram';
+  platform: 'Instagram' | 'LinkedIn' | 'X' | 'Facebook';
   mediaUrl: string;
+  mediaFilename?: string;
+  accountHandle?: string;
   caption: string;
   status: 'scheduled' | 'publishing' | 'published' | 'failed';
   scheduledFor?: string;
@@ -52,6 +54,25 @@ export interface SocialPostDoc {
   postUrl?: string;
   error?: string;
   createdAt: string;
+}
+
+/** The frontend's SocialPost type (src/types.ts) predates this Instagram
+ * work and uses snake_case field names — this maps our Firestore doc shape
+ * to match it, rather than changing either side to match the other. */
+export function toFrontendSocialPost(id: string, doc: SocialPostDoc) {
+  return {
+    id,
+    media_filename: doc.mediaFilename || '',
+    media_thumbnail: doc.mediaUrl,
+    platform: doc.platform,
+    account_handle: doc.accountHandle || '',
+    caption_text: doc.caption,
+    status: doc.status === 'scheduled' ? 'approved' : doc.status,
+    user_approved: true,
+    published_at: doc.publishedAt,
+    scheduled_for: doc.scheduledFor,
+    post_url: doc.postUrl,
+  };
 }
 
 function usersCol() {
@@ -199,13 +220,13 @@ export async function clearInstagramConnection(uid: string) {
 // ---- Social posts (subcollection: users/{uid}/socialPosts) ----
 export async function listSocialPosts(uid: string) {
   const snap = await usersCol().doc(uid).collection('socialPosts').orderBy('createdAt', 'desc').get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => toFrontendSocialPost(d.id, d.data() as SocialPostDoc));
 }
 
 export async function addSocialPost(uid: string, post: Omit<SocialPostDoc, 'createdAt'>) {
   const createdAt = new Date().toISOString();
   const ref = await usersCol().doc(uid).collection('socialPosts').add({ ...post, createdAt });
-  return { id: ref.id, ...post, createdAt };
+  return toFrontendSocialPost(ref.id, { ...post, createdAt } as SocialPostDoc);
 }
 
 export async function updateSocialPost(uid: string, postId: string, patch: Partial<SocialPostDoc>) {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Calendar, Clock, CheckCircle2, ChevronLeft, ChevronRight, Video, FileImage, ExternalLink, Send } from 'lucide-react';
 import { SocialPost, SocialPlatform } from '../types';
 
@@ -8,20 +8,46 @@ interface CalendarViewProps {
 
 export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts }) => {
   const daysOfWeek = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-  
-  // Create a simulated 35-day grid for August 2026
-  const augustDays = Array.from({ length: 31 }, (_, i) => ({
-    day: i + 1,
-    isCurrentMonth: true,
-    dateString: `2026-08-${String(i + 1).padStart(2, '0')}`
-  }));
 
-  // Add a few padding days from July/September to complete a 5-week block
-  const calendarGrid = [
-    ...Array.from({ length: 5 }, (_, i) => ({ day: 27 + i, isCurrentMonth: false, dateString: '' })), // July
-    ...augustDays,
-    ...Array.from({ length: 6 }, (_, i) => ({ day: i + 1, isCurrentMonth: false, dateString: '' })) // September
-  ];
+  const today = new Date();
+  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth()); // 0-indexed
+
+  const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+
+  const goToPrevMonth = () => {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
+    else setViewMonth((m) => m - 1);
+  };
+  const goToNextMonth = () => {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
+    else setViewMonth((m) => m + 1);
+  };
+
+  // Build a real calendar grid for the viewed month, padded with the
+  // trailing days of the previous month and leading days of the next so the
+  // grid always starts on a Monday and fills complete weeks.
+  const firstOfMonth = new Date(viewYear, viewMonth, 1);
+  // getDay(): 0=Sun..6=Sat -> convert to 0=Mon..6=Sun
+  const leadingBlanks = (firstOfMonth.getDay() + 6) % 7;
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(viewYear, viewMonth, 0).getDate();
+
+  const toDateString = (y: number, m: number, d: number) =>
+    `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+  const calendarGrid: { day: number; isCurrentMonth: boolean; dateString: string }[] = [];
+  for (let i = leadingBlanks - 1; i >= 0; i--) {
+    const d = daysInPrevMonth - i;
+    calendarGrid.push({ day: d, isCurrentMonth: false, dateString: '' });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    calendarGrid.push({ day: d, isCurrentMonth: true, dateString: toDateString(viewYear, viewMonth, d) });
+  }
+  while (calendarGrid.length % 7 !== 0) {
+    const d = calendarGrid.length - (leadingBlanks + daysInMonth) + 1;
+    calendarGrid.push({ day: d, isCurrentMonth: false, dateString: '' });
+  }
 
   const getPostsForDate = (dateStr: string) => {
     if (!dateStr) return [];
@@ -60,11 +86,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts }) => {
 
         {/* Month Selector Controls */}
         <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#EAE6DF] self-start sm:self-center">
-          <button className="p-1.5 rounded-full text-gray-500 hover:bg-[#F7F3ED] cursor-pointer">
+          <button onClick={goToPrevMonth} className="p-1.5 rounded-full text-gray-500 hover:bg-[#F7F3ED] cursor-pointer">
             <ChevronLeft className="w-4 h-4 text-gray-650" />
           </button>
-          <span className="text-xs font-bold px-3 text-[#111111]">August 2026</span>
-          <button className="p-1.5 rounded-full text-gray-500 hover:bg-[#F7F3ED] cursor-pointer">
+          <span className="text-xs font-bold px-3 text-[#111111]">{monthLabel}</span>
+          <button onClick={goToNextMonth} className="p-1.5 rounded-full text-gray-500 hover:bg-[#F7F3ED] cursor-pointer">
             <ChevronRight className="w-4 h-4 text-gray-650" />
           </button>
         </div>
@@ -85,7 +111,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts }) => {
           <div className="grid grid-cols-7 gap-2 pt-3 flex-1 min-h-[460px]">
             {calendarGrid.map((dayObj, idx) => {
               const postsOnDay = getPostsForDate(dayObj.dateString);
-              const isToday = dayObj.day === 11 && dayObj.isCurrentMonth; // simulated today is Aug 11, 2026
+              const isToday = dayObj.isCurrentMonth
+                && dayObj.day === today.getDate()
+                && viewMonth === today.getMonth()
+                && viewYear === today.getFullYear();
               
               return (
                 <div 
