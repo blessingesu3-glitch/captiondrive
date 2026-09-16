@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Sparkles, 
   Search, 
   Zap, 
   Bell,
-  Command
+  Command,
+  Settings,
+  LogOut
 } from 'lucide-react';
 import { User, ActiveTab } from '../types';
 
@@ -19,6 +21,7 @@ interface NavbarProps {
   onOpenSmartSearch: () => void;
   activeTab: string;
   onSelectTab?: (tab: ActiveTab) => void;
+  onLogout: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -31,8 +34,22 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenImportModal,
   onOpenSmartSearch,
   activeTab,
-  onSelectTab
+  onSelectTab,
+  onLogout
 }) => {
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const horizontalNavItems = [
     { id: 'media' as ActiveTab, label: 'Library' },
     { id: 'generator' as ActiveTab, label: 'Create' },
@@ -101,15 +118,40 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* User profile avatar */}
-          <div 
-            onClick={() => onSelectTab && onSelectTab('settings')}
-            className="w-8.5 h-8.5 rounded-full overflow-hidden border border-[#EAE6DF] cursor-pointer hover:border-[#E94B35] transition-colors"
-          >
-            {user.avatar ? (
-              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-[#FFF1ED] text-[#E94B35] flex items-center justify-center font-extrabold text-xs">
-                {user.name ? user.name.split(' ').map(n => n[0]).join('') : 'BE'}
+          <div ref={userMenuRef} className="relative">
+            <div
+              onClick={() => setShowUserMenu((v) => !v)}
+              className="w-8.5 h-8.5 rounded-full overflow-hidden border border-[#EAE6DF] cursor-pointer hover:border-[#E94B35] transition-colors"
+            >
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-[#FFF1ED] text-[#E94B35] flex items-center justify-center font-extrabold text-xs">
+                  {user.name ? user.name.split(' ').map(n => n[0]).join('') : 'BE'}
+                </div>
+              )}
+            </div>
+
+            {showUserMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-[#EAE6DF] rounded-xl shadow-lg py-1.5 z-50">
+                <div className="px-3.5 py-2 border-b border-[#EAE6DF]">
+                  <p className="text-xs font-bold text-[#111111] truncate">{user.name}</p>
+                  <p className="text-[10px] text-gray-500 truncate">{user.email}</p>
+                </div>
+                <button
+                  onClick={() => { setShowUserMenu(false); onSelectTab && onSelectTab('settings'); }}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-gray-700 hover:bg-[#F7F3ED] transition-colors cursor-pointer"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  Settings
+                </button>
+                <button
+                  onClick={() => { setShowUserMenu(false); onLogout(); }}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-[#E94B35] hover:bg-[#FFF1ED] transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Log out
+                </button>
               </div>
             )}
           </div>

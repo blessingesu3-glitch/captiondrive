@@ -573,6 +573,7 @@ export default function App() {
         onOpenSmartSearch={() => setShowSmartSearch(true)}
         activeTab={activeTab}
         onSelectTab={(tab) => setActiveTab(tab)}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Body */}
