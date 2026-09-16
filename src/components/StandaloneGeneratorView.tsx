@@ -24,6 +24,7 @@ interface StandaloneGeneratorViewProps {
     mediaThumbnail: string;
     captionText: string;
     platform: SocialPlatform;
+    tone?: string;
   }) => void;
   onOpenImportModal: () => void;
   onLimitReached?: () => void;
@@ -139,7 +140,8 @@ export const StandaloneGeneratorView: React.FC<StandaloneGeneratorViewProps> = (
       mediaFilename: selectedMedia.filename,
       mediaThumbnail: selectedMedia.thumbnail,
       captionText: editedText,
-      platform: settings.platform
+      platform: settings.platform,
+      tone: settings.tone
     });
   };
 

@@ -47,6 +47,7 @@ export interface SocialPostDoc {
   mediaFilename?: string;
   accountHandle?: string;
   caption: string;
+  tone?: string;
   status: 'scheduled' | 'publishing' | 'published' | 'failed';
   scheduledFor?: string;
   publishedAt?: string;
@@ -221,6 +222,40 @@ export async function clearInstagramConnection(uid: string) {
 export async function listSocialPosts(uid: string) {
   const snap = await usersCol().doc(uid).collection('socialPosts').orderBy('createdAt', 'desc').get();
   return snap.docs.map((d) => toFrontendSocialPost(d.id, d.data() as SocialPostDoc));
+}
+
+/** Raw (non-frontend-mapped) published Instagram posts, for the analytics
+ * endpoint to fetch per-post insights against. Capped at `limit` most
+ * recent to bound how many Graph API calls a single analytics page load
+ * makes. Deliberately doesn't use orderBy in the query -- combined with the
+ * two equality filters that would require another manual composite index
+ * (same situation as the scheduled-posts cron query) -- sorts in memory
+ * instead, which is fine at this data volume. */
+export async function listPublishedInstagramPosts(uid: string, limit = 15) {
+  const snap = await usersCol()
+    .doc(uid)
+    .collection('socialPosts')
+    .where('platform', '==', 'Instagram')
+    .where('status', '==', 'published')
+    .get();
+  const posts = snap.docs.map((d) => ({ id: d.id, ...(d.data() as SocialPostDoc) }));
+  posts.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  return posts.slice(0, limit);
+}
+
+export async function countSocialPosts(uid: string): Promise<number> {
+  const snap = await usersCol().doc(uid).collection('socialPosts').count().get();
+  return snap.data().count;
+}
+
+export async function countSocialPostsByStatus(uid: string, status: SocialPostDoc['status']): Promise<number> {
+  const snap = await usersCol().doc(uid).collection('socialPosts').where('status', '==', status).count().get();
+  return snap.data().count;
+}
+
+export async function countCaptionHistory(uid: string): Promise<number> {
+  const snap = await usersCol().doc(uid).collection('captionHistory').count().get();
+  return snap.data().count;
 }
 
 export async function addSocialPost(uid: string, post: Omit<SocialPostDoc, 'createdAt'>) {

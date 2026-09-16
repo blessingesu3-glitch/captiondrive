@@ -913,7 +913,7 @@ app.get('/api/social/instagram/connect-url', requireAuth, async (req, res) => {
       // IG account. pages_show_list + pages_read_engagement: find which of
       // the user's Pages has Instagram linked. business_management: some
       // Meta app review tiers require this to return page access tokens.
-      scope: 'pages_show_list,pages_read_engagement,instagram_basic,instagram_content_publish,business_management',
+      scope: 'pages_show_list,pages_read_engagement,instagram_basic,instagram_content_publish,instagram_manage_insights,business_management',
       response_type: 'code',
       state,
     });
@@ -1122,7 +1122,7 @@ app.get('/api/social/posts', requireAuth, async (req, res) => {
 });
 
 app.post('/api/social/publish', requireAuth, async (req, res) => {
-  const { media_thumbnail, media_filename, platform, account_handle, caption_text, user_approved, scheduled_for } = req.body;
+  const { media_thumbnail, media_filename, platform, account_handle, caption_text, user_approved, scheduled_for, tone } = req.body;
 
   if (!user_approved) {
     return res.status(400).json({
@@ -1162,6 +1162,7 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
         mediaUrl: absoluteMediaUrl,
         mediaFilename: media_filename || '',
         accountHandle: `@${ig.igUsername}`,
+        tone: tone || undefined,
         caption: caption_text || '',
         status: 'scheduled',
         scheduledFor: new Date(scheduled_for).toISOString(),
@@ -1180,6 +1181,7 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
         mediaUrl: absoluteMediaUrl,
         mediaFilename: media_filename || '',
         accountHandle: `@${ig.igUsername}`,
+        tone: tone || undefined,
         caption: caption_text || '',
         status: 'published',
         publishedAt: new Date().toISOString(),
@@ -1198,6 +1200,7 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
         mediaUrl: absoluteMediaUrl,
         mediaFilename: media_filename || '',
         accountHandle: `@${ig.igUsername}`,
+        tone: tone || undefined,
         caption: caption_text || '',
         status: 'failed',
         error: err.message,
@@ -1220,6 +1223,7 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
     mediaFilename: media_filename || '',
     accountHandle: account_handle || '',
     caption: caption_text || '',
+    tone: tone || undefined,
     status: isScheduled ? 'scheduled' : 'published',
     scheduledFor: isScheduled ? new Date(scheduled_for).toISOString() : undefined,
     publishedAt: isScheduled ? undefined : new Date().toISOString(),
@@ -1235,7 +1239,100 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
   });
 });
 
-// ---- Cron: fires scheduled Instagram posts whose time has come ----
+// ---- Real Instagram analytics ----
+// Fetches account-level reach/engagement from Instagram Insights, plus
+// per-post insights for this user's own published posts (capped, since
+// each is a separate Graph API call), aggregated by the tone used when the
+// caption was generated. Requires the instagram_manage_insights permission
+// — an account connected before that was added to our OAuth scope will
+// need to reconnect to grant it, which will show up here as insights
+// calls failing even though the connection itself looks fine.
+app.get('/api/analytics/instagram', requireAuth, async (req, res) => {
+  try {
+    const user = await store.getUser(req.uid!) as any;
+    const ig = user?.instagramConnection;
+
+    const [capsCreated, postsPublished] = await Promise.all([
+      store.countCaptionHistory(req.uid!),
+      store.countSocialPostsByStatus(req.uid!, 'published'),
+    ]);
+
+    if (!ig) {
+      return res.json({ connected: false, capsCreated, postsPublished });
+    }
+
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
+    const fourteenDaysAgo = new Date(now.getTime() - 14 * 86400000);
+
+    const [profile, reach7d, reachPrev7d, publishedPosts] = await Promise.all([
+      instagram.getAccountProfile(ig.igUserId, ig.pageAccessToken).catch(() => ({ followersCount: 0, mediaCount: 0 })),
+      instagram.getAccountReach(ig.igUserId, ig.pageAccessToken, sevenDaysAgo, now),
+      instagram.getAccountReach(ig.igUserId, ig.pageAccessToken, fourteenDaysAgo, sevenDaysAgo),
+      store.listPublishedInstagramPosts(req.uid!, 15),
+    ]);
+
+    // Per-post insights, sequentially rather than in parallel, to stay well
+    // under Meta's per-second rate limits for a single access token.
+    const postsWithInsights: any[] = [];
+    for (const post of publishedPosts) {
+      if (!post.igMediaId) continue;
+      const insights = await instagram.getMediaInsights(post.igMediaId, ig.pageAccessToken);
+      postsWithInsights.push({ ...post, insights });
+    }
+
+    const totalInteractions7d = postsWithInsights.reduce((sum, p) => sum + p.insights.totalInteractions, 0);
+    const engagementRate = reach7d > 0 ? (totalInteractions7d / reach7d) * 100 : null;
+    const reachGrowthPct = reachPrev7d > 0 ? ((reach7d - reachPrev7d) / reachPrev7d) * 100 : null;
+
+    // Group by tone (only posts where we know which tone was used).
+    const toneGroups: Record<string, { count: number; totalEngagementRate: number }> = {};
+    for (const p of postsWithInsights) {
+      const tone = p.tone || 'Unspecified';
+      const rate = p.insights.reach > 0 ? (p.insights.totalInteractions / p.insights.reach) * 100 : 0;
+      if (!toneGroups[tone]) toneGroups[tone] = { count: 0, totalEngagementRate: 0 };
+      toneGroups[tone].count += 1;
+      toneGroups[tone].totalEngagementRate += rate;
+    }
+    const tonePerformance = Object.entries(toneGroups)
+      .map(([tone, g]) => ({
+        tone,
+        count: g.count,
+        avgEngagementRate: Math.round((g.totalEngagementRate / g.count) * 10) / 10,
+      }))
+      .sort((a, b) => b.avgEngagementRate - a.avgEngagementRate);
+
+    res.json({
+      connected: true,
+      igUsername: ig.igUsername,
+      followersCount: profile.followersCount,
+      mediaCount: profile.mediaCount,
+      reach7d,
+      reachPrev7d,
+      reachGrowthPct,
+      totalInteractions7d,
+      engagementRate,
+      capsCreated,
+      postsPublished,
+      tonePerformance,
+      recentPosts: postsWithInsights.slice(0, 6).map((p) => ({
+        id: p.id,
+        mediaFilename: p.mediaFilename,
+        mediaThumbnail: p.mediaUrl,
+        postUrl: p.postUrl,
+        tone: p.tone,
+        reach: p.insights.reach,
+        totalInteractions: p.insights.totalInteractions,
+        publishedAt: p.publishedAt,
+      })),
+    });
+  } catch (err: any) {
+    console.error('Instagram analytics fetch failed:', err);
+    res.status(500).json({ error: err.message || 'Failed to load Instagram analytics.' });
+  }
+});
+
+
 // Not behind requireAuth (a cron trigger has no Firebase ID token) — instead
 // protected by a shared secret. Vercel Cron on the Hobby plan is limited to
 // daily triggers, which isn't fine-grained enough for "schedule for later"

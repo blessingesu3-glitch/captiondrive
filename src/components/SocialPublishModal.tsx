@@ -22,6 +22,7 @@ interface SocialPublishModalProps {
   mediaThumbnail: string;
   captionText: string;
   platform: SocialPlatform;
+  tone?: string;
   connectedAccounts: SocialAccount[];
   onPublish: (data: {
     platform: SocialPlatform;
@@ -31,6 +32,7 @@ interface SocialPublishModalProps {
     scheduled_for?: string;
     media_thumbnail?: string;
     media_filename?: string;
+    tone?: string;
   }) => Promise<any>;
   // Set when this modal was reached by clicking a date on the calendar —
   // pre-fills and enables scheduling for that date (at a sensible default
@@ -48,7 +50,8 @@ export const SocialPublishModal: React.FC<SocialPublishModalProps> = ({
   platform,
   connectedAccounts,
   onPublish,
-  presetScheduledDate
+  presetScheduledDate,
+  tone
 }) => {
   const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform>(platform);
   const [userApproved, setUserApproved] = useState<boolean>(true);
@@ -88,7 +91,8 @@ export const SocialPublishModal: React.FC<SocialPublishModalProps> = ({
         user_approved: true,
         scheduled_for: isScheduling ? scheduledTime : undefined,
         media_thumbnail: mediaThumbnail,
-        media_filename: mediaFilename
+        media_filename: mediaFilename,
+        tone
       });
 
       setPublishResult({

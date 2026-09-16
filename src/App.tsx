@@ -80,6 +80,7 @@ export default function App() {
     mediaThumbnail: string;
     captionText: string;
     platform: SocialPlatform;
+    tone?: string;
   } | null>(null);
   // Set when the user clicks a date on the calendar — carried through to
   // whichever publish modal they open next, then cleared, so that flow
@@ -680,7 +681,7 @@ export default function App() {
           )}
 
           {activeTab === 'analytics' && (
-            <AnalyticsView />
+            <AnalyticsView onSelectTab={setActiveTab} />
           )}
 
           {activeTab === 'favorites' && (
@@ -748,6 +749,7 @@ export default function App() {
           mediaThumbnail={publishModalData.mediaThumbnail}
           captionText={publishModalData.captionText}
           platform={publishModalData.platform}
+          tone={publishModalData.tone}
           connectedAccounts={socialAccounts}
           onPublish={handleApproveAndPublishPost}
           presetScheduledDate={pendingScheduleDate}

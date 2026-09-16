@@ -35,6 +35,7 @@ interface CaptionGeneratorModalProps {
     mediaThumbnail: string;
     captionText: string;
     platform: SocialPlatform;
+    tone?: string;
   }) => void;
   onLimitReached?: () => void;
   onUpdateUsage?: (usage: any) => void;
@@ -489,7 +490,8 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                                 mediaFilename: media.filename,
                                 mediaThumbnail: media.thumbnail,
                                 captionText: fullText,
-                                platform: settings.platform
+                                platform: settings.platform,
+                                tone: settings.tone
                               });
                             }}
                             className="px-4.5 h-9 rounded-xl text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm flex items-center gap-1.5 transition-all cursor-pointer border-none"

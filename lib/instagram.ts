@@ -172,3 +172,82 @@ export async function publishImageToInstagram(
 
   return { igMediaId: published.id, postUrl: permalinkRes.permalink };
 }
+
+// ---------------------------------------------------------------------------
+// Insights (requires the instagram_manage_insights permission in addition to
+// the scopes requested for publishing — an account connected before this was
+// added will need to reconnect to grant it).
+// ---------------------------------------------------------------------------
+
+export interface AccountProfile {
+  followersCount: number;
+  mediaCount: number;
+}
+
+export async function getAccountProfile(igUserId: string, accessToken: string): Promise<AccountProfile> {
+  const data = await graphGet(`/${igUserId}`, {
+    access_token: accessToken,
+    fields: 'followers_count,media_count',
+  });
+  return { followersCount: data.followers_count || 0, mediaCount: data.media_count || 0 };
+}
+
+/** Sums a daily time-series `reach` metric between two dates (inclusive).
+ * Reach is a "time_series" metric type in the current Instagram Insights
+ * API — each call returns one value per day in the range, which we sum for
+ * a period total. Returns 0 (rather than throwing) on any failure, since a
+ * single broken metric shouldn't take down the whole analytics page. */
+export async function getAccountReach(igUserId: string, accessToken: string, since: Date, until: Date): Promise<number> {
+  try {
+    const data = await graphGet(`/${igUserId}/insights`, {
+      access_token: accessToken,
+      metric: 'reach',
+      period: 'day',
+      since: String(Math.floor(since.getTime() / 1000)),
+      until: String(Math.floor(until.getTime() / 1000)),
+    });
+    const series = data.data?.[0]?.values || [];
+    return series.reduce((sum: number, v: any) => sum + (v.value || 0), 0);
+  } catch (err) {
+    console.warn('Failed to fetch account reach insights:', err);
+    return 0;
+  }
+}
+
+export interface MediaInsights {
+  reach: number;
+  likes: number;
+  comments: number;
+  saved: number;
+  shares: number;
+  totalInteractions: number;
+}
+
+/** Per-post insights. Returns all-zero on failure (e.g. a post too old for
+ * Meta's insights retention window) rather than throwing, so one bad post
+ * doesn't break the whole analytics aggregation. */
+export async function getMediaInsights(igMediaId: string, accessToken: string): Promise<MediaInsights> {
+  const empty: MediaInsights = { reach: 0, likes: 0, comments: 0, saved: 0, shares: 0, totalInteractions: 0 };
+  try {
+    const data = await graphGet(`/${igMediaId}/insights`, {
+      access_token: accessToken,
+      metric: 'reach,likes,comments,saved,shares,total_interactions',
+    });
+    const byName: Record<string, number> = {};
+    for (const m of data.data || []) {
+      byName[m.name] = m.values?.[0]?.value ?? m.total_value?.value ?? 0;
+    }
+    return {
+      reach: byName.reach || 0,
+      likes: byName.likes || 0,
+      comments: byName.comments || 0,
+      saved: byName.saved || 0,
+      shares: byName.shares || 0,
+      totalInteractions: byName.total_interactions || 0,
+    };
+  } catch (err) {
+    console.warn(`Failed to fetch media insights for ${igMediaId}:`, err);
+    return empty;
+  }
+}
+
