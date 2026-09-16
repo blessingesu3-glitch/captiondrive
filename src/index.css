@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: Tailwind v4 defaults dark: to prefers-color-scheme,
+   but the app toggles a .dark class on <html> (Settings > dark mode toggle),
+   so we need this custom variant instead. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-accent: #E94B35;
   --color-accent-hover: #D13E29;
@@ -14,10 +19,19 @@
     color-scheme: light;
   }
 
+  .dark {
+    color-scheme: dark;
+  }
+
   html {
     background-color: #F7F3ED;
     color: #111111;
     min-height: 100vh;
+  }
+
+  .dark html {
+    background-color: #121214;
+    color: #F2F1ED;
   }
 
   body {
@@ -29,10 +43,99 @@
     min-height: 100vh;
   }
 
+  .dark body {
+    background-color: #121214;
+    color: #F2F1ED;
+  }
+
   *, ::before, ::after {
     border-color: #EAE6DF;
   }
+
+  .dark *, .dark ::before, .dark ::after {
+    border-color: #2E2E33;
+  }
 }
+
+/*
+ * Dark mode overrides.
+ *
+ * Most components in this app use Tailwind arbitrary-value classes with
+ * literal hex codes (e.g. bg-[#F7F3ED]) rather than the semantic tokens
+ * defined above in @theme, and there's no dark: variant written anywhere
+ * in the component source. Since the same handful of hex codes repeat
+ * hundreds of times across every screen, rather than editing every
+ * component file individually, this retargets those exact generated
+ * utility classes globally whenever the .dark class is present — one
+ * central place instead of dozens of files, and it covers every screen
+ * built from these colors, including ones added later that reuse them.
+ */
+.dark .bg-\[\#F7F3ED\],
+.dark .bg-\[\#FAF8F5\] {
+  background-color: #121214 !important;
+}
+
+.dark .bg-white,
+.dark .bg-\[\#FFFFFF\] {
+  background-color: #1C1C1F !important;
+}
+
+.dark .text-\[\#111111\] {
+  color: #F2F1ED !important;
+}
+
+.dark .bg-\[\#111111\] {
+  background-color: #F2F1ED !important;
+  color: #121214 !important;
+}
+
+.dark .border-\[\#EAE6DF\],
+.dark .bg-\[\#EAE6DF\] {
+  border-color: #2E2E33 !important;
+}
+.dark .bg-\[\#EAE6DF\] {
+  background-color: #2E2E33 !important;
+}
+
+.dark .bg-\[\#FFF1ED\] {
+  background-color: #2A1714 !important;
+}
+.dark .border-\[\#FADCD5\] {
+  border-color: #4A2A22 !important;
+}
+
+.dark .bg-\[\#EBFDF5\] {
+  background-color: #0F2620 !important;
+}
+.dark .border-\[\#A7F3D0\] {
+  border-color: #1F4A3B !important;
+}
+
+.dark .bg-\[\#FFFBEA\] {
+  background-color: #2A2410 !important;
+}
+.dark .border-\[\#F6E3B4\] {
+  border-color: #4A3F1F !important;
+}
+
+.dark .text-\[\#555555\] {
+  color: #A8A8AE !important;
+}
+.dark .text-\[\#888888\] {
+  color: #8A8A90 !important;
+}
+
+.dark .text-gray-300 { color: #4A4A50 !important; }
+.dark .text-gray-400 { color: #6B6B72 !important; }
+.dark .text-gray-500 { color: #8A8A90 !important; }
+.dark .text-gray-600 { color: #A0A0A6 !important; }
+.dark .text-gray-700 { color: #B8B8BE !important; }
+.dark .text-gray-800 { color: #D0D0D5 !important; }
+.dark .border-gray-300 { border-color: #3A3A40 !important; }
+.dark .bg-gray-50 { background-color: #1A1A1D !important; }
+
+/* Accent colors (brand red/green) are left unchanged — they already have
+   enough contrast against both light and dark surfaces. */
 
 /* Typography styles */
 .font-display {

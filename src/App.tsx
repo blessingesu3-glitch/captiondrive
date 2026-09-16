@@ -81,6 +81,10 @@ export default function App() {
     captionText: string;
     platform: SocialPlatform;
   } | null>(null);
+  // Set when the user clicks a date on the calendar — carried through to
+  // whichever publish modal they open next, then cleared, so that flow
+  // (pick a day -> pick content -> publish) pre-fills the schedule time.
+  const [pendingScheduleDate, setPendingScheduleDate] = useState<string | null>(null);
 
   // Parse location path to sync URL state
   const parseCurrentPath = (): 'landing' | 'login' | 'signup' | 'onboarding' | 'app' => {
@@ -608,18 +612,34 @@ export default function App() {
           )}
 
           {activeTab === 'media' && (
-            <MediaGrid
-              items={mediaItems}
-              onSelectMedia={(item) => setSelectedMedia(item)}
-              onGenerateCaption={(item) => setCaptionMedia(item)}
-              onToggleFavorite={handleToggleFavorite}
-              onRunSmartSearch={handleRunSmartSearch}
-              isLoadingSmartSearch={isLoadingSmartSearch}
-              globalSearchQuery={searchQuery}
-              smartSearchFilter={smartSearchFilter}
-              smartSearchQueryText={smartSearchQuery}
-              onClearSmartSearch={handleClearSmartSearch}
-            />
+            <>
+              {pendingScheduleDate && (
+                <div className="mb-4 p-3.5 rounded-xl bg-[#FFF1ED] border border-[#FADCD5] flex items-center justify-between gap-3 text-xs font-semibold text-[#E94B35]">
+                  <span>
+                    Pick a photo or video to generate a caption for — it'll be scheduled for{' '}
+                    {new Date(pendingScheduleDate + 'T00:00:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}.
+                  </span>
+                  <button
+                    onClick={() => setPendingScheduleDate(null)}
+                    className="shrink-0 underline hover:no-underline cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+              <MediaGrid
+                items={mediaItems}
+                onSelectMedia={(item) => setSelectedMedia(item)}
+                onGenerateCaption={(item) => setCaptionMedia(item)}
+                onToggleFavorite={handleToggleFavorite}
+                onRunSmartSearch={handleRunSmartSearch}
+                isLoadingSmartSearch={isLoadingSmartSearch}
+                globalSearchQuery={searchQuery}
+                smartSearchFilter={smartSearchFilter}
+                smartSearchQueryText={smartSearchQuery}
+                onClearSmartSearch={handleClearSmartSearch}
+              />
+            </>
           )}
 
           {activeTab === 'generator' && (
@@ -650,7 +670,13 @@ export default function App() {
           )}
 
           {activeTab === 'calendar' && (
-            <CalendarView socialPosts={socialPosts} />
+            <CalendarView
+              socialPosts={socialPosts}
+              onSelectDate={(dateString) => {
+                setPendingScheduleDate(dateString);
+                setActiveTab('media');
+              }}
+            />
           )}
 
           {activeTab === 'analytics' && (
@@ -717,13 +743,14 @@ export default function App() {
       {publishModalData && publishModalData.isOpen && (
         <SocialPublishModal
           isOpen={publishModalData.isOpen}
-          onClose={() => setPublishModalData(null)}
+          onClose={() => { setPublishModalData(null); setPendingScheduleDate(null); }}
           mediaFilename={publishModalData.mediaFilename}
           mediaThumbnail={publishModalData.mediaThumbnail}
           captionText={publishModalData.captionText}
           platform={publishModalData.platform}
           connectedAccounts={socialAccounts}
           onPublish={handleApproveAndPublishPost}
+          presetScheduledDate={pendingScheduleDate}
         />
       )}
 

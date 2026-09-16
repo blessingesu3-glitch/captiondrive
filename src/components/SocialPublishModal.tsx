@@ -32,6 +32,11 @@ interface SocialPublishModalProps {
     media_thumbnail?: string;
     media_filename?: string;
   }) => Promise<any>;
+  // Set when this modal was reached by clicking a date on the calendar —
+  // pre-fills and enables scheduling for that date (at a sensible default
+  // time) instead of the user having to turn scheduling on and pick a date
+  // that duplicates what they already chose.
+  presetScheduledDate?: string | null;
 }
 
 export const SocialPublishModal: React.FC<SocialPublishModalProps> = ({
@@ -42,12 +47,13 @@ export const SocialPublishModal: React.FC<SocialPublishModalProps> = ({
   captionText,
   platform,
   connectedAccounts,
-  onPublish
+  onPublish,
+  presetScheduledDate
 }) => {
   const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform>(platform);
   const [userApproved, setUserApproved] = useState<boolean>(true);
-  const [isScheduling, setIsScheduling] = useState<boolean>(false);
-  const [scheduledTime, setScheduledTime] = useState<string>('');
+  const [isScheduling, setIsScheduling] = useState<boolean>(Boolean(presetScheduledDate));
+  const [scheduledTime, setScheduledTime] = useState<string>(presetScheduledDate ? `${presetScheduledDate}T10:00` : '');
   const [editedCaption, setEditedCaption] = useState<string>(captionText);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [publishResult, setPublishResult] = useState<{ success: boolean; message: string; postUrl?: string } | null>(null);

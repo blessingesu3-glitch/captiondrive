@@ -4,9 +4,10 @@ import { SocialPost, SocialPlatform } from '../types';
 
 interface CalendarViewProps {
   socialPosts: SocialPost[];
+  onSelectDate: (dateString: string) => void;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelectDate }) => {
   const daysOfWeek = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
   const today = new Date();
@@ -119,9 +120,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts }) => {
               return (
                 <div 
                   key={idx}
+                  onClick={() => dayObj.isCurrentMonth && onSelectDate(dayObj.dateString)}
                   className={`p-2 rounded-xl border flex flex-col justify-between min-h-[82px] transition-all bg-white ${
                     dayObj.isCurrentMonth
-                      ? 'hover:border-gray-300'
+                      ? 'hover:border-[#E94B35] cursor-pointer'
                       : 'border-transparent text-gray-300 pointer-events-none opacity-30'
                   } ${
                     isToday 
