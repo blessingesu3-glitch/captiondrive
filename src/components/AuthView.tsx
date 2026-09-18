@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Lock, Mail, User as UserIcon, AlertCircle } from 'lucide-react';
+import { ArrowRight, Lock, Mail, User as UserIcon, AlertCircle } from 'lucide-react';
+import { Logo, LogoIcon } from './Logo';
 
 interface AuthViewProps {
   initialMode?: 'login' | 'signup';
@@ -81,20 +82,15 @@ export const AuthView: React.FC<AuthViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F3ED] flex flex-col justify-between p-4 sm:p-6 lg:p-8 font-sans select-none">
+    <div className="min-h-screen bg-[#F5F7FA] flex flex-col justify-between p-4 sm:p-6 lg:p-8 font-sans select-none">
       
       {/* Top Brand Bar */}
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
         <div 
           onClick={onBackToLanding}
-          className="flex items-center gap-3 cursor-pointer group"
+          className="cursor-pointer"
         >
-          <div className="w-9 h-9 rounded-xl bg-[#E94B35] text-white flex items-center justify-center shadow-xs">
-            <Sparkles className="w-4.5 h-4.5 fill-current" />
-          </div>
-          <span className="font-display text-xl font-black tracking-tight text-[#111111] group-hover:text-[#E94B35] transition-colors">
-            CaptionDrive
-          </span>
+          <Logo layout="horizontal" size={28} />
         </div>
 
         <button
@@ -107,11 +103,11 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
       {/* Center Auth Card */}
       <div className="max-w-md w-full mx-auto my-auto py-10">
-        <div className="bg-white rounded-3xl border border-[#EAE6DF] shadow-premium p-8 sm:p-10 space-y-6">
+        <div className="bg-white rounded-3xl border border-[#E2E6EC] shadow-premium p-8 sm:p-10 space-y-6">
           
           <div className="space-y-2 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#FFF1ED] text-[#E94B35] flex items-center justify-center mx-auto border border-[#FADCD5]">
-              <Sparkles className="w-6 h-6 fill-current" />
+            <div className="flex justify-center">
+              <LogoIcon size={44} />
             </div>
             
             <h1 className="font-display text-2xl sm:text-3xl font-black text-[#111111] tracking-tight">
@@ -136,7 +132,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
             type="button"
             onClick={handleGoogleClick}
             disabled={googleLoading}
-            className="w-full h-11 rounded-xl text-xs font-bold bg-white hover:bg-gray-50 text-[#111111] border border-[#EAE6DF] shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer disabled:opacity-50"
+            className="w-full h-11 rounded-xl text-xs font-bold bg-white hover:bg-gray-50 text-[#111111] border border-[#E2E6EC] shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer disabled:opacity-50"
           >
             <svg className="w-4 h-4" viewBox="0 0 48 48" aria-hidden="true">
               <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
@@ -148,9 +144,9 @@ export const AuthView: React.FC<AuthViewProps> = ({
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#EAE6DF]" />
+            <div className="flex-1 h-px bg-[#E2E6EC]" />
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">or use email</span>
-            <div className="flex-1 h-px bg-[#EAE6DF]" />
+            <div className="flex-1 h-px bg-[#E2E6EC]" />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 text-left">
@@ -167,7 +163,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Blessing Esu"
-                    className="w-full pl-10 pr-4 h-11 rounded-xl bg-[#F7F3ED]/60 border border-[#EAE6DF] text-xs font-semibold text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#E94B35] focus:ring-1 focus:ring-[#E94B35]"
+                    className="w-full pl-10 pr-4 h-11 rounded-xl bg-[#F5F7FA]/60 border border-[#E2E6EC] text-xs font-semibold text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#14137B] focus:ring-1 focus:ring-[#14137B]"
                   />
                 </div>
               </div>
@@ -185,7 +181,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full pl-10 pr-4 h-11 rounded-xl bg-[#F7F3ED]/60 border border-[#EAE6DF] text-xs font-semibold text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#E94B35] focus:ring-1 focus:ring-[#E94B35]"
+                  className="w-full pl-10 pr-4 h-11 rounded-xl bg-[#F5F7FA]/60 border border-[#E2E6EC] text-xs font-semibold text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#14137B] focus:ring-1 focus:ring-[#14137B]"
                 />
               </div>
             </div>
@@ -202,7 +198,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 h-11 rounded-xl bg-[#F7F3ED]/60 border border-[#EAE6DF] text-xs font-semibold text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#E94B35] focus:ring-1 focus:ring-[#E94B35]"
+                  className="w-full pl-10 pr-4 h-11 rounded-xl bg-[#F5F7FA]/60 border border-[#E2E6EC] text-xs font-semibold text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#14137B] focus:ring-1 focus:ring-[#14137B]"
                 />
               </div>
             </div>
@@ -210,19 +206,19 @@ export const AuthView: React.FC<AuthViewProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-xl text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer border-none disabled:opacity-50 mt-2"
+              className="w-full h-11 rounded-xl text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer border-none disabled:opacity-50 mt-2"
             >
               <span>{loading ? 'Processing...' : mode === 'signup' ? 'Continue →' : 'Log In →'}</span>
             </button>
           </form>
 
-          <div className="pt-4 border-t border-[#EAE6DF] text-center text-xs text-gray-500">
+          <div className="pt-4 border-t border-[#E2E6EC] text-center text-xs text-gray-500">
             {mode === 'signup' ? (
               <p>
                 Already have an account?{' '}
                 <button
                   onClick={() => { setMode('login'); setError(null); }}
-                  className="font-bold text-[#E94B35] hover:underline bg-transparent border-none cursor-pointer"
+                  className="font-bold text-[#14137B] hover:underline bg-transparent border-none cursor-pointer"
                 >
                   Log in
                 </button>
@@ -232,7 +228,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                 Don't have an account?{' '}
                 <button
                   onClick={() => { setMode('signup'); setError(null); }}
-                  className="font-bold text-[#E94B35] hover:underline bg-transparent border-none cursor-pointer"
+                  className="font-bold text-[#14137B] hover:underline bg-transparent border-none cursor-pointer"
                 >
                   Sign up
                 </button>

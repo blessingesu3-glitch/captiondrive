@@ -94,7 +94,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
       case 'LinkedIn': return <Linkedin className="w-5 h-5 text-gray-700" strokeWidth={2} />;
       case 'X': return <Twitter className="w-5 h-5 text-gray-700" strokeWidth={2} />;
       case 'Facebook': return <Facebook className="w-5 h-5 text-gray-700" strokeWidth={2} />;
-      default: return <Send className="w-5 h-5 text-[#E94B35]" strokeWidth={2} />;
+      default: return <Send className="w-5 h-5 text-[#14137B]" strokeWidth={2} />;
     }
   };
 
@@ -194,10 +194,10 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
     <div className="space-y-6 animate-fadeIn select-none">
       
       {/* Header Banner */}
-      <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-black text-[#111111] flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-[#E94B35]" strokeWidth={2} />
+            <ShieldCheck className="w-5 h-5 text-[#14137B]" strokeWidth={2} />
             <span>Social Publishing Channels</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">
@@ -208,7 +208,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowCredentialsModal(true)}
-            className="px-4 h-9.5 rounded-full text-xs font-bold bg-[#FFFFFF] hover:bg-[#F7F3ED] text-gray-700 border border-[#EAE6DF] flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-4 h-9.5 rounded-full text-xs font-bold bg-[#FFFFFF] hover:bg-[#F5F7FA] text-gray-700 border border-[#E2E6EC] flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <Key className="w-3.5 h-3.5 text-gray-550" strokeWidth={2} />
             <span>API Keys</span>
@@ -216,7 +216,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
 
           <button
             onClick={onRefreshPosts}
-            className="px-5 h-9.5 rounded-full text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer border-none"
+            className="px-5 h-9.5 rounded-full text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer border-none"
           >
             <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
             <span>Sync Posts</span>
@@ -225,13 +225,13 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
       </div>
 
       {/* Clean Navigation Sub Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 border-b border-[#EAE6DF] pb-3">
+      <div className="flex flex-wrap items-center gap-1.5 border-b border-[#E2E6EC] pb-3">
         <button
           onClick={() => setActiveSubTab('accounts')}
           className={`px-4.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === 'accounts'
-              ? 'bg-[#E94B35] text-white shadow-xs'
-              : 'bg-white text-gray-650 hover:bg-[#F7F3ED] border border-[#EAE6DF]'
+              ? 'bg-[#14137B] text-white shadow-xs'
+              : 'bg-white text-gray-650 hover:bg-[#F5F7FA] border border-[#E2E6EC]'
           }`}
         >
           <Send className="w-3.5 h-3.5" strokeWidth={2} />
@@ -242,8 +242,8 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
           onClick={() => setActiveSubTab('queue')}
           className={`px-4.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === 'queue'
-              ? 'bg-[#E94B35] text-white shadow-xs'
-              : 'bg-white text-gray-650 hover:bg-[#F7F3ED] border border-[#EAE6DF]'
+              ? 'bg-[#14137B] text-white shadow-xs'
+              : 'bg-white text-gray-650 hover:bg-[#F5F7FA] border border-[#E2E6EC]'
           }`}
         >
           <Clock className="w-3.5 h-3.5" strokeWidth={2} />
@@ -254,8 +254,8 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
           onClick={() => setActiveSubTab('history')}
           className={`px-4.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === 'history'
-              ? 'bg-[#E94B35] text-white shadow-xs'
-              : 'bg-white text-gray-650 hover:bg-[#F7F3ED] border border-[#EAE6DF]'
+              ? 'bg-[#14137B] text-white shadow-xs'
+              : 'bg-white text-gray-650 hover:bg-[#F5F7FA] border border-[#E2E6EC]'
           }`}
         >
           <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
@@ -266,8 +266,8 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
           onClick={() => setActiveSubTab('oauth_guide')}
           className={`px-4.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === 'oauth_guide'
-              ? 'bg-[#E94B35] text-white shadow-xs'
-              : 'bg-white text-gray-650 hover:bg-[#F7F3ED] border border-[#EAE6DF]'
+              ? 'bg-[#14137B] text-white shadow-xs'
+              : 'bg-white text-gray-650 hover:bg-[#F5F7FA] border border-[#E2E6EC]'
           }`}
         >
           <Info className="w-3.5 h-3.5" strokeWidth={2} />
@@ -286,11 +286,11 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
             return (
               <div
                 key={plat}
-                className="p-5 rounded-2xl bg-white border border-[#EAE6DF] shadow-xs flex flex-col justify-between space-y-4"
+                className="p-5 rounded-2xl bg-white border border-[#E2E6EC] shadow-xs flex flex-col justify-between space-y-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-xl bg-[#F7F3ED] border border-[#EAE6DF]">
+                    <div className="p-3 rounded-xl bg-[#F5F7FA] border border-[#E2E6EC]">
                       {getPlatformIcon(plat)}
                     </div>
                     <div>
@@ -298,8 +298,8 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                         <span>{plat}</span>
                         <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
                           isConnected 
-                            ? 'bg-[#EBFDF5] text-[#10B981] border-[#A7F3D0]' 
-                            : 'bg-[#F7F3ED] text-gray-600'
+                            ? 'bg-[#EDF9DC] text-[#66D100] border-[#D4EFAE]' 
+                            : 'bg-[#F5F7FA] text-gray-600'
                         }`}>
                           {isConnected ? 'Connected' : 'Not Connected'}
                         </span>
@@ -312,7 +312,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                 </div>
 
                 {isConnected && acc ? (
-                  <div className="p-3.5 rounded-xl bg-[#F7F3ED]/40 border border-[#EAE6DF] flex items-center justify-between">
+                  <div className="p-3.5 rounded-xl bg-[#F5F7FA]/40 border border-[#E2E6EC] flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <img src={acc.avatar} alt={acc.account_name} className="w-8 h-8 rounded-full object-cover" />
                       <div>
@@ -322,13 +322,13 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                     </div>
                     <button
                       onClick={() => onDisconnectAccount(plat)}
-                      className="px-3.5 py-1 rounded-lg text-xs font-bold text-[#E94B35] hover:bg-[#FFF1ED] transition-colors cursor-pointer border-none bg-transparent"
+                      className="px-3.5 py-1 rounded-lg text-xs font-bold text-[#14137B] hover:bg-[#EDEDF8] transition-colors cursor-pointer border-none bg-transparent"
                     >
                       Disconnect
                     </button>
                   </div>
                 ) : (
-                  <div className="p-3.5 rounded-xl bg-[#F7F3ED]/40 border border-dashed border-[#EAE6DF] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                  <div className="p-3.5 rounded-xl bg-[#F5F7FA]/40 border border-dashed border-[#E2E6EC] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     <p className="text-xs text-gray-500">
                       {hasKeys ? 'Custom Client ID configured' : 'Connect via OAuth popup or custom handle'}
                     </p>
@@ -336,7 +336,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                       <button
                         onClick={() => handleLaunchOAuthPopup(plat)}
                         disabled={isConnecting === plat}
-                        className="px-3 h-8.5 rounded-lg text-xs font-bold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-xs flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 border-none"
+                        className="px-3 h-8.5 rounded-lg text-xs font-bold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-xs flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 border-none"
                       >
                         <Lock className="w-3.5 h-3.5" />
                         <span>OAuth</span>
@@ -344,7 +344,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                       
                       <button
                         onClick={() => handleOpenConnect(plat)}
-                        className="px-3 h-8.5 rounded-lg text-xs font-bold bg-white hover:bg-[#F7F3ED] text-gray-700 border border-[#EAE6DF] flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-3 h-8.5 rounded-lg text-xs font-bold bg-white hover:bg-[#F5F7FA] text-gray-700 border border-[#E2E6EC] flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <PlusCircle className="w-3.5 h-3.5 text-gray-500" />
                         <span>Link Account</span>
@@ -362,8 +362,8 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
       {activeSubTab === 'queue' && (
         <div className="space-y-4">
           {pendingPosts.length === 0 ? (
-            <div className="p-12 text-center rounded-2xl bg-white border border-dashed border-[#EAE6DF] space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#FFF1ED] text-[#E94B35] mx-auto flex items-center justify-center border border-[#FADCD5]">
+            <div className="p-12 text-center rounded-2xl bg-white border border-dashed border-[#E2E6EC] space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#EDEDF8] text-[#14137B] mx-auto flex items-center justify-center border border-[#C9C8E8]">
                 <CheckCircle2 className="w-6 h-6" strokeWidth={2} />
               </div>
               <h3 className="text-sm font-bold text-[#111111]">No Pending Approvals</h3>
@@ -375,7 +375,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
             pendingPosts.map((post) => (
               <div
                 key={post.id}
-                className="p-5 rounded-2xl bg-white border border-[#EAE6DF] shadow-xs space-y-4"
+                className="p-5 rounded-2xl bg-white border border-[#E2E6EC] shadow-xs space-y-4"
               >
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
@@ -395,7 +395,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                     <button
                       onClick={() => handlePublishQueuedPost(post)}
                       disabled={publishingPostId === post.id}
-                      className="px-4.5 h-9 rounded-xl bg-[#E94B35] hover:bg-[#D13E29] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50 border-none"
+                      className="px-4.5 h-9 rounded-xl bg-[#14137B] hover:bg-[#0E0D57] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50 border-none"
                     >
                       {publishingPostId === post.id ? (
                         <>
@@ -412,11 +412,11 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-3.5 rounded-xl bg-[#F7F3ED]/40 border border-[#EAE6DF]">
+                <div className="flex items-start gap-4 p-3.5 rounded-xl bg-[#F5F7FA]/40 border border-[#E2E6EC]">
                   <img
                     src={post.media_thumbnail}
                     alt={post.media_filename}
-                    className="w-16 h-16 rounded-xl object-cover border border-[#EAE6DF] shrink-0"
+                    className="w-16 h-16 rounded-xl object-cover border border-[#E2E6EC] shrink-0"
                   />
                   <div className="flex-1 min-w-0 space-y-1">
                     <p className="text-xs font-bold text-[#111111] truncate">
@@ -437,18 +437,18 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
       {activeSubTab === 'history' && (
         <div className="space-y-4">
           {publishedPosts.length === 0 ? (
-            <div className="p-12 text-center rounded-2xl bg-white border border-[#EAE6DF] text-xs text-gray-500">
+            <div className="p-12 text-center rounded-2xl bg-white border border-[#E2E6EC] text-xs text-gray-500">
               No published posts yet.
             </div>
           ) : (
             publishedPosts.map((post) => (
               <div
                 key={post.id}
-                className="p-5 rounded-2xl bg-white border border-[#EAE6DF] shadow-xs space-y-3"
+                className="p-5 rounded-2xl bg-white border border-[#E2E6EC] shadow-xs space-y-3"
               >
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#EBFDF5] text-[#10B981] border border-[#A7F3D0] font-bold text-[9px] uppercase tracking-wider flex items-center gap-1">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#EDF9DC] text-[#66D100] border border-[#D4EFAE] font-bold text-[9px] uppercase tracking-wider flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" />
                       Published
                     </span>
@@ -461,7 +461,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                       href={post.post_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-bold text-[#E94B35] hover:underline flex items-center gap-1"
+                      className="text-xs font-bold text-[#14137B] hover:underline flex items-center gap-1"
                     >
                       <span>View Post</span>
                       <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
@@ -469,11 +469,11 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                   )}
                 </div>
 
-                <div className="flex items-start gap-4 p-3.5 rounded-xl bg-[#F7F3ED]/40 border border-[#EAE6DF]">
+                <div className="flex items-start gap-4 p-3.5 rounded-xl bg-[#F5F7FA]/40 border border-[#E2E6EC]">
                   <img
                     src={post.media_thumbnail}
                     alt={post.media_filename}
-                    className="w-14 h-14 rounded-xl object-cover border border-[#EAE6DF] shrink-0"
+                    className="w-14 h-14 rounded-xl object-cover border border-[#E2E6EC] shrink-0"
                   />
                   <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed line-clamp-3">
                     {post.caption_text}
@@ -487,7 +487,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
 
       {/* SUB TAB 4: OAUTH REQUIREMENTS GUIDE */}
       {activeSubTab === 'oauth_guide' && (
-        <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] space-y-5">
+        <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-5">
           <div>
             <h2 className="text-base font-bold text-[#111111] mb-1">
               Requirements for Connecting Real Social Media Accounts
@@ -498,46 +498,46 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div className="p-4 rounded-xl bg-[#F7F3ED]/40 border border-[#EAE6DF] space-y-2">
+            <div className="p-4 rounded-xl bg-[#F5F7FA]/40 border border-[#E2E6EC] space-y-2">
               <div className="flex items-center gap-2 font-bold text-[#111111]">
                 <Instagram className="w-4 h-4 text-pink-600" />
                 <span>Meta / Instagram Graph API</span>
               </div>
               <p className="text-gray-500 leading-relaxed">
-                Create an app on <a href="https://developers.facebook.com" target="_blank" rel="noreferrer" className="text-[#E94B35] underline">developers.facebook.com</a> with Instagram Content Publishing permissions.
+                Create an app on <a href="https://developers.facebook.com" target="_blank" rel="noreferrer" className="text-[#14137B] underline">developers.facebook.com</a> with Instagram Content Publishing permissions.
               </p>
-              <div className="text-[11px] bg-white p-2 rounded-lg text-gray-700 border border-[#EAE6DF] break-all">
+              <div className="text-[11px] bg-white p-2 rounded-lg text-gray-700 border border-[#E2E6EC] break-all">
                 Callback: {currentDevUrl}
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#F7F3ED]/40 border border-[#EAE6DF] space-y-2">
+            <div className="p-4 rounded-xl bg-[#F5F7FA]/40 border border-[#E2E6EC] space-y-2">
               <div className="flex items-center gap-2 font-bold text-[#111111]">
                 <Linkedin className="w-4 h-4 text-blue-600" />
                 <span>LinkedIn Developer Portal</span>
               </div>
               <p className="text-gray-500 leading-relaxed">
-                Register an app on <a href="https://www.linkedin.com/developers" target="_blank" rel="noreferrer" className="text-[#E94B35] underline">linkedin.com/developers</a> and request Share on LinkedIn access (`w_member_social`).
+                Register an app on <a href="https://www.linkedin.com/developers" target="_blank" rel="noreferrer" className="text-[#14137B] underline">linkedin.com/developers</a> and request Share on LinkedIn access (`w_member_social`).
               </p>
-              <div className="text-[11px] bg-white p-2 rounded-lg text-gray-700 border border-[#EAE6DF] break-all">
+              <div className="text-[11px] bg-white p-2 rounded-lg text-gray-700 border border-[#E2E6EC] break-all">
                 Callback: {currentDevUrl}
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#F7F3ED]/40 border border-[#EAE6DF] space-y-2">
+            <div className="p-4 rounded-xl bg-[#F5F7FA]/40 border border-[#E2E6EC] space-y-2">
               <div className="flex items-center gap-2 font-bold text-[#111111]">
                 <Twitter className="w-4 h-4 text-[#111111]" />
                 <span>X / Twitter Developer Portal</span>
               </div>
               <p className="text-gray-500 leading-relaxed">
-                Create a project in <a href="https://developer.twitter.com" target="_blank" rel="noreferrer" className="text-[#E94B35] underline">developer.twitter.com</a> with Read and Write permissions enabled.
+                Create a project in <a href="https://developer.twitter.com" target="_blank" rel="noreferrer" className="text-[#14137B] underline">developer.twitter.com</a> with Read and Write permissions enabled.
               </p>
-              <div className="text-[11px] bg-white p-2 rounded-lg text-gray-700 border border-[#EAE6DF] break-all">
+              <div className="text-[11px] bg-white p-2 rounded-lg text-gray-700 border border-[#E2E6EC] break-all">
                 Callback: {currentDevUrl}
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#F7F3ED]/40 border border-[#EAE6DF] space-y-2">
+            <div className="p-4 rounded-xl bg-[#F5F7FA]/40 border border-[#E2E6EC] space-y-2">
               <div className="flex items-center gap-2 font-bold text-[#111111]">
                 <Facebook className="w-4 h-4 text-blue-700" />
                 <span>Facebook Pages API</span>
@@ -545,7 +545,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
               <p className="text-gray-500 leading-relaxed">
                 Obtain a Page Access Token with `pages_manage_posts` permission.
               </p>
-              <div className="text-[11px] bg-white p-2 rounded-lg text-gray-700 border border-[#EAE6DF] break-all">
+              <div className="text-[11px] bg-white p-2 rounded-lg text-gray-700 border border-[#E2E6EC] break-all">
                 Callback: {currentDevUrl}
               </div>
             </div>
@@ -556,10 +556,10 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
       {/* API KEYS / CREDENTIALS MODAL */}
       {showCredentialsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#111111]/30 backdrop-blur-xs">
-          <div className="bg-white border border-[#EAE6DF] rounded-3xl w-full max-w-lg p-6 space-y-5 shadow-premium">
-            <div className="flex items-center justify-between border-b border-[#EAE6DF] pb-3">
+          <div className="bg-white border border-[#E2E6EC] rounded-3xl w-full max-w-lg p-6 space-y-5 shadow-premium">
+            <div className="flex items-center justify-between border-b border-[#E2E6EC] pb-3">
               <h3 className="text-base font-bold text-[#111111] flex items-center gap-2">
-                <Key className="w-4 h-4 text-[#E94B35]" strokeWidth={2} />
+                <Key className="w-4 h-4 text-[#14137B]" strokeWidth={2} />
                 <span>Configure OAuth Keys</span>
               </h3>
               <button onClick={() => setShowCredentialsModal(false)} className="text-gray-400 hover:text-gray-650 cursor-pointer text-sm font-semibold border-none bg-transparent">
@@ -568,14 +568,14 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-1.5 p-1 bg-[#F7F3ED]/60 border border-[#EAE6DF] rounded-xl">
+              <div className="flex items-center gap-1.5 p-1 bg-[#F5F7FA]/60 border border-[#E2E6EC] rounded-xl">
                 {(['LinkedIn', 'Instagram', 'X', 'Facebook'] as SocialPlatform[]).map(plat => (
                   <button
                     key={plat}
                     onClick={() => setSelectedCredPlatform(plat)}
                     className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer border-none ${
                       selectedCredPlatform === plat 
-                        ? 'bg-white text-[#E94B35] shadow-xs'
+                        ? 'bg-white text-[#14137B] shadow-xs'
                         : 'text-gray-600'
                     }`}
                   >
@@ -600,7 +600,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                         clientId: e.target.value
                       }
                     })}
-                    className="w-full h-10 px-3 text-xs rounded-xl border border-[#EAE6DF] bg-white text-[#111111] focus:outline-none focus:border-[#E94B35]"
+                    className="w-full h-10 px-3 text-xs rounded-xl border border-[#E2E6EC] bg-white text-[#111111] focus:outline-none focus:border-[#14137B]"
                   />
                 </div>
 
@@ -619,31 +619,31 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                         clientSecret: e.target.value
                       }
                     })}
-                    className="w-full h-10 px-3 text-xs rounded-xl border border-[#EAE6DF] bg-white text-[#111111] focus:outline-none focus:border-[#E94B35]"
+                    className="w-full h-10 px-3 text-xs rounded-xl border border-[#E2E6EC] bg-white text-[#111111] focus:outline-none focus:border-[#14137B]"
                   />
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#F7F3ED]/40 border border-[#EAE6DF] text-[11px] text-gray-650 space-y-1">
+                <div className="p-3 rounded-xl bg-[#F5F7FA]/40 border border-[#E2E6EC] text-[11px] text-gray-650 space-y-1">
                   <p className="font-bold text-[#111111]">Redirect URI for developer console:</p>
-                  <code className="block p-2 bg-white border border-[#EAE6DF] rounded-lg break-all">{currentDevUrl}</code>
+                  <code className="block p-2 bg-white border border-[#E2E6EC] rounded-lg break-all">{currentDevUrl}</code>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-[#EAE6DF]">
+            <div className="flex items-center justify-between pt-2 border-t border-[#E2E6EC]">
               <span className="text-xs text-emerald-600 font-semibold">
                 {savedKeyStatus ? 'Credentials Saved!' : ''}
               </span>
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowCredentialsModal(false)}
-                  className="px-4.5 h-9 rounded-xl text-xs font-bold text-gray-500 hover:bg-[#F7F3ED] cursor-pointer border-none bg-transparent"
+                  className="px-4.5 h-9 rounded-xl text-xs font-bold text-gray-500 hover:bg-[#F5F7FA] cursor-pointer border-none bg-transparent"
                 >
                   Close
                 </button>
                 <button
                   onClick={handleSaveCredentials}
-                  className="px-4.5 h-9 rounded-xl text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white cursor-pointer shadow-sm border-none"
+                  className="px-4.5 h-9 rounded-xl text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white cursor-pointer shadow-sm border-none"
                 >
                   Save Keys
                 </button>
@@ -656,8 +656,8 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
       {/* LINK PAGE MODAL */}
       {connectModalPlatform && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#111111]/30 backdrop-blur-xs">
-          <div className="bg-white border border-[#EAE6DF] rounded-3xl w-full max-w-md p-6 space-y-5 shadow-premium">
-            <div className="flex items-center justify-between border-b border-[#EAE6DF] pb-3">
+          <div className="bg-white border border-[#E2E6EC] rounded-3xl w-full max-w-md p-6 space-y-5 shadow-premium">
+            <div className="flex items-center justify-between border-b border-[#E2E6EC] pb-3">
               <h3 className="text-base font-bold text-[#111111] flex items-center gap-2">
                 {getPlatformIcon(connectModalPlatform)}
                 <span>Link {connectModalPlatform} Page</span>
@@ -676,7 +676,7 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                   type="text"
                   value={customPageName}
                   onChange={(e) => setCustomPageName(e.target.value)}
-                  className="w-full h-10 px-3 text-xs rounded-xl border border-[#EAE6DF] bg-white text-[#111111] focus:outline-none focus:border-[#E94B35]"
+                  className="w-full h-10 px-3 text-xs rounded-xl border border-[#E2E6EC] bg-white text-[#111111] focus:outline-none focus:border-[#14137B]"
                 />
               </div>
 
@@ -688,22 +688,22 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                   type="text"
                   value={customHandle}
                   onChange={(e) => setCustomHandle(e.target.value)}
-                  className="w-full h-10 px-3 text-xs rounded-xl border border-[#EAE6DF] bg-white text-[#111111] focus:outline-none focus:border-[#E94B35]"
+                  className="w-full h-10 px-3 text-xs rounded-xl border border-[#E2E6EC] bg-white text-[#111111] focus:outline-none focus:border-[#14137B]"
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#EAE6DF]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#E2E6EC]">
               <button
                 onClick={() => setConnectModalPlatform(null)}
-                className="px-4.5 h-9 rounded-xl text-xs font-bold text-gray-500 hover:bg-[#F7F3ED] cursor-pointer border-none bg-transparent"
+                className="px-4.5 h-9 rounded-xl text-xs font-bold text-gray-500 hover:bg-[#F5F7FA] cursor-pointer border-none bg-transparent"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmConnect}
                 disabled={isConnecting !== null}
-                className="px-4.5 h-9 rounded-xl text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white cursor-pointer shadow-sm border-none"
+                className="px-4.5 h-9 rounded-xl text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white cursor-pointer shadow-sm border-none"
               >
                 {isConnecting ? 'Connecting...' : 'Link Account'}
               </button>

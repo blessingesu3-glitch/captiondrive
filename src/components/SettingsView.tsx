@@ -95,7 +95,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     <div className="space-y-6 max-w-4xl mx-auto animate-fadeIn select-none">
       
       {/* Title */}
-      <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF]">
+      <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC]">
         <h1 className="font-display text-2xl font-black text-[#111111] tracking-tight">
           Account & Workspace Settings
         </h1>
@@ -105,46 +105,46 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </div>
 
       {/* User Profile Card */}
-      <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] space-y-4">
+      <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-4">
         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-          <UserIcon className="w-4 h-4 text-[#E94B35]" strokeWidth={2} />
+          <UserIcon className="w-4 h-4 text-[#14137B]" strokeWidth={2} />
           <span>User Profile</span>
         </h3>
 
         <div className="flex items-center gap-4">
-          <img src={user.avatar} alt={user.name} className="w-14 h-14 rounded-full ring-2 ring-[#FFF1ED] object-cover" />
+          <img src={user.avatar} alt={user.name} className="w-14 h-14 rounded-full ring-2 ring-[#EDEDF8] object-cover" />
           <div className="space-y-0.5 text-left">
             <h4 className="text-base font-bold text-[#111111]">{user.name}</h4>
             <p className="text-xs text-gray-500">{user.email}</p>
-            <span className="inline-block mt-1 text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-[#FFF1ED] text-[#E94B35] border border-[#FADCD5]">
+            <span className="inline-block mt-1 text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-[#EDEDF8] text-[#14137B] border border-[#C9C8E8]">
               {(user.usage?.plan || 'free').toUpperCase()} PLAN
             </span>
           </div>
         </div>
       </div>
-      <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] space-y-4 text-left">
+      <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-4 text-left">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-            <Zap className="w-4 h-4 text-[#E94B35]" strokeWidth={2} />
+            <Zap className="w-4 h-4 text-[#14137B]" strokeWidth={2} />
             <span>Subscription Plan & Usage</span>
           </h3>
 
-          <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-[#FFF1ED] text-[#E94B35] border border-[#FADCD5]">
+          <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-[#EDEDF8] text-[#14137B] border border-[#C9C8E8]">
             {(user.usage?.plan || 'free').toUpperCase()} PLAN
           </span>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#F7F3ED]/50 border border-[#EAE6DF] space-y-3">
+        <div className="p-4 rounded-xl bg-[#F5F7FA]/50 border border-[#E2E6EC] space-y-3">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-[#111111]">Monthly Captions Generated:</span>
-            <span className="font-extrabold text-[#E94B35]">
+            <span className="font-extrabold text-[#14137B]">
               {user.usage?.captionsGenerated || 0} / {user.usage?.limit || 20}
             </span>
           </div>
 
-          <div className="w-full h-2 rounded-full bg-[#EAE6DF] overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-[#E2E6EC] overflow-hidden">
             <div 
-              className="h-full bg-[#E94B35] rounded-full transition-all duration-300"
+              className="h-full bg-[#14137B] rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, Math.round(((user.usage?.captionsGenerated || 0) / (user.usage?.limit || 20)) * 100))}%` }}
             />
           </div>
@@ -154,7 +154,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             {onOpenUpgradeModal && (
               <button
                 onClick={onOpenUpgradeModal}
-                className="px-3.5 h-8 rounded-lg bg-[#E94B35] text-white font-extrabold text-xs cursor-pointer border-none shadow-xs hover:bg-[#D13E29] transition-all self-start sm:self-auto"
+                className="px-3.5 h-8 rounded-lg bg-[#14137B] text-white font-extrabold text-xs cursor-pointer border-none shadow-xs hover:bg-[#0E0D57] transition-all self-start sm:self-auto"
               >
                 Upgrade Plan
               </button>
@@ -164,17 +164,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </div>
 
       {/* Brand Voice Profile Card */}
-      <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] space-y-4 text-left">
+      <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-4 text-left">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#E94B35]" strokeWidth={2} />
+            <Sparkles className="w-4 h-4 text-[#14137B]" strokeWidth={2} />
             <span>Brand Voice Profile</span>
           </h3>
 
           {!editingBrand ? (
             <button
               onClick={() => setEditingBrand(true)}
-              className="px-3 h-8 rounded-lg bg-white border border-[#EAE6DF] font-bold text-xs text-gray-700 hover:bg-[#F7F3ED] flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="px-3 h-8 rounded-lg bg-white border border-[#E2E6EC] font-bold text-xs text-gray-700 hover:bg-[#F5F7FA] flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <Edit2 className="w-3.5 h-3.5" />
               <span>Edit Voice</span>
@@ -183,7 +183,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <button
               disabled={saving}
               onClick={handleSaveVoice}
-              className="px-4 h-8 rounded-lg bg-[#E94B35] text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer border-none shadow-xs disabled:opacity-50"
+              className="px-4 h-8 rounded-lg bg-[#14137B] text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer border-none shadow-xs disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{saving ? 'Saving...' : 'Save Profile'}</span>
@@ -192,7 +192,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {!editingBrand ? (
-          <div className="p-4 rounded-xl bg-[#F7F3ED]/50 border border-[#EAE6DF] space-y-3 text-xs">
+          <div className="p-4 rounded-xl bg-[#F5F7FA]/50 border border-[#E2E6EC] space-y-3 text-xs">
             <div>
               <span className="text-[10px] font-extrabold uppercase text-gray-400">BRAND NAME</span>
               <p className="font-bold text-[#111111] mt-0.5">{brandVoice?.brandName || user.name}</p>
@@ -209,7 +209,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <span className="text-[10px] font-extrabold uppercase text-gray-400">VOICE TRAITS</span>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {(brandVoice?.voiceTraits || ['Conversational']).map((t) => (
-                  <span key={t} className="px-2.5 py-0.5 rounded-md bg-white border border-[#EAE6DF] text-xs font-bold text-[#E94B35]">
+                  <span key={t} className="px-2.5 py-0.5 rounded-md bg-white border border-[#E2E6EC] text-xs font-bold text-[#14137B]">
                     {t}
                   </span>
                 ))}
@@ -217,21 +217,21 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {brandVoice?.inferredStyle?.summary && (
-              <div className="pt-2 border-t border-[#EAE6DF] text-[11px] text-gray-600">
+              <div className="pt-2 border-t border-[#E2E6EC] text-[11px] text-gray-600">
                 <span className="font-bold text-[#111111]">Inferred AI Communication Style: </span>
                 <span>{brandVoice.inferredStyle.summary}</span>
               </div>
             )}
           </div>
         ) : (
-          <div className="p-4 rounded-xl bg-[#F7F3ED]/50 border border-[#EAE6DF] space-y-4 text-xs">
+          <div className="p-4 rounded-xl bg-[#F5F7FA]/50 border border-[#E2E6EC] space-y-4 text-xs">
             <div className="space-y-1">
               <label className="text-[10px] font-extrabold uppercase text-gray-400">Brand Name</label>
               <input
                 type="text"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
-                className="w-full px-3 h-9 rounded-lg bg-white border border-[#EAE6DF] text-xs font-semibold text-[#111111]"
+                className="w-full px-3 h-9 rounded-lg bg-white border border-[#E2E6EC] text-xs font-semibold text-[#111111]"
               />
             </div>
 
@@ -241,7 +241,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 rounded-lg bg-white border border-[#EAE6DF] text-xs font-semibold text-[#111111] resize-none"
+                className="w-full p-3 rounded-lg bg-white border border-[#E2E6EC] text-xs font-semibold text-[#111111] resize-none"
               />
             </div>
 
@@ -256,7 +256,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                       type="button"
                       onClick={() => toggleTrait(t)}
                       className={`px-2.5 py-1 rounded-md text-xs font-bold border transition-colors cursor-pointer ${
-                        active ? 'bg-[#E94B35] text-white border-[#E94B35]' : 'bg-white text-gray-700 border-[#EAE6DF]'
+                        active ? 'bg-[#14137B] text-white border-[#14137B]' : 'bg-white text-gray-700 border-[#E2E6EC]'
                       }`}
                     >
                       {t}
@@ -272,7 +272,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 rows={2}
                 value={writingSample}
                 onChange={(e) => setWritingSample(e.target.value)}
-                className="w-full p-3 rounded-lg bg-white border border-[#EAE6DF] text-xs font-semibold text-[#111111] resize-none"
+                className="w-full p-3 rounded-lg bg-white border border-[#E2E6EC] text-xs font-semibold text-[#111111] resize-none"
               />
             </div>
           </div>
@@ -280,16 +280,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </div>
 
       {/* Google Drive Connection Card */}
-      <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] space-y-4 text-left">
+      <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-4 text-left">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-            <HardDrive className="w-4 h-4 text-[#E94B35]" strokeWidth={2} />
+            <HardDrive className="w-4 h-4 text-[#14137B]" strokeWidth={2} />
             <span>Google Drive Integration</span>
           </h3>
 
           <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1 border ${
             user.isDriveConnected 
-              ? 'bg-[#EBFDF5] text-[#10B981] border-[#A7F3D0]' 
+              ? 'bg-[#EDF9DC] text-[#66D100] border-[#D4EFAE]' 
               : 'bg-[#FFFBEA] text-[#F59E0B] border-[#F6E3B4]'
           }`}>
             <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
@@ -302,7 +302,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </p>
 
         {user.isDriveConnected ? (
-          <div className="p-4 rounded-xl bg-[#F7F3ED]/50 border border-[#EAE6DF] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+          <div className="p-4 rounded-xl bg-[#F5F7FA]/50 border border-[#E2E6EC] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
             <div>
               <p className="font-bold text-[#111111]">Active Connected Account:</p>
               <p className="text-gray-500 mt-0.5">{user.connectedDriveEmail || user.email}</p>
@@ -311,13 +311,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={onConnectDrive}
-                className="px-3 h-8.5 rounded-lg bg-white border border-[#EAE6DF] font-bold text-gray-700 hover:bg-[#F7F3ED] transition-colors cursor-pointer"
+                className="px-3 h-8.5 rounded-lg bg-white border border-[#E2E6EC] font-bold text-gray-700 hover:bg-[#F5F7FA] transition-colors cursor-pointer"
               >
                 Re-Sync Files
               </button>
               <button
                 onClick={onDisconnectDrive}
-                className="px-3 h-8.5 rounded-lg bg-[#FFF1ED] text-[#E94B35] border border-[#FADCD5] font-bold hover:bg-[#FFE3DC] transition-colors cursor-pointer"
+                className="px-3 h-8.5 rounded-lg bg-[#EDEDF8] text-[#14137B] border border-[#C9C8E8] font-bold hover:bg-[#FFE3DC] transition-colors cursor-pointer"
               >
                 Disconnect
               </button>
@@ -326,7 +326,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         ) : (
           <button
             onClick={onConnectDrive}
-            className="px-5 h-9 rounded-full text-xs font-bold bg-[#E94B35] hover:bg-[#D13E29] text-white flex items-center gap-2 cursor-pointer border-none"
+            className="px-5 h-9 rounded-full text-xs font-bold bg-[#14137B] hover:bg-[#0E0D57] text-white flex items-center gap-2 cursor-pointer border-none"
           >
             <HardDrive className="w-4 h-4" strokeWidth={2} />
             <span>Connect Google Drive</span>
@@ -335,13 +335,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </div>
 
       {/* Preferences & Appearance */}
-      <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] space-y-4 text-left">
+      <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-4 text-left">
         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-[#E94B35]" strokeWidth={2} />
+          <Sliders className="w-4 h-4 text-[#14137B]" strokeWidth={2} />
           <span>Appearance & Preferences</span>
         </h3>
 
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#F7F3ED]/50 border border-[#EAE6DF] text-xs">
+        <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#F5F7FA]/50 border border-[#E2E6EC] text-xs">
           <div>
             <p className="font-bold text-[#111111]">Interface Theme</p>
             <p className="text-gray-500">Switch between light mode and dark mode preferences</p>
@@ -349,18 +349,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <button
             onClick={onToggleDarkMode}
-            className="px-3.5 h-8.5 rounded-lg bg-white border border-[#EAE6DF] font-bold text-gray-700 hover:bg-[#F7F3ED] flex items-center gap-2 cursor-pointer transition-colors"
+            className="px-3.5 h-8.5 rounded-lg bg-white border border-[#E2E6EC] font-bold text-gray-700 hover:bg-[#F5F7FA] flex items-center gap-2 cursor-pointer transition-colors"
           >
-            {darkMode ? <Sun className="w-4 h-4 text-[#E94B35]" /> : <Moon className="w-4 h-4 text-gray-500" />}
+            {darkMode ? <Sun className="w-4 h-4 text-[#14137B]" /> : <Moon className="w-4 h-4 text-gray-500" />}
             <span>{darkMode ? 'Dark Mode' : 'Light Mode'}</span>
           </button>
         </div>
       </div>
 
       {/* Future Roadmap Section */}
-      <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] space-y-4 text-left">
+      <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-4 text-left">
         <div>
-          <span className="text-[9px] font-bold uppercase tracking-wider text-[#E94B35] bg-[#FFF1ED] px-2.5 py-0.5 rounded border border-[#FADCD5]">
+          <span className="text-[9px] font-bold uppercase tracking-wider text-[#14137B] bg-[#EDEDF8] px-2.5 py-0.5 rounded border border-[#C9C8E8]">
             Platform Roadmap
           </span>
           <h3 className="font-display text-lg font-black text-[#111111] mt-2">
@@ -375,8 +375,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           {futureRoadmap.map((item, idx) => {
             const Icon = item.icon;
             return (
-              <div key={idx} className="p-4 rounded-xl bg-[#F7F3ED]/40 border border-[#EAE6DF] space-y-1">
-                <div className="flex items-center gap-2 text-[#E94B35]">
+              <div key={idx} className="p-4 rounded-xl bg-[#F5F7FA]/40 border border-[#E2E6EC] space-y-1">
+                <div className="flex items-center gap-2 text-[#14137B]">
                   <Icon className="w-4 h-4" strokeWidth={2} />
                   <span className="text-xs font-bold text-[#111111]">{item.title}</span>
                 </div>

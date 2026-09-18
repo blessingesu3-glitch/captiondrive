@@ -75,7 +75,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelec
     <div className="space-y-8 animate-fadeIn max-w-7xl mx-auto pb-12 select-none">
       
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-[#EAE6DF] pb-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-[#E2E6EC] pb-4">
         <div>
           <h1 className="font-display text-3xl font-black text-[#111111] tracking-tight">
             Content Calendar
@@ -86,12 +86,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelec
         </div>
 
         {/* Month Selector Controls */}
-        <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#EAE6DF] self-start sm:self-center">
-          <button onClick={goToPrevMonth} className="p-1.5 rounded-full text-gray-500 hover:bg-[#F7F3ED] cursor-pointer">
+        <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#E2E6EC] self-start sm:self-center">
+          <button onClick={goToPrevMonth} className="p-1.5 rounded-full text-gray-500 hover:bg-[#F5F7FA] cursor-pointer">
             <ChevronLeft className="w-4 h-4 text-gray-650" />
           </button>
           <span className="text-xs font-bold px-3 text-[#111111]">{monthLabel}</span>
-          <button onClick={goToNextMonth} className="p-1.5 rounded-full text-gray-500 hover:bg-[#F7F3ED] cursor-pointer">
+          <button onClick={goToNextMonth} className="p-1.5 rounded-full text-gray-500 hover:bg-[#F5F7FA] cursor-pointer">
             <ChevronRight className="w-4 h-4 text-gray-650" />
           </button>
         </div>
@@ -101,10 +101,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelec
       <div className="grid lg:grid-cols-12 gap-6 items-stretch">
         
         {/* Calendar Grid (8 Columns) */}
-        <div className="lg:col-span-8 p-6 bg-white border border-[#EAE6DF] rounded-2xl shadow-xs flex flex-col">
+        <div className="lg:col-span-8 p-6 bg-white border border-[#E2E6EC] rounded-2xl shadow-xs flex flex-col">
           
           {/* Days of Week Header */}
-          <div className="grid grid-cols-7 text-center pb-2.5 border-b border-[#EAE6DF] text-[10px] font-bold text-gray-400 tracking-wider">
+          <div className="grid grid-cols-7 text-center pb-2.5 border-b border-[#E2E6EC] text-[10px] font-bold text-gray-400 tracking-wider">
             {daysOfWeek.map(day => <span key={day}>{day}</span>)}
           </div>
 
@@ -123,15 +123,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelec
                   onClick={() => dayObj.isCurrentMonth && onSelectDate(dayObj.dateString)}
                   className={`p-2 rounded-xl border flex flex-col justify-between min-h-[82px] transition-all bg-white ${
                     dayObj.isCurrentMonth
-                      ? 'hover:border-[#E94B35] cursor-pointer'
+                      ? 'hover:border-[#14137B] cursor-pointer'
                       : 'border-transparent text-gray-300 pointer-events-none opacity-30'
                   } ${
                     isToday 
-                      ? 'border-[#E94B35] ring-1 ring-[#E94B35]/20 bg-[#FFF1ED]/10' 
-                      : 'border-[#EAE6DF]'
+                      ? 'border-[#14137B] ring-1 ring-[#14137B]/20 bg-[#EDEDF8]/10' 
+                      : 'border-[#E2E6EC]'
                   }`}
                 >
-                  <span className={`text-[10px] font-bold ${isToday ? 'text-[#E94B35] font-extrabold' : 'text-gray-400'}`}>
+                  <span className={`text-[10px] font-bold ${isToday ? 'text-[#14137B] font-extrabold' : 'text-gray-400'}`}>
                     {dayObj.day}
                   </span>
 
@@ -140,7 +140,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelec
                     {postsOnDay.slice(0, 2).map(p => (
                       <div 
                         key={p.id}
-                        className={`p-1 rounded-lg text-[9px] font-bold truncate flex items-center gap-1 bg-[#F7F3ED]/80 text-[#111111] border border-[#EAE6DF] hover:border-[#E94B35] transition-all-fast`}
+                        className={`p-1 rounded-lg text-[9px] font-bold truncate flex items-center gap-1 bg-[#F5F7FA]/80 text-[#111111] border border-[#E2E6EC] hover:border-[#14137B] transition-all-fast`}
                         title={`${p.platform}: ${p.caption_text}`}
                       >
                         {p.media_thumbnail ? (
@@ -152,7 +152,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelec
                       </div>
                     ))}
                     {postsOnDay.length > 2 && (
-                      <span className="text-[8px] font-bold text-[#E94B35] block text-right">
+                      <span className="text-[8px] font-bold text-[#14137B] block text-right">
                         +{postsOnDay.length - 2} more
                       </span>
                     )}
@@ -165,17 +165,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelec
         </div>
 
         {/* Upcoming Posts Sidebar Queue (4 Columns) */}
-        <div className="lg:col-span-4 p-6 bg-white border border-[#EAE6DF] rounded-2xl shadow-xs flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-4 p-6 bg-white border border-[#E2E6EC] rounded-2xl shadow-xs flex flex-col justify-between space-y-4">
           
           <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-[#EAE6DF] pb-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-[#E2E6EC] pb-3">
               Upcoming Posts
             </h3>
 
             <div className="space-y-3.5 overflow-y-auto pr-1 flex-1 custom-scrollbar">
               {upcomingPosts.length === 0 ? (
                 <div className="py-12 text-center text-xs text-gray-400 flex flex-col items-center justify-center space-y-2">
-                  <div className="p-3.5 rounded-full bg-[#F7F3ED] text-gray-400 border border-dashed border-[#EAE6DF]">
+                  <div className="p-3.5 rounded-full bg-[#F5F7FA] text-gray-400 border border-dashed border-[#E2E6EC]">
                     <Clock className="w-5 h-5" />
                   </div>
                   <span>No posts scheduled currently.</span>
@@ -184,18 +184,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelec
                 upcomingPosts.map(p => (
                   <div 
                     key={p.id}
-                    className="p-3.5 rounded-xl bg-white border border-[#EAE6DF] hover:border-[#E94B35] transition-all-fast space-y-2.5"
+                    className="p-3.5 rounded-xl bg-white border border-[#E2E6EC] hover:border-[#14137B] transition-all-fast space-y-2.5"
                   >
                     <div className="flex items-center justify-between text-[10px] text-gray-400">
-                      <span className="text-[#E94B35] font-extrabold uppercase tracking-wide">{p.platform}</span>
+                      <span className="text-[#14137B] font-extrabold uppercase tracking-wide">{p.platform}</span>
                       <span className="flex items-center gap-1 font-bold">
-                        <Clock className="w-3.5 h-3.5 text-[#E94B35]" />
+                        <Clock className="w-3.5 h-3.5 text-[#14137B]" />
                         {p.scheduled_for ? new Date(p.scheduled_for).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Draft'}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <img src={p.media_thumbnail} alt="" className="w-10 h-10 rounded-xl object-cover border border-[#EAE6DF] shrink-0" />
+                      <img src={p.media_thumbnail} alt="" className="w-10 h-10 rounded-xl object-cover border border-[#E2E6EC] shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-[#111111] truncate">{p.media_filename}</p>
                         <p className="text-[10px] text-gray-500 truncate mt-0.5">{p.caption_text}</p>
@@ -207,15 +207,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ socialPosts, onSelec
             </div>
           </div>
 
-          <div className="pt-4 border-t border-[#EAE6DF] space-y-2">
+          <div className="pt-4 border-t border-[#E2E6EC] space-y-2">
             <div className="flex items-center justify-between text-xs text-gray-500">
               <span>Total Scheduled Slots:</span>
               <span className="font-bold text-[#111111]">{upcomingPosts.length} posts</span>
             </div>
             <div className="flex items-center justify-between text-xs text-gray-500">
               <span>Auto-Publish Engine:</span>
-              <span className="font-bold text-[#10B981] flex items-center gap-1 text-[9px] uppercase tracking-wide">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
+              <span className="font-bold text-[#66D100] flex items-center gap-1 text-[9px] uppercase tracking-wide">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#66D100]" />
                 Online
               </span>
             </div>

@@ -66,18 +66,18 @@ export const ImportMediaModal: React.FC<ImportMediaModalProps> = ({ onClose, onI
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#111111]/30 backdrop-blur-xs animate-fadeIn select-none">
       <div 
-        className="relative w-full max-w-lg bg-white rounded-3xl border border-[#EAE6DF] shadow-premium overflow-hidden p-6 space-y-5"
+        className="relative w-full max-w-lg bg-white rounded-3xl border border-[#E2E6EC] shadow-premium overflow-hidden p-6 space-y-5"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-1.5 rounded-lg text-gray-400 hover:text-[#111111] hover:bg-[#F7F3ED] transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-1.5 rounded-lg text-gray-400 hover:text-[#111111] hover:bg-[#F5F7FA] transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" strokeWidth={2} />
         </button>
 
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#FFF1ED] text-[#E94B35] flex items-center justify-center shadow-sm border border-[#FADCD5]">
+          <div className="w-10 h-10 rounded-xl bg-[#EDEDF8] text-[#14137B] flex items-center justify-center shadow-sm border border-[#C9C8E8]">
             <UploadCloud className="w-5 h-5" strokeWidth={2} />
           </div>
           <div>
@@ -101,7 +101,7 @@ export const ImportMediaModal: React.FC<ImportMediaModalProps> = ({ onClose, onI
                 key={idx}
                 type="button"
                 onClick={() => handleQuickImport(s)}
-                className="p-2 rounded-xl bg-[#F7F3ED]/40 hover:bg-[#FFF1ED] border border-[#EAE6DF] hover:border-[#FADCD5] text-left space-y-1.5 transition-all-fast cursor-pointer group"
+                className="p-2 rounded-xl bg-[#F5F7FA]/40 hover:bg-[#EDEDF8] border border-[#E2E6EC] hover:border-[#C9C8E8] text-left space-y-1.5 transition-all-fast cursor-pointer group"
               >
                 <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-250">
                   <img src={s.url} alt={s.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
@@ -113,7 +113,7 @@ export const ImportMediaModal: React.FC<ImportMediaModalProps> = ({ onClose, onI
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3.5 pt-3.5 border-t border-[#EAE6DF]">
+        <form onSubmit={handleSubmit} className="space-y-3.5 pt-3.5 border-t border-[#E2E6EC]">
           <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-700">File Name</label>
             <input
@@ -122,7 +122,7 @@ export const ImportMediaModal: React.FC<ImportMediaModalProps> = ({ onClose, onI
               value={filename}
               onChange={(e) => setFilename(e.target.value)}
               placeholder="Summer_Campaign_Banner.jpg"
-              className="w-full h-9.5 px-3 text-xs rounded-xl border border-[#EAE6DF] bg-white text-[#111111] focus:outline-none focus:border-[#E94B35]"
+              className="w-full h-9.5 px-3 text-xs rounded-xl border border-[#E2E6EC] bg-white text-[#111111] focus:outline-none focus:border-[#14137B]"
             />
           </div>
 
@@ -132,7 +132,7 @@ export const ImportMediaModal: React.FC<ImportMediaModalProps> = ({ onClose, onI
               <select
                 value={fileType}
                 onChange={(e) => setFileType(e.target.value as 'image' | 'video')}
-                className="w-full h-9.5 px-2.5 text-xs rounded-xl border border-[#EAE6DF] bg-white text-[#111111] focus:outline-none focus:border-[#E94B35]"
+                className="w-full h-9.5 px-2.5 text-xs rounded-xl border border-[#E2E6EC] bg-white text-[#111111] focus:outline-none focus:border-[#14137B]"
               >
                 <option value="image">Image (.jpg, .png)</option>
                 <option value="video">Video (.mp4)</option>
@@ -146,7 +146,7 @@ export const ImportMediaModal: React.FC<ImportMediaModalProps> = ({ onClose, onI
                 value={folder}
                 onChange={(e) => setFolder(e.target.value)}
                 placeholder="Folder name"
-                className="w-full h-9.5 px-3 text-xs rounded-xl border border-[#EAE6DF] bg-white text-[#111111] focus:outline-none focus:border-[#E94B35]"
+                className="w-full h-9.5 px-3 text-xs rounded-xl border border-[#E2E6EC] bg-white text-[#111111] focus:outline-none focus:border-[#14137B]"
               />
             </div>
           </div>
@@ -158,13 +158,13 @@ export const ImportMediaModal: React.FC<ImportMediaModalProps> = ({ onClose, onI
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="https://..."
-              className="w-full h-9.5 px-3 text-xs rounded-xl border border-[#EAE6DF] bg-white text-[#111111] focus:outline-none focus:border-[#E94B35]"
+              className="w-full h-9.5 px-3 text-xs rounded-xl border border-[#E2E6EC] bg-white text-[#111111] focus:outline-none focus:border-[#14137B]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full mt-3 h-10.5 rounded-xl text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm cursor-pointer transition-all border-none"
+            className="w-full mt-3 h-10.5 rounded-xl text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm cursor-pointer transition-all border-none"
           >
             Import File
           </button>

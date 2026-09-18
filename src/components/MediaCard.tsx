@@ -32,11 +32,11 @@ export const MediaCard: React.FC<MediaCardProps> = ({
     return (
       <div 
         onClick={() => onSelectMedia(item)}
-        className="group relative flex items-center justify-between gap-4 p-3.5 rounded-2xl bg-white border border-[#EAE6DF] hover:border-[#E94B35] transition-all-fast cursor-pointer"
+        className="group relative flex items-center justify-between gap-4 p-3.5 rounded-2xl bg-white border border-[#E2E6EC] hover:border-[#14137B] transition-all-fast cursor-pointer"
       >
         <div className="flex items-center gap-4 min-w-0">
           {/* Thumbnail */}
-          <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-[#F7F3ED] border border-[#EAE6DF]">
+          <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-[#F5F7FA] border border-[#E2E6EC]">
             <img 
               src={item.thumbnail} 
               alt={item.filename}
@@ -44,7 +44,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
               loading="lazy"
             />
             <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/60 text-white text-[8px] font-bold uppercase tracking-wider flex items-center gap-0.5">
-              {isVideo ? <Video className="w-2.5 h-2.5 text-[#E94B35]" strokeWidth={2.5} /> : <FileImage className="w-2.5 h-2.5 text-[#E94B35]" strokeWidth={2.5} />}
+              {isVideo ? <Video className="w-2.5 h-2.5 text-[#14137B]" strokeWidth={2.5} /> : <FileImage className="w-2.5 h-2.5 text-[#14137B]" strokeWidth={2.5} />}
             </div>
             {isVideo && item.duration && (
               <div className="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/70 text-white text-[8px] font-mono">
@@ -55,7 +55,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
           {/* Info */}
           <div className="min-w-0">
-            <h4 className="text-sm font-bold text-[#111111] truncate group-hover:text-[#E94B35] transition-colors">
+            <h4 className="text-sm font-bold text-[#111111] truncate group-hover:text-[#14137B] transition-colors">
               {item.filename}
             </h4>
             
@@ -81,8 +81,8 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             onClick={(e) => onToggleFavorite(item.id, e)}
             className={`p-2.5 rounded-xl transition-all duration-150 cursor-pointer border ${
               item.is_favorite 
-                ? 'text-[#E94B35] bg-[#FFF1ED] border-[#FADCD5]' 
-                : 'text-gray-400 hover:text-[#E94B35] hover:bg-[#FFF1ED] hover:border-[#FADCD5] border-[#EAE6DF]'
+                ? 'text-[#14137B] bg-[#EDEDF8] border-[#C9C8E8]' 
+                : 'text-gray-400 hover:text-[#14137B] hover:bg-[#EDEDF8] hover:border-[#C9C8E8] border-[#E2E6EC]'
             }`}
             title="Toggle favorite"
           >
@@ -94,7 +94,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
               e.stopPropagation();
               onGenerateCaption(item);
             }}
-            className="flex items-center gap-1.5 px-4 h-9 rounded-xl text-xs font-bold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm transition-colors cursor-pointer border-none"
+            className="flex items-center gap-1.5 px-4 h-9 rounded-xl text-xs font-bold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm transition-colors cursor-pointer border-none"
           >
             <Sparkles className="w-3.5 h-3.5 fill-current" strokeWidth={2} />
             <span>Caption Studio</span>
@@ -108,10 +108,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   return (
     <div 
       onClick={() => onSelectMedia(item)}
-      className="group relative flex flex-col rounded-2xl bg-white border border-[#EAE6DF] hover:border-[#E94B35] transition-all-fast cursor-pointer overflow-hidden shadow-xs"
+      className="group relative flex flex-col rounded-2xl bg-white border border-[#E2E6EC] hover:border-[#14137B] transition-all-fast cursor-pointer overflow-hidden shadow-xs"
     >
       {/* Thumbnail Container */}
-      <div className="relative aspect-video w-full overflow-hidden bg-[#F7F3ED]">
+      <div className="relative aspect-video w-full overflow-hidden bg-[#F5F7FA]">
         <img 
           src={item.thumbnail} 
           alt={item.filename}
@@ -121,15 +121,15 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
         {/* Top Badges */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-white/95 backdrop-blur-xs text-[#111111] text-[9px] font-bold uppercase tracking-wider shadow-sm border border-[#EAE6DF]">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-white/95 backdrop-blur-xs text-[#111111] text-[9px] font-bold uppercase tracking-wider shadow-sm border border-[#E2E6EC]">
             {isVideo ? (
               <>
-                <Video className="w-3 h-3 text-[#E94B35]" strokeWidth={2.5} />
+                <Video className="w-3 h-3 text-[#14137B]" strokeWidth={2.5} />
                 <span>Video</span>
               </>
             ) : (
               <>
-                <FileImage className="w-3 h-3 text-[#E94B35]" strokeWidth={2.5} />
+                <FileImage className="w-3 h-3 text-[#14137B]" strokeWidth={2.5} />
                 <span>Image</span>
               </>
             )}
@@ -139,8 +139,8 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             onClick={(e) => onToggleFavorite(item.id, e)}
             className={`p-1.5 rounded-full backdrop-blur-xs transition-all cursor-pointer ${
               item.is_favorite 
-                ? 'bg-[#E94B35] text-white shadow-sm' 
-                : 'bg-black/45 text-white hover:bg-black/60 hover:text-[#E94B35]'
+                ? 'bg-[#14137B] text-white shadow-sm' 
+                : 'bg-black/45 text-white hover:bg-black/60 hover:text-[#14137B]'
             }`}
             title="Favorite"
           >
@@ -151,7 +151,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
         {/* Video Play Icon */}
         {isVideo && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center shadow-md group-hover:scale-110 group-hover:bg-[#E94B35] transition-all">
+            <div className="w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center shadow-md group-hover:scale-110 group-hover:bg-[#14137B] transition-all">
               <Play className="w-4 h-4 fill-current ml-0.5" strokeWidth={2} />
             </div>
           </div>
@@ -159,13 +159,13 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
         {/* Bottom overlay info */}
         <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white flex items-center justify-between text-[11px]">
-          <span className="flex items-center gap-1 text-gray-800 bg-white/90 px-2 py-0.5 rounded-md backdrop-blur-xs text-[9px] font-bold border border-[#EAE6DF] shadow-xs">
+          <span className="flex items-center gap-1 text-gray-800 bg-white/90 px-2 py-0.5 rounded-md backdrop-blur-xs text-[9px] font-bold border border-[#E2E6EC] shadow-xs">
             <Folder className="w-3 h-3 text-gray-500" strokeWidth={2} />
             <span className="truncate max-w-[100px]">{item.folder}</span>
           </span>
 
           {isVideo && item.duration && (
-            <span className="flex items-center gap-1 text-gray-800 bg-white/90 px-2 py-0.5 rounded-md backdrop-blur-xs text-[9px] font-bold border border-[#EAE6DF] shadow-xs">
+            <span className="flex items-center gap-1 text-gray-800 bg-white/90 px-2 py-0.5 rounded-md backdrop-blur-xs text-[9px] font-bold border border-[#E2E6EC] shadow-xs">
               <Clock className="w-3 h-3 text-gray-500" strokeWidth={2} />
               <span>{item.duration}</span>
             </span>
@@ -176,7 +176,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       {/* Card Info Content */}
       <div className="p-4 flex flex-col justify-between flex-1 gap-3.5">
         <div>
-          <p className="text-xs font-extrabold text-[#111111] truncate group-hover:text-[#E94B35] transition-colors">
+          <p className="text-xs font-extrabold text-[#111111] truncate group-hover:text-[#14137B] transition-colors">
             {item.filename}
           </p>
 
@@ -186,7 +186,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
         </div>
 
         {/* Card Footer Actions */}
-        <div className="pt-2 border-t border-[#EAE6DF] flex items-center justify-between gap-2">
+        <div className="pt-2 border-t border-[#E2E6EC] flex items-center justify-between gap-2">
           <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
             {item.size_formatted || '1.2 MB'}
           </span>
@@ -196,7 +196,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
               e.stopPropagation();
               onGenerateCaption(item);
             }}
-            className="flex items-center gap-1 px-3 h-8 rounded-lg text-xs font-bold bg-[#F7F3ED] hover:bg-[#E94B35] hover:text-white text-[#111111] border border-[#EAE6DF] transition-all-fast cursor-pointer"
+            className="flex items-center gap-1 px-3 h-8 rounded-lg text-xs font-bold bg-[#F5F7FA] hover:bg-[#14137B] hover:text-white text-[#111111] border border-[#E2E6EC] transition-all-fast cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-gray-500 group-hover:text-white" strokeWidth={2} />
             <span>Caption</span>

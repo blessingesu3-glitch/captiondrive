@@ -104,7 +104,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
     <div className="space-y-6 animate-fadeIn max-w-7xl mx-auto pb-12 select-none">
       
       {/* Header Controls & Filter Bar */}
-      <div className="p-5 rounded-2xl bg-white border border-[#EAE6DF] shadow-xs space-y-4">
+      <div className="p-5 rounded-2xl bg-white border border-[#E2E6EC] shadow-xs space-y-4">
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           
@@ -116,17 +116,17 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
               value={filterState.searchQuery}
               onChange={(e) => setFilterState((prev) => ({ ...prev, searchQuery: e.target.value }))}
               placeholder="Search by filename, subject, or AI summary..."
-              className="w-full pl-10 pr-4 h-10 text-xs font-semibold rounded-lg bg-[#F7F3ED]/60 border border-[#EAE6DF] text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#E94B35] transition-all"
+              className="w-full pl-10 pr-4 h-10 text-xs font-semibold rounded-lg bg-[#F5F7FA]/60 border border-[#E2E6EC] text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#14137B] transition-all"
             />
           </div>
 
           {/* Quick Type Tabs */}
-          <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#F7F3ED]/60 border border-[#EAE6DF]">
+          <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#F5F7FA]/60 border border-[#E2E6EC]">
             <button
               onClick={() => setFilterState((prev) => ({ ...prev, mediaType: 'all' }))}
               className={`px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 filterState.mediaType === 'all'
-                  ? 'bg-white text-[#E94B35] shadow-xs'
+                  ? 'bg-white text-[#14137B] shadow-xs'
                   : 'text-[#555555] hover:text-[#111111]'
               }`}
             >
@@ -136,7 +136,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
               onClick={() => setFilterState((prev) => ({ ...prev, mediaType: 'image' }))}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 filterState.mediaType === 'image'
-                  ? 'bg-white text-[#E94B35] shadow-xs'
+                  ? 'bg-white text-[#14137B] shadow-xs'
                   : 'text-[#555555] hover:text-[#111111]'
               }`}
             >
@@ -147,7 +147,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
               onClick={() => setFilterState((prev) => ({ ...prev, mediaType: 'video' }))}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 filterState.mediaType === 'video'
-                  ? 'bg-white text-[#E94B35] shadow-xs'
+                  ? 'bg-white text-[#14137B] shadow-xs'
                   : 'text-[#555555] hover:text-[#111111]'
               }`}
             >
@@ -159,12 +159,12 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
         </div>
 
         {/* Secondary dropdown filters */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#EAE6DF]">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#E2E6EC]">
           
           <div className="flex flex-wrap items-center gap-2">
             
             {/* Folder Dropdown */}
-            <div className="flex items-center gap-1.5 px-3.5 h-9 rounded-lg bg-[#F7F3ED]/60 border border-[#EAE6DF] text-xs font-semibold text-[#111111]">
+            <div className="flex items-center gap-1.5 px-3.5 h-9 rounded-lg bg-[#F5F7FA]/60 border border-[#E2E6EC] text-xs font-semibold text-[#111111]">
               <Folder className="w-3.5 h-3.5 text-[#888888]" strokeWidth={2} />
               <select
                 value={filterState.folder}
@@ -179,7 +179,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
             </div>
 
             {/* Sort Dropdown */}
-            <div className="flex items-center gap-1.5 px-3.5 h-9 rounded-lg bg-[#F7F3ED]/60 border border-[#EAE6DF] text-xs font-semibold text-[#111111]">
+            <div className="flex items-center gap-1.5 px-3.5 h-9 rounded-lg bg-[#F5F7FA]/60 border border-[#E2E6EC] text-xs font-semibold text-[#111111]">
               <ArrowUpDown className="w-3.5 h-3.5 text-[#888888]" strokeWidth={2} />
               <select
                 value={filterState.sortBy}
@@ -195,12 +195,12 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
           </div>
 
           {/* View Mode Switcher */}
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#F7F3ED]/60 border border-[#EAE6DF]">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#F5F7FA]/60 border border-[#E2E6EC]">
             <button
               onClick={() => setFilterState((prev) => ({ ...prev, viewMode: 'grid' }))}
               className={`p-1.5 rounded transition-all cursor-pointer ${
                 filterState.viewMode === 'grid'
-                  ? 'bg-white text-[#E94B35] shadow-xs'
+                  ? 'bg-white text-[#14137B] shadow-xs'
                   : 'text-gray-400 hover:text-[#111111]'
               }`}
               title="Grid View"
@@ -211,7 +211,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
               onClick={() => setFilterState((prev) => ({ ...prev, viewMode: 'list' }))}
               className={`p-1.5 rounded transition-all cursor-pointer ${
                 filterState.viewMode === 'list'
-                  ? 'bg-white text-[#E94B35] shadow-xs'
+                  ? 'bg-white text-[#14137B] shadow-xs'
                   : 'text-gray-400 hover:text-[#111111]'
               }`}
               title="List View"
@@ -227,7 +227,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
       {/* Smart Search Quick Sample Prompts */}
       <div className="flex flex-wrap items-center gap-2 px-1">
         <span className="text-xs font-bold text-gray-400 flex items-center gap-1.5 uppercase tracking-wider">
-          <Zap className="w-3.5 h-3.5 text-[#E94B35]" strokeWidth={2} />
+          <Zap className="w-3.5 h-3.5 text-[#14137B]" strokeWidth={2} />
           <span>Smart Search Prompts:</span>
         </span>
         {samplePills.map((pill) => (
@@ -235,7 +235,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
             key={pill}
             onClick={() => onRunSmartSearch(pill)}
             disabled={isLoadingSmartSearch}
-            className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#FFF1ED]/60 hover:bg-[#FFF1ED] text-[#E94B35] border border-[#FADCD5] transition-all-fast cursor-pointer disabled:opacity-50"
+            className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#EDEDF8]/60 hover:bg-[#EDEDF8] text-[#14137B] border border-[#C9C8E8] transition-all-fast cursor-pointer disabled:opacity-50"
           >
             "{pill}"
           </button>
@@ -244,15 +244,15 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
 
       {/* Smart Search Filter Banner */}
       {smartSearchFilter !== null && (
-        <div className="p-4 rounded-xl bg-[#FFF1ED] border border-[#FADCD5] flex items-center justify-between text-xs text-[#E94B35]">
+        <div className="p-4 rounded-xl bg-[#EDEDF8] border border-[#C9C8E8] flex items-center justify-between text-xs text-[#14137B]">
           <div className="flex items-center gap-2">
-            <span className="font-extrabold px-2 py-0.5 rounded bg-[#E94B35] text-white text-[9px] uppercase tracking-wider">AI FILTER ACTIVE</span>
+            <span className="font-extrabold px-2 py-0.5 rounded bg-[#14137B] text-white text-[9px] uppercase tracking-wider">AI FILTER ACTIVE</span>
             <span>Showing matched results for: <strong className="font-bold">"{smartSearchQueryText || 'Smart Search Prompt'}"</strong> ({filteredItems.length} matched).</span>
           </div>
           {onClearSmartSearch && (
             <button
               onClick={onClearSmartSearch}
-              className="text-[#E94B35] hover:underline font-extrabold cursor-pointer border-none bg-transparent"
+              className="text-[#14137B] hover:underline font-extrabold cursor-pointer border-none bg-transparent"
             >
               Clear Filter
             </button>
@@ -279,8 +279,8 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
           ))}
         </div>
       ) : (
-        <div className="py-16 text-center rounded-2xl bg-white border border-dashed border-[#EAE6DF] p-8 space-y-3 shadow-xs">
-          <div className="w-12 h-12 rounded-2xl bg-[#F7F3ED] text-[#888888] flex items-center justify-center mx-auto">
+        <div className="py-16 text-center rounded-2xl bg-white border border-dashed border-[#E2E6EC] p-8 space-y-3 shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-[#F5F7FA] text-[#888888] flex items-center justify-center mx-auto">
             <Filter className="w-6 h-6" strokeWidth={2} />
           </div>
           <h3 className="text-base font-bold text-[#111111]">
@@ -291,7 +291,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
           </p>
           <button
             onClick={() => setFilterState({ searchQuery: '', mediaType: 'all', folder: 'all', sortBy: 'newest', viewMode: 'grid' })}
-            className="mt-2 px-5 h-10 rounded-full text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm cursor-pointer border-none"
+            className="mt-2 px-5 h-10 rounded-full text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm cursor-pointer border-none"
           >
             Reset Filters
           </button>

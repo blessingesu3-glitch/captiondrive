@@ -66,7 +66,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onSelectTab }) => 
   return (
     <div className="space-y-8 animate-fadeIn max-w-7xl mx-auto pb-12 select-none">
 
-      <div className="border-b border-[#EAE6DF] pb-4">
+      <div className="border-b border-[#E2E6EC] pb-4">
         <h1 className="font-display text-3xl font-black text-[#111111] tracking-tight">
           Content Analytics
         </h1>
@@ -80,15 +80,15 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onSelectTab }) => 
       )}
 
       {!loading && error && (
-        <div className="p-4 rounded-xl bg-[#FFF1ED] border border-[#FADCD5] flex items-start gap-2.5">
-          <AlertCircle className="w-4.5 h-4.5 text-[#E94B35] shrink-0 mt-0.5" />
-          <p className="text-xs text-[#E94B35] leading-relaxed">{error}</p>
+        <div className="p-4 rounded-xl bg-[#EDEDF8] border border-[#C9C8E8] flex items-start gap-2.5">
+          <AlertCircle className="w-4.5 h-4.5 text-[#14137B] shrink-0 mt-0.5" />
+          <p className="text-xs text-[#14137B] leading-relaxed">{error}</p>
         </div>
       )}
 
       {!loading && !error && data && !data.connected && (
-        <div className="py-16 flex flex-col items-center justify-center text-center space-y-4 bg-white border border-[#EAE6DF] rounded-2xl">
-          <div className="p-4 rounded-full bg-[#FFF1ED] text-[#E94B35]">
+        <div className="py-16 flex flex-col items-center justify-center text-center space-y-4 bg-white border border-[#E2E6EC] rounded-2xl">
+          <div className="p-4 rounded-full bg-[#EDEDF8] text-[#14137B]">
             <Instagram className="w-6 h-6" />
           </div>
           <div className="space-y-1">
@@ -99,12 +99,12 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onSelectTab }) => 
           </div>
           <button
             onClick={() => onSelectTab('social')}
-            className="px-5 h-10 rounded-xl text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm transition-all cursor-pointer border-none"
+            className="px-5 h-10 rounded-xl text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm transition-all cursor-pointer border-none"
           >
             Go to Publish → Connect Instagram
           </button>
           {(data.capsCreated > 0 || data.postsPublished > 0) && (
-            <div className="flex items-center gap-6 pt-4 border-t border-[#EAE6DF] text-xs text-gray-500">
+            <div className="flex items-center gap-6 pt-4 border-t border-[#E2E6EC] text-xs text-gray-500">
               <span><strong className="text-[#111111]">{data.capsCreated}</strong> captions created</span>
               <span><strong className="text-[#111111]">{data.postsPublished}</strong> posts published</span>
             </div>
@@ -116,29 +116,29 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onSelectTab }) => 
         <>
           {/* Summary metrics */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-5 rounded-2xl bg-white border border-[#EAE6DF] shadow-xs space-y-2">
+            <div className="p-5 rounded-2xl bg-white border border-[#E2E6EC] shadow-xs space-y-2">
               <span className="text-xs font-semibold text-gray-500">Reach (7 days)</span>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-extrabold text-[#111111] tracking-tight">{formatNumber(data.reach7d)}</span>
                 {data.reachGrowthPct !== null && data.reachGrowthPct !== undefined && (
-                  <span className={`text-xs font-bold flex items-center gap-0.5 ${data.reachGrowthPct >= 0 ? 'text-[#10B981]' : 'text-rose-500'}`}>
+                  <span className={`text-xs font-bold flex items-center gap-0.5 ${data.reachGrowthPct >= 0 ? 'text-[#66D100]' : 'text-rose-500'}`}>
                     {data.reachGrowthPct >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {data.reachGrowthPct >= 0 ? '+' : ''}{data.reachGrowthPct.toFixed(1)}%
                   </span>
                 )}
               </div>
             </div>
-            <div className="p-5 rounded-2xl bg-white border border-[#EAE6DF] shadow-xs space-y-2">
+            <div className="p-5 rounded-2xl bg-white border border-[#E2E6EC] shadow-xs space-y-2">
               <span className="text-xs font-semibold text-gray-500">Engagement Rate</span>
               <span className="text-2xl font-extrabold text-[#111111] tracking-tight block">
                 {data.engagementRate !== null && data.engagementRate !== undefined ? `${data.engagementRate.toFixed(1)}%` : '—'}
               </span>
             </div>
-            <div className="p-5 rounded-2xl bg-white border border-[#EAE6DF] shadow-xs space-y-2">
+            <div className="p-5 rounded-2xl bg-white border border-[#E2E6EC] shadow-xs space-y-2">
               <span className="text-xs font-semibold text-gray-500 flex items-center gap-1"><Users className="w-3 h-3" /> Followers</span>
               <span className="text-2xl font-extrabold text-[#111111] tracking-tight block">{formatNumber(data.followersCount)}</span>
             </div>
-            <div className="p-5 rounded-2xl bg-white border border-[#EAE6DF] shadow-xs space-y-2">
+            <div className="p-5 rounded-2xl bg-white border border-[#E2E6EC] shadow-xs space-y-2">
               <span className="text-xs font-semibold text-gray-500">Posts Published</span>
               <span className="text-2xl font-extrabold text-[#111111] tracking-tight block">{data.postsPublished}</span>
             </div>
@@ -147,7 +147,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onSelectTab }) => 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
             {/* Recent posts */}
-            <div className="lg:col-span-8 p-6 bg-white border border-[#EAE6DF] rounded-2xl shadow-xs space-y-4">
+            <div className="lg:col-span-8 p-6 bg-white border border-[#E2E6EC] rounded-2xl shadow-xs space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
                 Recent Published Posts — @{data.igUsername}
               </h3>
@@ -161,9 +161,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onSelectTab }) => 
                       href={p.postUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#F7F3ED]/50 transition-colors"
+                      className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#F5F7FA]/50 transition-colors"
                     >
-                      <img src={p.mediaThumbnail} alt="" className="w-11 h-11 rounded-lg object-cover border border-[#EAE6DF] shrink-0" />
+                      <img src={p.mediaThumbnail} alt="" className="w-11 h-11 rounded-lg object-cover border border-[#E2E6EC] shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-[#111111] truncate">{p.mediaFilename}</p>
                         <p className="text-[10px] text-gray-400">{p.tone || 'No tone recorded'}</p>
@@ -179,7 +179,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onSelectTab }) => 
             </div>
 
             {/* Tone performance */}
-            <div className="lg:col-span-4 p-6 bg-white border border-[#EAE6DF] rounded-2xl shadow-xs flex flex-col justify-between space-y-5">
+            <div className="lg:col-span-4 p-6 bg-white border border-[#E2E6EC] rounded-2xl shadow-xs flex flex-col justify-between space-y-5">
               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
                   Engagement by Tone
@@ -196,9 +196,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onSelectTab }) => 
                             <span className="font-bold text-gray-700">{t.tone}</span>
                             <span className="font-extrabold text-[#111111]">{t.avgEngagementRate}% eng.</span>
                           </div>
-                          <div className="w-full bg-[#F7F3ED] rounded-full h-1.5 overflow-hidden">
+                          <div className="w-full bg-[#F5F7FA] rounded-full h-1.5 overflow-hidden">
                             <div
-                              className="bg-[#E94B35] h-1.5 rounded-full"
+                              className="bg-[#14137B] h-1.5 rounded-full"
                               style={{ width: `${Math.min((t.avgEngagementRate / maxRate) * 100, 100)}%` }}
                             />
                           </div>
@@ -212,7 +212,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onSelectTab }) => 
                 )}
               </div>
 
-              <div className="p-4 rounded-xl bg-[#F7F3ED] border border-[#EAE6DF] flex gap-2.5">
+              <div className="p-4 rounded-xl bg-[#F5F7FA] border border-[#E2E6EC] flex gap-2.5">
                 <Sparkles className="w-4.5 h-4.5 text-gray-400 shrink-0" />
                 <p className="text-[11px] text-gray-500 leading-relaxed">
                   This data comes directly from Instagram's own Insights API — captions created and platforms not yet connected (LinkedIn, X, Facebook) aren't included here.

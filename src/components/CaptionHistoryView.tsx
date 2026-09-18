@@ -56,10 +56,10 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
     <div className="space-y-6 animate-fadeIn select-none">
       
       {/* Header */}
-      <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-black text-[#111111] flex items-center gap-2">
-            <History className="w-5 h-5 text-[#E94B35]" strokeWidth={2} />
+            <History className="w-5 h-5 text-[#14137B]" strokeWidth={2} />
             <span>Saved Captions ({history.length})</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">
@@ -69,7 +69,7 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
       </div>
 
       {/* Filter Toolbar */}
-      <div className="p-4 rounded-2xl bg-white border border-[#EAE6DF] flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="p-4 rounded-2xl bg-white border border-[#E2E6EC] flex flex-col sm:flex-row items-center justify-between gap-3">
         
         {/* Search */}
         <div className="relative w-full sm:w-72">
@@ -79,19 +79,19 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search generated text or file..."
-            className="w-full h-9.5 pl-9 pr-4 text-xs font-semibold rounded-lg bg-[#F7F3ED]/60 border border-[#EAE6DF] text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#E94B35]"
+            className="w-full h-9.5 pl-9 pr-4 text-xs font-semibold rounded-lg bg-[#F5F7FA]/60 border border-[#E2E6EC] text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#14137B]"
           />
         </div>
 
         {/* Platform Filter Tabs */}
-        <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#F7F3ED]/60 border border-[#EAE6DF] w-full sm:w-auto overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#F5F7FA]/60 border border-[#E2E6EC] w-full sm:w-auto overflow-x-auto">
           {platforms.map((p) => (
             <button
               key={p}
               onClick={() => setSelectedPlatform(p)}
               className={`px-3.5 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 selectedPlatform === p
-                  ? 'bg-white text-[#E94B35] shadow-xs'
+                  ? 'bg-white text-[#14137B] shadow-xs'
                   : 'text-[#555555] hover:text-[#111111]'
               }`}
             >
@@ -108,11 +108,11 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
           {filteredHistory.map((item) => (
             <div
               key={item.id}
-              className="p-5 rounded-2xl bg-white border border-[#EAE6DF] space-y-3.5"
+              className="p-5 rounded-2xl bg-white border border-[#E2E6EC] space-y-3.5"
             >
-              <div className="flex items-center justify-between gap-3 flex-wrap border-b border-[#EAE6DF] pb-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap border-b border-[#E2E6EC] pb-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-[#F7F3ED] border border-[#EAE6DF]">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-[#F5F7FA] border border-[#E2E6EC]">
                     <img src={item.media_thumbnail} alt={item.media_filename} className="w-full h-full object-cover" />
                   </div>
 
@@ -121,7 +121,7 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
                       {item.media_filename}
                     </h4>
                     <div className="flex items-center gap-2 mt-0.5 text-[9px] font-bold text-gray-400 uppercase tracking-wider">
-                      <span className="text-[#E94B35]">{item.platform}</span>
+                      <span className="text-[#14137B]">{item.platform}</span>
                       <span>•</span>
                       <span>{item.tone} TONE</span>
                       <span>•</span>
@@ -133,7 +133,7 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleCopy(item)}
-                    className="px-3.5 h-8.5 rounded-lg text-xs font-bold bg-[#FFFFFF] hover:bg-[#F7F3ED] text-[#111111] border border-[#EAE6DF] flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="px-3.5 h-8.5 rounded-lg text-xs font-bold bg-[#FFFFFF] hover:bg-[#F5F7FA] text-[#111111] border border-[#E2E6EC] flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     {copiedId === item.id ? (
                       <>
@@ -159,7 +159,7 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
                           platform: item.platform
                         });
                       }}
-                      className="px-4 h-8.5 rounded-lg text-xs font-bold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm flex items-center gap-1.5 transition-all cursor-pointer border-none"
+                      className="px-4 h-8.5 rounded-lg text-xs font-bold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm flex items-center gap-1.5 transition-all cursor-pointer border-none"
                     >
                       <Send className="w-3.5 h-3.5" strokeWidth={2} />
                       <span>Post / Schedule</span>
@@ -168,7 +168,7 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
 
                   <button
                     onClick={() => onDeleteHistoryItem(item.id)}
-                    className="p-2 rounded-lg text-gray-400 hover:text-[#E94B35] hover:bg-[#FFF1ED] transition-colors cursor-pointer"
+                    className="p-2 rounded-lg text-gray-400 hover:text-[#14137B] hover:bg-[#EDEDF8] transition-colors cursor-pointer"
                     title="Delete item"
                   >
                     <Trash2 className="w-4 h-4" strokeWidth={2} />
@@ -177,7 +177,7 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
               </div>
 
               {/* Caption Content */}
-              <div className="p-4 rounded-xl bg-[#F7F3ED]/50 border border-[#EAE6DF] space-y-2">
+              <div className="p-4 rounded-xl bg-[#F5F7FA]/50 border border-[#E2E6EC] space-y-2">
                 <p className="text-xs font-extrabold text-[#111111]">
                   🪝 {item.caption_variation.hook}
                 </p>
@@ -185,14 +185,14 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
                   {item.caption_variation.body}
                 </p>
                 {item.caption_variation.cta && (
-                  <p className="text-xs font-bold text-[#E94B35] pt-1">
+                  <p className="text-xs font-bold text-[#14137B] pt-1">
                     👉 {item.caption_variation.cta}
                   </p>
                 )}
                 {item.caption_variation.hashtags?.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {item.caption_variation.hashtags.map((h, idx) => (
-                      <span key={idx} className="text-[10px] font-bold text-[#E94B35]">
+                      <span key={idx} className="text-[10px] font-bold text-[#14137B]">
                         {h}
                       </span>
                     ))}
@@ -208,8 +208,8 @@ export const CaptionHistoryView: React.FC<CaptionHistoryViewProps> = ({
           ))}
         </div>
       ) : (
-        <div className="py-20 text-center rounded-2xl bg-white border border-dashed border-[#EAE6DF] p-8 space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#F7F3ED] text-[#888888] flex items-center justify-center mx-auto border border-[#EAE6DF]">
+        <div className="py-20 text-center rounded-2xl bg-white border border-dashed border-[#E2E6EC] p-8 space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-[#F5F7FA] text-[#888888] flex items-center justify-center mx-auto border border-[#E2E6EC]">
             <History className="w-6 h-6" strokeWidth={2} />
           </div>
           <h3 className="text-sm font-bold text-[#111111]">

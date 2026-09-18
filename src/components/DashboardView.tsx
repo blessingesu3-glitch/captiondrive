@@ -62,8 +62,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   const getStatusBadgeClass = (status: string) => {
-    if (status === 'draft') return 'bg-[#FAF8F5] text-gray-500 border border-[#EAE6DF]';
-    return 'bg-[#EBFDF5] text-[#10B981] border border-[#A7F3D0]'; // Ready for caption
+    if (status === 'draft') return 'bg-[#FAF8F5] text-gray-500 border border-[#E2E6EC]';
+    return 'bg-[#EDF9DC] text-[#66D100] border border-[#D4EFAE]'; // Ready for caption
   };
 
   return (
@@ -73,11 +73,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="grid lg:grid-cols-12 gap-8 items-stretch">
         
         {/* Left 7 Columns: Editorial Greeting */}
-        <div className="lg:col-span-7 flex flex-col justify-between p-8 rounded-3xl bg-white border border-[#EAE6DF] space-y-6">
+        <div className="lg:col-span-7 flex flex-col justify-between p-8 rounded-3xl bg-white border border-[#E2E6EC] space-y-6">
           <div className="space-y-4">
             <h1 className="font-display text-5xl sm:text-6xl font-black text-[#111111] leading-[1.08] tracking-tight">
               {getGreeting()}, <br />
-              <span className="text-[#E94B35] font-display italic">
+              <span className="text-[#14137B] font-display italic">
                 {user.name ? user.name.split(' ')[0] : 'Creator'}.
               </span>
             </h1>
@@ -90,7 +90,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div>
             <button
               onClick={onOpenImportModal}
-              className="inline-flex items-center gap-2 px-6 h-12 rounded-full text-sm font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm transition-all duration-150 active:scale-[0.98] cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 h-12 rounded-full text-sm font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm transition-all duration-150 active:scale-[0.98] cursor-pointer"
             >
               <Plus className="w-4 h-4" strokeWidth={2.5} />
               <span>Create Content</span>
@@ -99,7 +99,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Right 5 Columns: Large Visual Content Preview */}
-        <div className="lg:col-span-5 rounded-3xl overflow-hidden relative group min-h-[260px] border border-[#EAE6DF] bg-white">
+        <div className="lg:col-span-5 rounded-3xl overflow-hidden relative group min-h-[260px] border border-[#E2E6EC] bg-white">
           <img 
             src={heroAsset.thumbnail} 
             alt={heroAsset.filename}
@@ -123,7 +123,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Left Column: Content Gallery & Library Tabs */}
         <div className="lg:col-span-8 space-y-6">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EAE6DF] pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E2E6EC] pb-4">
             <h2 className="font-display text-2xl font-black text-[#111111] tracking-tight">
               Your Content
             </h2>
@@ -153,7 +153,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div
                   key={item.id}
                   onClick={() => onSelectMedia(item)}
-                  className="group bg-white rounded-2xl border border-[#EAE6DF] overflow-hidden shadow-xs hover:border-[#E94B35] transition-all-fast cursor-pointer"
+                  className="group bg-white rounded-2xl border border-[#E2E6EC] overflow-hidden shadow-xs hover:border-[#14137B] transition-all-fast cursor-pointer"
                 >
                   {/* Image container */}
                   <div className="aspect-video w-full relative overflow-hidden bg-[#FAF8F5]">
@@ -164,7 +164,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     />
                     
                     {/* Media Type Tag */}
-                    <span className="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-white/95 backdrop-blur-xs text-[#111111] text-[9px] font-bold uppercase tracking-wider shadow-sm border border-[#EAE6DF]">
+                    <span className="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-white/95 backdrop-blur-xs text-[#111111] text-[9px] font-bold uppercase tracking-wider shadow-sm border border-[#E2E6EC]">
                       {item.file_type}
                     </span>
                   </div>
@@ -187,7 +187,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               ))}
             </div>
           ) : (
-            <div className="p-12 rounded-2xl border border-dashed border-[#EAE6DF] bg-white text-center text-xs text-gray-400">
+            <div className="p-12 rounded-2xl border border-dashed border-[#E2E6EC] bg-white text-center text-xs text-gray-400">
               No content items matching this filter.
             </div>
           )}
@@ -196,7 +196,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="pt-2 text-right">
             <button
               onClick={onOpenMediaLibrary}
-              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#E94B35] hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#14137B] hover:underline cursor-pointer"
             >
               <span>View all content</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -209,14 +209,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="lg:col-span-4 space-y-6">
           
           {/* Your Content summary list card */}
-          <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] space-y-5">
-            <div className="flex items-center justify-between border-b border-[#EAE6DF] pb-3">
+          <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-5">
+            <div className="flex items-center justify-between border-b border-[#E2E6EC] pb-3">
               <h3 className="text-xs font-bold tracking-tight text-[#111111] uppercase">
                 Your Content
               </h3>
               <button 
                 onClick={onOpenMediaLibrary}
-                className="text-xs font-bold text-[#E94B35] hover:underline cursor-pointer"
+                className="text-xs font-bold text-[#14137B] hover:underline cursor-pointer"
               >
                 View all
               </button>
@@ -237,7 +237,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* AI Captions */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#FFF1ED] flex items-center justify-center text-[#E94B35]">
+                  <div className="w-8 h-8 rounded-full bg-[#EDEDF8] flex items-center justify-center text-[#14137B]">
                     <FileText className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-semibold text-gray-600">AI Captions</span>
@@ -248,7 +248,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Scheduled Posts */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#EBFDF5] flex items-center justify-center text-[#10B981]">
+                  <div className="w-8 h-8 rounded-full bg-[#EDF9DC] flex items-center justify-center text-[#66D100]">
                     <Calendar className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-semibold text-gray-600">Scheduled Posts</span>
@@ -259,9 +259,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* Quick Actions List card */}
-          <div className="p-6 rounded-2xl bg-white border border-[#EAE6DF] space-y-4">
-            <h3 className="text-xs font-bold tracking-tight text-[#111111] uppercase border-b border-[#EAE6DF] pb-3 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#E94B35]" />
+          <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-4">
+            <h3 className="text-xs font-bold tracking-tight text-[#111111] uppercase border-b border-[#E2E6EC] pb-3 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#14137B]" />
               <span>Quick Actions</span>
             </h3>
 
@@ -270,7 +270,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={onConnectDrive}
                 className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left text-xs font-bold hover:bg-[#FAF8F5] transition-all-fast cursor-pointer"
               >
-                <div className="w-7 h-7 rounded-lg bg-[#EBFDF5] flex items-center justify-center text-[#10B981]">
+                <div className="w-7 h-7 rounded-lg bg-[#EDF9DC] flex items-center justify-center text-[#66D100]">
                   <HardDrive className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-[#111111]">Connect Google Drive</span>
@@ -280,7 +280,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => onSelectTab && onSelectTab('generator')}
                 className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left text-xs font-bold hover:bg-[#FAF8F5] transition-all-fast cursor-pointer"
               >
-                <div className="w-7 h-7 rounded-lg bg-[#FFF1ED] flex items-center justify-center text-[#E94B35]">
+                <div className="w-7 h-7 rounded-lg bg-[#EDEDF8] flex items-center justify-center text-[#14137B]">
                   <Sparkles className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-[#111111]">Generate Captions</span>

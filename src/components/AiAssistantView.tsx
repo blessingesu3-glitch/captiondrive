@@ -46,7 +46,7 @@ export const AiAssistantView: React.FC = () => {
     <div className="space-y-8 animate-fadeIn max-w-7xl mx-auto pb-12 select-none">
       
       {/* Header Banner */}
-      <div className="border-b border-[#EAE6DF] pb-4">
+      <div className="border-b border-[#E2E6EC] pb-4">
         <h1 className="font-display text-3xl font-black text-[#111111] tracking-tight">
           AI Creative Assistant
         </h1>
@@ -59,21 +59,21 @@ export const AiAssistantView: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
         {/* Left Chat Window (8 Columns) */}
-        <div className="lg:col-span-8 flex flex-col h-[520px] bg-white border border-[#EAE6DF] rounded-2xl shadow-xs overflow-hidden">
+        <div className="lg:col-span-8 flex flex-col h-[520px] bg-white border border-[#E2E6EC] rounded-2xl shadow-xs overflow-hidden">
           
           {/* Active Chat Header */}
-          <div className="px-6 py-4 border-b border-[#EAE6DF] flex items-center gap-3 bg-[#F7F3ED]/30">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF1ED] text-[#E94B35] flex items-center justify-center border border-[#FADCD5]">
+          <div className="px-6 py-4 border-b border-[#E2E6EC] flex items-center gap-3 bg-[#F5F7FA]/30">
+            <div className="w-9 h-9 rounded-xl bg-[#EDEDF8] text-[#14137B] flex items-center justify-center border border-[#C9C8E8]">
               <Bot className="w-5 h-5" strokeWidth={2} />
             </div>
             <div>
               <h3 className="text-xs font-bold text-[#111111]">CaptionDrive Creative Partner</h3>
-              <p className="text-[9px] font-bold text-[#E94B35] uppercase tracking-wider mt-0.5">Gemini-2.5-Flash Active</p>
+              <p className="text-[9px] font-bold text-[#14137B] uppercase tracking-wider mt-0.5">Gemini-2.5-Flash Active</p>
             </div>
           </div>
 
           {/* Message List */}
-          <div className="flex-1 p-6 overflow-y-auto space-y-4 custom-scrollbar bg-[#F7F3ED]/10">
+          <div className="flex-1 p-6 overflow-y-auto space-y-4 custom-scrollbar bg-[#F5F7FA]/10">
             {messages.map((msg, idx) => {
               const isAssistant = msg.sender === 'assistant';
               return (
@@ -81,15 +81,15 @@ export const AiAssistantView: React.FC = () => {
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
                     isAssistant 
                       ? 'bg-[#111111] border-none text-white' 
-                      : 'bg-[#FFF1ED] border-[#FADCD5] text-[#E94B35]'
+                      : 'bg-[#EDEDF8] border-[#C9C8E8] text-[#14137B]'
                   }`}>
                     {isAssistant ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
                   </div>
 
                   <div className={`max-w-[75%] p-4 rounded-2xl text-xs leading-relaxed ${
                     isAssistant 
-                      ? 'bg-white border border-[#EAE6DF] text-gray-700' 
-                      : 'bg-[#E94B35] text-white font-semibold shadow-xs border-none'
+                      ? 'bg-white border border-[#E2E6EC] text-gray-700' 
+                      : 'bg-[#14137B] text-white font-semibold shadow-xs border-none'
                   }`}>
                     <p className="whitespace-pre-wrap">{msg.text}</p>
                     <span className={`block text-[9px] mt-1.5 text-right font-semibold ${isAssistant ? 'text-gray-400' : 'text-white/70'}`}>
@@ -105,9 +105,9 @@ export const AiAssistantView: React.FC = () => {
                 <div className="w-8 h-8 rounded-lg bg-[#111111] border-none text-white flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4" />
                 </div>
-                <div className="p-4 rounded-2xl bg-white border border-[#EAE6DF] text-xs text-gray-400">
-                  <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-[#E94B35]">
-                    <Zap className="w-3.5 h-3.5 text-[#E94B35] animate-bounce" />
+                <div className="p-4 rounded-2xl bg-white border border-[#E2E6EC] text-xs text-gray-400">
+                  <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-[#14137B]">
+                    <Zap className="w-3.5 h-3.5 text-[#14137B] animate-bounce" />
                     Thinking...
                   </span>
                 </div>
@@ -116,7 +116,7 @@ export const AiAssistantView: React.FC = () => {
           </div>
 
           {/* Chat Input Footer */}
-          <div className="p-4 border-t border-[#EAE6DF] bg-white">
+          <div className="p-4 border-t border-[#E2E6EC] bg-white">
             <div className="relative">
               <input
                 type="text"
@@ -124,11 +124,11 @@ export const AiAssistantView: React.FC = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Ask your assistant anything about content growth..."
-                className="w-full h-11 pl-4 pr-12 text-xs rounded-xl bg-[#F7F3ED]/60 border border-[#EAE6DF] text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#E94B35] focus:ring-1 focus:ring-[#E94B35]"
+                className="w-full h-11 pl-4 pr-12 text-xs rounded-xl bg-[#F5F7FA]/60 border border-[#E2E6EC] text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#14137B] focus:ring-1 focus:ring-[#14137B]"
               />
               <button
                 onClick={() => handleSendMessage()}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#E94B35] hover:bg-[#D13E29] text-white flex items-center justify-center transition-all cursor-pointer border-none"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#14137B] hover:bg-[#0E0D57] text-white flex items-center justify-center transition-all cursor-pointer border-none"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -138,9 +138,9 @@ export const AiAssistantView: React.FC = () => {
         </div>
 
         {/* Right Info Panel (4 Columns) */}
-        <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-[#EAE6DF] shadow-xs flex flex-col justify-between space-y-6">
+        <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-[#E2E6EC] shadow-xs flex flex-col justify-between space-y-6">
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-[#EAE6DF] pb-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-[#E2E6EC] pb-3">
               Suggestions
             </h3>
             
@@ -153,7 +153,7 @@ export const AiAssistantView: React.FC = () => {
                 <button
                   key={i}
                   onClick={() => handleSendMessage(p)}
-                  className="w-full text-left p-3.5 rounded-xl bg-[#F7F3ED]/30 border border-[#EAE6DF] text-xs text-gray-750 hover:border-[#E94B35] hover:bg-[#FFF1ED] transition-all-fast cursor-pointer"
+                  className="w-full text-left p-3.5 rounded-xl bg-[#F5F7FA]/30 border border-[#E2E6EC] text-xs text-gray-750 hover:border-[#14137B] hover:bg-[#EDEDF8] transition-all-fast cursor-pointer"
                 >
                   "{p}"
                 </button>
@@ -161,9 +161,9 @@ export const AiAssistantView: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#FFF1ED] border border-[#FADCD5] flex gap-2.5">
-            <AlertCircle className="w-4.5 h-4.5 text-[#E94B35] shrink-0" strokeWidth={2} />
-            <p className="text-[11px] text-[#E94B35] leading-relaxed">
+          <div className="p-4 rounded-xl bg-[#EDEDF8] border border-[#C9C8E8] flex gap-2.5">
+            <AlertCircle className="w-4.5 h-4.5 text-[#14137B] shrink-0" strokeWidth={2} />
+            <p className="text-[11px] text-[#14137B] leading-relaxed">
               <strong className="font-extrabold">Interactive Beta:</strong> This chat assistant utilizes your visual content summaries as context when giving strategy advice.
             </p>
           </div>

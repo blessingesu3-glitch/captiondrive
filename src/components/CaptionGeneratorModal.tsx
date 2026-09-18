@@ -155,20 +155,20 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#111111]/30 backdrop-blur-xs animate-fadeIn select-none">
       <div 
-        className="relative w-full max-w-5xl max-h-[92vh] bg-white rounded-3xl border border-[#EAE6DF] shadow-premium overflow-hidden flex flex-col"
+        className="relative w-full max-w-5xl max-h-[92vh] bg-white rounded-3xl border border-[#E2E6EC] shadow-premium overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-[#EAE6DF] flex items-center justify-between bg-white">
+        <div className="px-6 py-4 border-b border-[#E2E6EC] flex items-center justify-between bg-white">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#FFF1ED] flex items-center justify-center text-[#E94B35] font-bold shadow-xs">
+            <div className="w-8 h-8 rounded-lg bg-[#EDEDF8] flex items-center justify-center text-[#14137B] font-bold shadow-xs">
               <Sparkles className="w-4 h-4 fill-current" strokeWidth={2} />
             </div>
             <div>
               <h2 className="text-base font-bold text-[#111111] flex items-center gap-2">
                 <span>AI Caption Studio</span>
-                <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-[#FFF1ED] text-[#E94B35] border border-[#FADCD5]">
+                <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-[#EDEDF8] text-[#14137B] border border-[#C9C8E8]">
                   Gemini Vision
                 </span>
               </h2>
@@ -180,7 +180,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-[#111111] hover:bg-[#F7F3ED] transition-colors cursor-pointer border border-[#EAE6DF]"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-[#111111] hover:bg-[#F5F7FA] transition-colors cursor-pointer border border-[#E2E6EC]"
           >
             <X className="w-4 h-4" strokeWidth={2} />
           </button>
@@ -190,14 +190,14 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
         <div className="flex-1 overflow-y-auto flex flex-col lg:flex-row">
           
           {/* Left Column: Preferences Controls */}
-          <div className="w-full lg:w-5/12 p-6 border-b lg:border-b-0 lg:border-r border-[#EAE6DF] space-y-5 bg-[#F7F3ED]/40">
+          <div className="w-full lg:w-5/12 p-6 border-b lg:border-b-0 lg:border-r border-[#E2E6EC] space-y-5 bg-[#F5F7FA]/40">
             
             {/* Selected Media Preview Snippet */}
-            <div className="p-3.5 rounded-xl bg-white border border-[#EAE6DF] flex items-center gap-3.5 shadow-xs">
-              <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-[#F7F3ED] border border-[#EAE6DF]">
+            <div className="p-3.5 rounded-xl bg-white border border-[#E2E6EC] flex items-center gap-3.5 shadow-xs">
+              <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-[#F5F7FA] border border-[#E2E6EC]">
                 <img src={media.thumbnail} alt={media.filename} className="w-full h-full object-cover" />
                 <div className="absolute top-1 left-1 p-0.5 rounded bg-[#111111]/80 text-white text-[9px]">
-                  {isVideo ? <Video className="w-2.5 h-2.5 text-[#E94B35]" strokeWidth={2} /> : <FileImage className="w-2.5 h-2.5 text-[#E94B35]" strokeWidth={2} />}
+                  {isVideo ? <Video className="w-2.5 h-2.5 text-[#14137B]" strokeWidth={2} /> : <FileImage className="w-2.5 h-2.5 text-[#14137B]" strokeWidth={2} />}
                 </div>
               </div>
               <div className="min-w-0 flex-1">
@@ -208,7 +208,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                   Folder: {media.folder}
                 </p>
                 {media.ai_analysis?.mood && (
-                  <span className="inline-block text-[10px] font-bold text-[#E94B35] mt-0.5 uppercase tracking-wide">
+                  <span className="inline-block text-[10px] font-bold text-[#14137B] mt-0.5 uppercase tracking-wide">
                     Mood: {media.ai_analysis.mood}
                   </span>
                 )}
@@ -227,8 +227,8 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                     onClick={() => setSettings((prev) => ({ ...prev, platform: p }))}
                     className={`py-2 px-1 rounded-lg text-xs font-bold text-center transition-all cursor-pointer border ${
                       settings.platform === p
-                        ? 'bg-[#E94B35] text-white border-[#E94B35] shadow-xs'
-                        : 'bg-white text-gray-700 hover:bg-[#F7F3ED] border-[#EAE6DF]'
+                        ? 'bg-[#14137B] text-white border-[#14137B] shadow-xs'
+                        : 'bg-white text-gray-700 hover:bg-[#F5F7FA] border-[#E2E6EC]'
                     }`}
                   >
                     {p}
@@ -249,8 +249,8 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                     onClick={() => setSettings((prev) => ({ ...prev, tone: t }))}
                     className={`py-2 px-3 rounded-lg text-xs font-bold text-left truncate transition-all cursor-pointer border ${
                       settings.tone === t
-                        ? 'bg-[#FFF1ED] text-[#E94B35] border-[#FADCD5]'
-                        : 'bg-white text-gray-600 hover:bg-[#F7F3ED] border-[#EAE6DF]'
+                        ? 'bg-[#EDEDF8] text-[#14137B] border-[#C9C8E8]'
+                        : 'bg-white text-gray-600 hover:bg-[#F5F7FA] border-[#E2E6EC]'
                     }`}
                   >
                     {t}
@@ -268,7 +268,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                 <select
                   value={settings.length}
                   onChange={(e) => setSettings((prev) => ({ ...prev, length: e.target.value as CaptionLength }))}
-                  className="w-full px-2.5 h-9 text-xs font-bold rounded-lg bg-white border border-[#EAE6DF] text-[#111111] focus:outline-none focus:border-[#E94B35]"
+                  className="w-full px-2.5 h-9 text-xs font-bold rounded-lg bg-white border border-[#E2E6EC] text-[#111111] focus:outline-none focus:border-[#14137B]"
                 >
                   {lengths.map((l) => (
                     <option key={l} value={l}>{l}</option>
@@ -283,7 +283,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                 <select
                   value={settings.target_audience}
                   onChange={(e) => setSettings((prev) => ({ ...prev, target_audience: e.target.value as TargetAudience }))}
-                  className="w-full px-2.5 h-9 text-xs font-bold rounded-lg bg-white border border-[#EAE6DF] text-[#111111] focus:outline-none focus:border-[#E94B35]"
+                  className="w-full px-2.5 h-9 text-xs font-bold rounded-lg bg-white border border-[#E2E6EC] text-[#111111] focus:outline-none focus:border-[#14137B]"
                 >
                   {audiences.map((a) => (
                     <option key={a} value={a}>{a}</option>
@@ -302,7 +302,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                 onChange={(e) => setSettings((prev) => ({ ...prev, custom_notes: e.target.value }))}
                 placeholder="e.g. Include launch offer discount code or keep call to action brief..."
                 rows={2}
-                className="w-full p-3 text-xs rounded-lg bg-white border border-[#EAE6DF] text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#E94B35] resize-none"
+                className="w-full p-3 text-xs rounded-lg bg-white border border-[#E2E6EC] text-[#111111] placeholder-gray-400 focus:outline-none focus:border-[#14137B] resize-none"
               />
             </div>
 
@@ -310,7 +310,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
             <button
               onClick={handleGenerateCaptions}
               disabled={isGenerating}
-              className="w-full h-10.5 rounded-xl text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer border-none"
+              className="w-full h-10.5 rounded-xl text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer border-none"
             >
               {isGenerating ? (
                 <>
@@ -334,7 +334,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
               <div className="space-y-4 flex-1 flex flex-col">
                 
                 {/* Variations Tabs */}
-                <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#F7F3ED]/60 border border-[#EAE6DF]">
+                <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#F5F7FA]/60 border border-[#E2E6EC]">
                   {variations.map((v, idx) => (
                     <button
                       key={v.id || idx}
@@ -345,7 +345,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                       }}
                       className={`flex-1 py-1.5 px-3 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                         activeVariationIdx === idx
-                          ? 'bg-white text-[#E94B35] shadow-xs'
+                          ? 'bg-white text-[#14137B] shadow-xs'
                           : 'text-gray-500 hover:text-[#111111]'
                       }`}
                     >
@@ -356,13 +356,13 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
 
                 {/* Active Caption Card */}
                 {currentVar && (
-                  <div className="flex-1 p-5 rounded-2xl bg-[#F7F3ED]/30 border border-[#EAE6DF] flex flex-col justify-between space-y-4">
+                  <div className="flex-1 p-5 rounded-2xl bg-[#F5F7FA]/30 border border-[#E2E6EC] flex flex-col justify-between space-y-4">
                     
                     <div className="space-y-3.5">
                       
                       {/* Variation Style Header */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[#E94B35] bg-[#FFF1ED] px-3 py-1 rounded-md uppercase tracking-wider border border-[#FADCD5]">
+                        <span className="text-[10px] font-bold text-[#14137B] bg-[#EDEDF8] px-3 py-1 rounded-md uppercase tracking-wider border border-[#C9C8E8]">
                           {currentVar.style_title || `Variation ${activeVariationIdx + 1}`}
                         </span>
 
@@ -372,7 +372,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                               if (!isEditing) setEditedBody(currentVar.body);
                               setIsEditing(!isEditing);
                             }}
-                            className="text-xs font-bold text-gray-650 hover:text-[#E94B35] flex items-center gap-1 px-3 py-1 rounded bg-white border border-[#EAE6DF] transition-colors cursor-pointer"
+                            className="text-xs font-bold text-gray-650 hover:text-[#14137B] flex items-center gap-1 px-3 py-1 rounded bg-white border border-[#E2E6EC] transition-colors cursor-pointer"
                           >
                             <Edit3 className="w-3.5 h-3.5" strokeWidth={2} />
                             <span>{isEditing ? 'Save' : 'Edit'}</span>
@@ -381,7 +381,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                       </div>
 
                       {/* Hook Box */}
-                      <div className="p-3.5 rounded-xl bg-white border border-[#EAE6DF] space-y-1">
+                      <div className="p-3.5 rounded-xl bg-white border border-[#E2E6EC] space-y-1">
                         <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block">
                           Scroll-Stopping Hook
                         </span>
@@ -401,10 +401,10 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                             value={editedBody}
                             onChange={(e) => setEditedBody(e.target.value)}
                             rows={6}
-                            className="w-full p-3.5 text-xs rounded-xl bg-white border border-[#E94B35] text-[#111111] focus:outline-none resize-none leading-relaxed"
+                            className="w-full p-3.5 text-xs rounded-xl bg-white border border-[#14137B] text-[#111111] focus:outline-none resize-none leading-relaxed"
                           />
                         ) : (
-                          <div className="p-4 rounded-xl bg-white border border-[#EAE6DF] text-xs text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[180px] overflow-y-auto custom-scrollbar">
+                          <div className="p-4 rounded-xl bg-white border border-[#E2E6EC] text-xs text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[180px] overflow-y-auto custom-scrollbar">
                             {currentVar.body}
                           </div>
                         )}
@@ -412,8 +412,8 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
 
                       {/* CTA Box */}
                       {currentVar.cta && (
-                        <div className="p-3 rounded-xl bg-white border border-[#EAE6DF] space-y-0.5">
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-[#E94B35] block">
+                        <div className="p-3 rounded-xl bg-white border border-[#E2E6EC] space-y-0.5">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-[#14137B] block">
                             Call to Action
                           </span>
                           <p className="text-xs font-bold text-[#111111]">
@@ -426,7 +426,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                       {currentVar.hashtags && currentVar.hashtags.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 pt-1">
                           {currentVar.hashtags.map((h, i) => (
-                            <span key={i} className="px-2.5 py-1 rounded bg-white border border-[#EAE6DF] text-[10px] font-bold text-[#E94B35]">
+                            <span key={i} className="px-2.5 py-1 rounded bg-white border border-[#E2E6EC] text-[10px] font-bold text-[#14137B]">
                               {h}
                             </span>
                           ))}
@@ -436,12 +436,12 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                     </div>
 
                     {/* Bottom Action Toolbar */}
-                    <div className="pt-3.5 border-t border-[#EAE6DF] flex flex-wrap items-center justify-between gap-2.5 mt-4">
+                    <div className="pt-3.5 border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-2.5 mt-4">
                       
                       <button
                         onClick={handleGenerateCaptions}
                         disabled={isGenerating}
-                        className="px-3.5 h-9 rounded text-xs font-bold text-gray-500 hover:text-[#111111] flex items-center gap-1.5 hover:bg-[#F7F3ED] transition-colors cursor-pointer border-none bg-transparent"
+                        className="px-3.5 h-9 rounded text-xs font-bold text-gray-500 hover:text-[#111111] flex items-center gap-1.5 hover:bg-[#F5F7FA] transition-colors cursor-pointer border-none bg-transparent"
                       >
                         <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
                         <span>Regenerate</span>
@@ -450,7 +450,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                       <div className="flex flex-wrap items-center gap-2">
                         <button
                           onClick={() => handleSave(currentVar, activeVariationIdx)}
-                          className="px-3.5 h-9 rounded-xl text-xs font-bold bg-[#FFFFFF] hover:bg-[#F7F3ED] text-[#111111] border border-[#EAE6DF] flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3.5 h-9 rounded-xl text-xs font-bold bg-[#FFFFFF] hover:bg-[#F5F7FA] text-[#111111] border border-[#E2E6EC] flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           {savedIdx === activeVariationIdx ? (
                             <>
@@ -467,7 +467,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
 
                         <button
                           onClick={() => handleCopy(currentVar, activeVariationIdx)}
-                          className="px-3.5 h-9 rounded-xl text-xs font-bold bg-[#FFFFFF] hover:bg-[#F7F3ED] text-[#111111] border border-[#EAE6DF] flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3.5 h-9 rounded-xl text-xs font-bold bg-[#FFFFFF] hover:bg-[#F5F7FA] text-[#111111] border border-[#E2E6EC] flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           {copiedIdx === activeVariationIdx ? (
                             <>
@@ -494,7 +494,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                                 tone: settings.tone
                               });
                             }}
-                            className="px-4.5 h-9 rounded-xl text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm flex items-center gap-1.5 transition-all cursor-pointer border-none"
+                            className="px-4.5 h-9 rounded-xl text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm flex items-center gap-1.5 transition-all cursor-pointer border-none"
                           >
                             <Send className="w-3.5 h-3.5" strokeWidth={2} />
                             <span>Post / Schedule</span>
@@ -509,15 +509,15 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
 
               </div>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-[#EAE6DF] rounded-2xl space-y-3 bg-[#F7F3ED]/30">
-                <div className="w-12 h-12 rounded-2xl bg-[#FFF1ED] text-[#E94B35] flex items-center justify-center mx-auto border border-[#FADCD5]">
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-[#E2E6EC] rounded-2xl space-y-3 bg-[#F5F7FA]/30">
+                <div className="w-12 h-12 rounded-2xl bg-[#EDEDF8] text-[#14137B] flex items-center justify-center mx-auto border border-[#C9C8E8]">
                   <Sparkles className="w-6 h-6 fill-current" strokeWidth={2} />
                 </div>
                 <h3 className="text-base font-bold text-[#111111]">
                   Ready to Generate Captions
                 </h3>
                 <p className="text-xs text-gray-500 max-w-sm leading-relaxed">
-                  Select your target platform and tone, then click <strong className="text-[#E94B35]">Generate Captions</strong>.
+                  Select your target platform and tone, then click <strong className="text-[#14137B]">Generate Captions</strong>.
                 </p>
               </div>
             )}

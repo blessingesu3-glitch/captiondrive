@@ -33,20 +33,20 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#111111]/30 backdrop-blur-xs animate-fadeIn select-none">
       <div 
-        className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl border border-[#EAE6DF] shadow-premium overflow-hidden flex flex-col md:flex-row"
+        className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl border border-[#E2E6EC] shadow-premium overflow-hidden flex flex-col md:flex-row"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 rounded-lg bg-[#F7F3ED] text-gray-500 hover:text-[#111111] transition-colors cursor-pointer"
+          className="absolute top-4 right-4 z-20 p-2 rounded-lg bg-[#F5F7FA] text-gray-500 hover:text-[#111111] transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" strokeWidth={2} />
         </button>
 
         {/* Left Column: High-Res Preview */}
-        <div className="w-full md:w-1/2 bg-[#F7F3ED] flex flex-col justify-between relative group min-h-[280px] md:min-h-auto border-r border-[#EAE6DF]">
+        <div className="w-full md:w-1/2 bg-[#F5F7FA] flex flex-col justify-between relative group min-h-[280px] md:min-h-auto border-r border-[#E2E6EC]">
           <div className="relative flex-1 flex items-center justify-center p-4 overflow-hidden">
             {isVideo ? (
               <div className="relative w-full h-full flex flex-col items-center justify-center">
@@ -56,7 +56,7 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                   className="w-full max-h-[380px] object-contain rounded-xl"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-                  <div className="p-4 rounded-full bg-white/95 text-[#E94B35] shadow-md">
+                  <div className="p-4 rounded-full bg-white/95 text-[#14137B] shadow-md">
                     <Video className="w-8 h-8 fill-current" />
                   </div>
                 </div>
@@ -71,15 +71,15 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
           </div>
 
           {/* Bottom Bar on image column */}
-          <div className="p-4 bg-white border-t border-[#EAE6DF] flex items-center justify-between gap-3 text-xs">
+          <div className="p-4 bg-white border-t border-[#E2E6EC] flex items-center justify-between gap-3 text-xs">
             <span className="truncate max-w-[200px] font-bold text-gray-500">{item.filename}</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={(e) => onToggleFavorite(item.id, e)}
                 className={`p-2 rounded-lg border transition-colors cursor-pointer ${
                   item.is_favorite 
-                    ? 'text-[#E94B35] bg-[#FFF1ED] border-[#FADCD5]' 
-                    : 'border-[#EAE6DF] text-gray-400 hover:text-[#E94B35] hover:bg-[#FFF1ED]'
+                    ? 'text-[#14137B] bg-[#EDEDF8] border-[#C9C8E8]' 
+                    : 'border-[#E2E6EC] text-gray-400 hover:text-[#14137B] hover:bg-[#EDEDF8]'
                 }`}
               >
                 <Heart className={`w-4 h-4 ${item.is_favorite ? 'fill-current' : ''}`} strokeWidth={2} />
@@ -89,7 +89,7 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                   href={item.web_view_link}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 rounded-lg border border-[#EAE6DF] text-gray-500 hover:text-[#111111] hover:bg-[#F7F3ED] transition-colors"
+                  className="p-2 rounded-lg border border-[#E2E6EC] text-gray-500 hover:text-[#111111] hover:bg-[#F5F7FA] transition-colors"
                   title="Open in Drive"
                 >
                   <ExternalLink className="w-4 h-4" strokeWidth={2} />
@@ -107,12 +107,12 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
             {/* Title Header */}
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 rounded bg-[#FFF1ED] text-[#E94B35] text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 border border-[#FADCD5]">
+                <span className="px-2 py-0.5 rounded bg-[#EDEDF8] text-[#14137B] text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 border border-[#C9C8E8]">
                   {isVideo ? <Video className="w-3 h-3" /> : <FileImage className="w-3 h-3" />}
                   {item.file_type}
                 </span>
                 <span className="text-[10px] text-gray-400 font-bold uppercase flex items-center gap-1">
-                  <Folder className="w-3 h-3 text-[#E94B35]" strokeWidth={2} />
+                  <Folder className="w-3 h-3 text-[#14137B]" strokeWidth={2} />
                   {item.folder}
                 </span>
               </div>
@@ -123,17 +123,17 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
             </div>
 
             {/* AI Insights Panel */}
-            <div className="p-4 rounded-xl bg-[#FFF1ED]/40 border border-[#FADCD5] space-y-3">
+            <div className="p-4 rounded-xl bg-[#EDEDF8]/40 border border-[#C9C8E8] space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#E94B35] flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#E94B35]" strokeWidth={2} />
+                <span className="text-xs font-bold uppercase tracking-wider text-[#14137B] flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-[#14137B]" strokeWidth={2} />
                   AI Content Analysis
                 </span>
                 
                 <button
                   onClick={() => onAnalyzeWithAI(item)}
                   disabled={isAnalyzing}
-                  className="text-[11px] font-bold text-[#E94B35] hover:underline flex items-center gap-1 disabled:opacity-50 cursor-pointer border-none bg-transparent"
+                  className="text-[11px] font-bold text-[#14137B] hover:underline flex items-center gap-1 disabled:opacity-50 cursor-pointer border-none bg-transparent"
                 >
                   {isAnalyzing ? 'Analyzing...' : 'Re-Analyze'}
                 </button>
@@ -145,18 +145,18 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                   {/* Overall Summary */}
                   <div>
                     <span className="font-bold text-[#111111]">Summary:</span>
-                    <p className="mt-1 leading-relaxed text-gray-600 italic bg-white p-2.5 rounded-lg border border-[#EAE6DF]">
+                    <p className="mt-1 leading-relaxed text-gray-600 italic bg-white p-2.5 rounded-lg border border-[#E2E6EC]">
                       "{item.ai_analysis.overall_summary}"
                     </p>
                   </div>
 
                   {/* Main Subject & Mood */}
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="p-2.5 rounded-lg bg-white border border-[#EAE6DF]">
+                    <div className="p-2.5 rounded-lg bg-white border border-[#E2E6EC]">
                       <span className="text-[9px] uppercase font-bold text-gray-400 block mb-0.5">Main Subject</span>
                       <p className="font-bold text-gray-700 line-clamp-2">{item.ai_analysis.main_subject}</p>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-white border border-[#EAE6DF]">
+                    <div className="p-2.5 rounded-lg bg-white border border-[#E2E6EC]">
                       <span className="text-[9px] uppercase font-bold text-gray-400 block mb-0.5">Mood & Vibe</span>
                       <p className="font-bold text-gray-700">{item.ai_analysis.mood}</p>
                     </div>
@@ -168,7 +168,7 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                       <span className="text-[9px] uppercase font-bold text-gray-400 block mb-1">Detected Objects</span>
                       <div className="flex flex-wrap gap-1.5">
                         {item.ai_analysis.objects.map((obj) => (
-                          <span key={obj} className="px-2 py-0.5 rounded-md bg-white border border-[#EAE6DF] text-[10px] font-bold text-gray-600">
+                          <span key={obj} className="px-2 py-0.5 rounded-md bg-white border border-[#E2E6EC] text-[10px] font-bold text-gray-600">
                             {obj}
                           </span>
                         ))}
@@ -182,7 +182,7 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                       <span className="text-[9px] uppercase font-bold text-gray-400 block mb-1">Color Palette</span>
                       <div className="flex flex-wrap gap-1.5">
                         {item.ai_analysis.colors.map((c) => (
-                          <span key={c} className="px-2 py-0.5 rounded-full bg-[#F7F3ED] text-[10px] font-bold text-gray-600 border border-[#EAE6DF]">
+                          <span key={c} className="px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[10px] font-bold text-gray-600 border border-[#E2E6EC]">
                             #{c}
                           </span>
                         ))}
@@ -192,12 +192,12 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
 
                   {/* Video Specific: Transcript & Points */}
                   {isVideo && item.ai_analysis.transcript && (
-                    <div className="pt-2 border-t border-[#EAE6DF] space-y-1.5">
+                    <div className="pt-2 border-t border-[#E2E6EC] space-y-1.5">
                       <span className="font-bold text-[#111111] flex items-center gap-1">
-                        <MessageSquareQuote className="w-3.5 h-3.5 text-[#E94B35]" />
+                        <MessageSquareQuote className="w-3.5 h-3.5 text-[#14137B]" />
                         Speech Transcript:
                       </span>
-                      <p className="text-[11px] text-gray-600 bg-white p-2.5 rounded-lg border border-[#EAE6DF]">
+                      <p className="text-[11px] text-gray-600 bg-white p-2.5 rounded-lg border border-[#E2E6EC]">
                         {item.ai_analysis.transcript}
                       </p>
                       {item.ai_analysis.key_talking_points && (
@@ -216,7 +216,7 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                   <p>AI analysis not generated yet.</p>
                   <button
                     onClick={() => onAnalyzeWithAI(item)}
-                    className="px-4 h-8 rounded-full bg-[#E94B35] hover:bg-[#D13E29] text-white font-bold text-[10px] cursor-pointer shadow-sm border-none"
+                    className="px-4 h-8 rounded-full bg-[#14137B] hover:bg-[#0E0D57] text-white font-bold text-[10px] cursor-pointer shadow-sm border-none"
                   >
                     Analyze with Gemini
                   </button>
@@ -227,10 +227,10 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
           </div>
 
           {/* Action CTA */}
-          <div className="pt-4 border-t border-[#EAE6DF] mt-4 flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-[#E2E6EC] mt-4 flex items-center justify-end gap-3">
             <button
               onClick={onClose}
-              className="px-4.5 h-9.5 rounded-xl text-xs font-bold text-gray-500 hover:text-[#111111] hover:bg-[#F7F3ED] transition-colors cursor-pointer"
+              className="px-4.5 h-9.5 rounded-xl text-xs font-bold text-gray-500 hover:text-[#111111] hover:bg-[#F5F7FA] transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -239,7 +239,7 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                 onClose();
                 onGenerateCaption(item);
               }}
-              className="px-5 h-9.5 rounded-xl text-xs font-extrabold bg-[#E94B35] hover:bg-[#D13E29] text-white shadow-sm flex items-center gap-1.5 transition-all duration-150 cursor-pointer border-none"
+              className="px-5 h-9.5 rounded-xl text-xs font-extrabold bg-[#14137B] hover:bg-[#0E0D57] text-white shadow-sm flex items-center gap-1.5 transition-all duration-150 cursor-pointer border-none"
             >
               <Sparkles className="w-3.5 h-3.5 fill-current" strokeWidth={2} />
               <span>Generate Captions</span>

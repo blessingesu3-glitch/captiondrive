@@ -511,8 +511,8 @@ export default function App() {
   // landing page while the auth check is still in flight.
   if (!authChecked) {
     return (
-      <div className="min-h-screen bg-[#F7F3ED] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#E94B35] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#14137B] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -564,7 +564,7 @@ export default function App() {
 
   // Route === 'app' (Authenticated Web Application)
   return (
-    <div className="min-h-screen bg-[#F7F3ED] text-[#111111] font-sans antialiased flex flex-col selection:bg-[#E94B35] selection:text-white">
+    <div className="min-h-screen bg-[#F5F7FA] text-[#111111] font-sans antialiased flex flex-col selection:bg-[#14137B] selection:text-white">
       
       {/* Top Navbar */}
       <Navbar
@@ -615,7 +615,7 @@ export default function App() {
           {activeTab === 'media' && (
             <>
               {pendingScheduleDate && (
-                <div className="mb-4 p-3.5 rounded-xl bg-[#FFF1ED] border border-[#FADCD5] flex items-center justify-between gap-3 text-xs font-semibold text-[#E94B35]">
+                <div className="mb-4 p-3.5 rounded-xl bg-[#EDEDF8] border border-[#C9C8E8] flex items-center justify-between gap-3 text-xs font-semibold text-[#14137B]">
                   <span>
                     Pick a photo or video to generate a caption for — it'll be scheduled for{' '}
                     {new Date(pendingScheduleDate + 'T00:00:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}.
