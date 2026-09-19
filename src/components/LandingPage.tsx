@@ -164,16 +164,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLog
               
               <HeroWorkspaceMockup />
 
-              {/* Platform Selector Mock */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F5F7FA] text-xs">
-                <span className="text-gray-500 font-semibold">Target Platform:</span>
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-lg bg-white border border-[#E2E6EC] font-bold text-[#111111]">Instagram</span>
-                  <span className="px-2.5 py-1 rounded-lg bg-[#14137B] text-white font-bold">LinkedIn</span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white border border-[#E2E6EC] font-bold text-[#111111]">X</span>
-                </div>
-              </div>
-
             </div>
 
             {/* Floating sticky note badge */}
