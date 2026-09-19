@@ -21,6 +21,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { Logo, LogoIcon } from './Logo';
+import { HeroWorkspaceMockup } from './HeroWorkspaceMockup';
 
 interface LandingPageProps {
   onStartCreating: () => void;
@@ -161,54 +162,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLog
           <div className="lg:col-span-6 relative">
             <div className="relative rounded-3xl bg-white border border-[#E2E6EC] p-6 shadow-premium space-y-5">
               
-              {/* Fake Workspace Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-[#E2E6EC]">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#14137B]" />
-                  <div className="w-3 h-3 rounded-full bg-amber-400" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-400" />
-                  <span className="ml-2 text-xs font-extrabold text-[#111111]">Caption Studio Workspace</span>
-                </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EDEDF8] text-[#14137B] text-[10px] font-bold">
-                  <Sparkles className="w-3 h-3" />
-                  <span>Glow Beauty Voice Active</span>
-                </div>
-              </div>
-
-              {/* Composition Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                
-                {/* Media Image */}
-                <div className="sm:col-span-5 relative aspect-square rounded-2xl overflow-hidden bg-[#F5F7FA] border border-[#E2E6EC]">
-                  <img 
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" 
-                    alt="Creative Team Content"
-                    className="w-full h-full object-cover"
-                  />
-                  <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold uppercase">
-                    Google Drive
-                  </span>
-                </div>
-
-                {/* Generated Caption Output Box */}
-                <div className="sm:col-span-7 space-y-3 p-4 rounded-2xl bg-[#F5F7FA]/60 border border-[#E2E6EC] text-left">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-extrabold uppercase text-[#14137B]">
-                      Generated Caption (LinkedIn)
-                    </span>
-                    <span className="text-[10px] text-gray-400 font-mono">Just now</span>
-                  </div>
-
-                  <p className="text-xs font-medium text-[#111111] leading-relaxed">
-                    "The biggest breakthrough in tech isn't code—it's how fast you empower people to build. 🚀 Here's how our team turned raw ideas into a launched product in 48 hours..."
-                  </p>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-[#E2E6EC]/60 text-[10px] text-gray-500 font-bold">
-                    <span>#BuildInPublic #Creativity</span>
-                    <span className="text-emerald-600">Ready to post →</span>
-                  </div>
-                </div>
-              </div>
+              <HeroWorkspaceMockup />
 
               {/* Platform Selector Mock */}
               <div className="flex items-center justify-between p-3 rounded-xl bg-[#F5F7FA] text-xs">
