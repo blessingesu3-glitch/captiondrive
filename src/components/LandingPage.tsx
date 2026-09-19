@@ -26,9 +26,10 @@ import { HeroWorkspaceMockup } from './HeroWorkspaceMockup';
 interface LandingPageProps {
   onStartCreating: () => void;
   onLogin: () => void;
+  onNavigateLegal: (page: 'privacy' | 'terms') => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLogin }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLogin, onNavigateLegal }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<'Instagram' | 'LinkedIn' | 'X'>('Instagram');
 
@@ -164,13 +165,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLog
               
               <HeroWorkspaceMockup />
 
-            </div>
-
-            {/* Floating sticky note badge */}
-            <div className="absolute -bottom-6 -left-4 hidden sm:block bg-[#FFFBEA] border border-[#F6E3B4] p-4 rounded-2xl max-w-[210px] shadow-md transform -rotate-2">
-              <p className="text-xs font-bold text-[#8C6D23] leading-snug">
-                "Saved our team 10+ hours every single week."
-              </p>
             </div>
           </div>
 
@@ -348,7 +342,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLog
 
             <div className="aspect-video rounded-2xl overflow-hidden bg-[#F5F7FA] relative border border-[#E2E6EC]">
               <img 
-                src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80" 
+                src="https://images.unsplash.com/photo-1620917669809-1af0497965de?auto=format&fit=crop&w=800&q=80" 
                 alt="Product"
                 className="w-full h-full object-cover"
               />
@@ -359,7 +353,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLog
                 GLOW BEAUTY CAPTION OUTPUT
               </span>
               <p className="text-xs text-[#111111] leading-relaxed font-medium">
-                "Healthy skin isn't about 10 complicated steps—it's about finding what your skin actually loves! ✨ Here are 3 gentle ingredients we formulated for sensitive skin..."
+                "Healthy skin isn't about 10 complicated steps—it's about finding what your skin actually loves. Here are 3 gentle ingredients we formulated for sensitive skin..."
               </p>
             </div>
           </div>
@@ -409,7 +403,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLog
             <div className="lg:col-span-7 order-2 lg:order-1 p-6 rounded-3xl bg-[#F5F7FA] border border-[#E2E6EC] text-left space-y-3">
               <div className="p-4 bg-white rounded-2xl border border-[#E2E6EC] space-y-2">
                 <span className="text-[10px] font-bold text-[#14137B] uppercase">Option 1 — High-Impact Hook</span>
-                <p className="text-xs text-[#111111] font-semibold">"Stop scrolling if you care about building products fast! 🚀 Here is the key takeaway..."</p>
+                <p className="text-xs text-[#111111] font-semibold">"Stop scrolling if you care about building products fast. Here is the key takeaway..."</p>
               </div>
               <div className="p-4 bg-white rounded-2xl border border-[#E2E6EC] space-y-2">
                 <span className="text-[10px] font-bold text-gray-500 uppercase">Option 2 — Personal Storytelling</span>
@@ -424,6 +418,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLog
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                 CaptionDrive uses your brand voice profile and media context to generate multiple high-converting copywriting hooks.
               </p>
+            </div>
+          </div>
+
+          {/* Feature 03 */}
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-5 space-y-4 text-left">
+              <span className="text-xs font-extrabold text-[#14137B] uppercase">FEATURE 03</span>
+              <h3 className="font-display text-2xl sm:text-3xl font-black text-[#111111]">
+                Plan it, approve it, then it goes out.
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                Schedule captions on a content calendar and give them a final look before anything gets posted — nothing goes live without your approval.
+              </p>
+            </div>
+            <div className="lg:col-span-7 p-6 rounded-3xl bg-[#F5F7FA] border border-[#E2E6EC]">
+              <div className="bg-white rounded-2xl border border-[#E2E6EC] p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-[#111111]">Thu, Sep 25</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Scheduled</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F7FA] border border-[#E2E6EC]">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-white border border-[#E2E6EC] shrink-0">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=200&q=80" alt="Scheduled post thumbnail" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-[#111111] truncate">Team launch update</p>
+                    <p className="text-[10px] text-gray-500">10:00 AM · Instagram</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <button className="flex-1 h-10 rounded-lg text-xs font-extrabold bg-[#14137B] text-white cursor-default">
+                    Approve &amp; Post
+                  </button>
+                  <button className="h-10 px-4 rounded-lg text-xs font-bold bg-[#F5F7FA] text-[#111111] border border-[#E2E6EC] cursor-default">
+                    Edit
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -684,6 +716,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCreating, onLog
           <div className="flex items-center gap-6 font-semibold">
             <button onClick={() => scrollToSection('how-it-works')} className="hover:text-[#111111] bg-transparent border-none cursor-pointer">How It Works</button>
             <button onClick={() => scrollToSection('features')} className="hover:text-[#111111] bg-transparent border-none cursor-pointer">Features</button>
+            <button onClick={() => onNavigateLegal('privacy')} className="hover:text-[#111111] bg-transparent border-none cursor-pointer">Privacy Policy</button>
+            <button onClick={() => onNavigateLegal('terms')} className="hover:text-[#111111] bg-transparent border-none cursor-pointer">Terms of Service</button>
             <button onClick={onLogin} className="hover:text-[#111111] bg-transparent border-none cursor-pointer">Log In</button>
             <button onClick={onStartCreating} className="hover:text-[#111111] bg-transparent border-none cursor-pointer text-[#14137B]">Sign Up</button>
           </div>

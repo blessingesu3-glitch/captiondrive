@@ -18,6 +18,7 @@ import { CalendarView } from './components/CalendarView';
 import { AnalyticsView } from './components/AnalyticsView';
 import { StandaloneGeneratorView } from './components/StandaloneGeneratorView';
 import { LandingPage } from './components/LandingPage';
+import { LegalPage } from './components/LegalPage';
 import { AuthView } from './components/AuthView';
 import { BrandOnboardingFlow } from './components/BrandOnboardingFlow';
 import { UpgradeModal } from './components/UpgradeModal';
@@ -28,8 +29,8 @@ import { onAuthChange, signInWithEmail, signInWithGoogle, signOutUser, signUpWit
 import { authedFetch, parseJsonResponse, requestDriveAccessToken } from './lib/api';
 
 export default function App() {
-  // Routing State: 'landing' | 'login' | 'signup' | 'onboarding' | 'app'
-  const [route, setRoute] = useState<'landing' | 'login' | 'signup' | 'onboarding' | 'app'>('landing');
+  // Routing State: 'landing' | 'login' | 'signup' | 'onboarding' | 'app' | 'privacy' | 'terms'
+  const [route, setRoute] = useState<'landing' | 'login' | 'signup' | 'onboarding' | 'app' | 'privacy' | 'terms'>('landing');
   const [showUpgradeModal, setShowUpgradeModal] = useState<boolean>(false);
 
   // Theme State
@@ -88,16 +89,18 @@ export default function App() {
   const [pendingScheduleDate, setPendingScheduleDate] = useState<string | null>(null);
 
   // Parse location path to sync URL state
-  const parseCurrentPath = (): 'landing' | 'login' | 'signup' | 'onboarding' | 'app' => {
+  const parseCurrentPath = (): 'landing' | 'login' | 'signup' | 'onboarding' | 'app' | 'privacy' | 'terms' => {
     const path = window.location.pathname.toLowerCase();
     if (path.startsWith('/signup')) return 'signup';
     if (path.startsWith('/login')) return 'login';
     if (path.startsWith('/onboarding')) return 'onboarding';
     if (path.startsWith('/app')) return 'app';
+    if (path.startsWith('/privacy')) return 'privacy';
+    if (path.startsWith('/terms')) return 'terms';
     return 'landing';
   };
 
-  const navigateTo = (newRoute: 'landing' | 'login' | 'signup' | 'onboarding' | 'app') => {
+  const navigateTo = (newRoute: 'landing' | 'login' | 'signup' | 'onboarding' | 'app' | 'privacy' | 'terms') => {
     setRoute(newRoute);
     const targetPath = newRoute === 'landing' ? '/' : `/${newRoute}`;
     if (window.location.pathname !== targetPath) {
@@ -522,8 +525,13 @@ export default function App() {
       <LandingPage
         onStartCreating={() => navigateTo('signup')}
         onLogin={() => navigateTo('login')}
+        onNavigateLegal={(page) => navigateTo(page)}
       />
     );
+  }
+
+  if (route === 'privacy' || route === 'terms') {
+    return <LegalPage type={route} onBack={() => navigateTo('landing')} />;
   }
 
   if (route === 'login') {
