@@ -93,7 +93,7 @@ const PrivacyContent: React.FC = () => (
     ]} />
 
     <H2>Contact</H2>
-    <P>Questions about this policy or your data: hello@captiondrive.app</P>
+    <P>Questions about this policy or your data: blessingesu3@gmail.com</P>
 
     <div className="pt-6 mt-6 border-t border-[#E2E6EC]">
       <p className="text-xs text-gray-400 leading-relaxed">
@@ -157,7 +157,7 @@ const TermsContent: React.FC = () => (
     </P>
 
     <H2>Contact</H2>
-    <P>Questions about these terms: hello@captiondrive.app</P>
+    <P>Questions about these terms: blessingesu3@gmail.com</P>
 
     <div className="pt-6 mt-6 border-t border-[#E2E6EC]">
       <p className="text-xs text-gray-400 leading-relaxed">
