@@ -180,9 +180,23 @@ export async function addImportedMedia(uid: string, media: Record<string, any>) 
 // Scoped per-user rather than globally: two users could otherwise collide on
 // a cache key derived from a Drive file id, leaking one user's private media
 // analysis to another.
+//
+// ANALYSIS_CACHE_VERSION: bump this whenever the analysis prompt, model, or
+// image source changes in a way that should invalidate previously-cached
+// results -- otherwise a fix like "use the right model" or "send the
+// full-res image" silently does nothing for any file analyzed before the
+// fix, since the old (wrong) result just keeps getting served from cache
+// forever. This happened for real: gemini-3.6-flash (invalid model name)
+// silently fell back to generic analysis, which then got cached and kept
+// being returned even after the model name was corrected.
+const ANALYSIS_CACHE_VERSION = 2;
+
 export async function getCachedAnalysis(uid: string, fileId: string) {
   const snap = await usersCol().doc(uid).collection('mediaAnalysisCache').doc(fileId).get();
-  return snap.exists ? snap.data()?.analysis : null;
+  if (!snap.exists) return null;
+  const data = snap.data();
+  if (data?.version !== ANALYSIS_CACHE_VERSION) return null; // stale, force regeneration
+  return data?.analysis;
 }
 
 // ---- OAuth state bridging (top-level collection: oauthStates) ----
@@ -287,6 +301,7 @@ export async function listDueScheduledPosts(nowIso: string) {
 export async function setCachedAnalysis(uid: string, fileId: string, analysis: any) {
   await usersCol().doc(uid).collection('mediaAnalysisCache').doc(fileId).set({
     analysis,
+    version: ANALYSIS_CACHE_VERSION,
     cachedAt: new Date().toISOString(),
   });
 }

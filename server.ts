@@ -546,8 +546,11 @@ app.post('/api/ai/analyze', requireAuth, async (req, res) => {
     }
 
     if (!apiKey) {
+      // Not cached: this is a generic template, not real analysis -- caching
+      // it would mean a real result never gets generated later even once a
+      // key is added, the exact bug that just happened with the wrong model
+      // name.
       const fallback = generateFallbackAnalysis(filename, file_type, folder);
-      if (cacheKey) await store.setCachedAnalysis(req.uid!, cacheKey, fallback);
       return res.json({ success: true, analysis: fallback });
     }
 
