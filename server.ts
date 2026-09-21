@@ -31,6 +31,37 @@ const getGeminiClient = () => {
   return new GoogleGenAI({ apiKey: apiKey || '' });
 };
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Gemini periodically returns 503 UNAVAILABLE under high demand -- Google's
+ * own error message says these spikes are "usually temporary". Retrying a
+ * couple of times with a short backoff turns a transient blip into a
+ * successful real analysis instead of immediately giving up and falling
+ * back to generic template text. Only retries on 503/UNAVAILABLE; any other
+ * error (bad request, auth, etc.) fails fast since retrying won't help. */
+async function generateContentWithRetry(
+  ai: InstanceType<typeof GoogleGenAI>,
+  params: Parameters<InstanceType<typeof GoogleGenAI>['models']['generateContent']>[0],
+  maxRetries = 2
+): Promise<Awaited<ReturnType<InstanceType<typeof GoogleGenAI>['models']['generateContent']>>> {
+  let lastErr: any;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await ai.models.generateContent(params);
+    } catch (err: any) {
+      lastErr = err;
+      const status = err?.status || err?.error?.code;
+      const isRetryable = status === 503 || err?.error?.status === 'UNAVAILABLE';
+      if (!isRetryable || attempt === maxRetries) throw err;
+      console.warn(`Gemini call failed (attempt ${attempt + 1}/${maxRetries + 1}, status ${status}), retrying...`);
+      await sleep(800 * (attempt + 1)); // 800ms, then 1600ms
+    }
+  }
+  throw lastErr;
+}
+
 // LinkedIn/X/Facebook remain in-memory fake/demo integrations for this pass
 // — only Instagram was scoped to go real. See real Instagram endpoints
 // further down (/api/social/instagram/*) which use Firestore + the Graph
@@ -248,7 +279,7 @@ Return a valid JSON object matching this schema EXACTLY:
 }
 DO NOT include markdown backticks or any conversational text. ONLY return valid JSON.`;
 
-        const response = await ai.models.generateContent({
+        const response = await generateContentWithRetry(ai, {
           model: 'gemini-3.5-flash',
           contents: prompt,
           config: { responseMimeType: 'application/json' }
@@ -625,7 +656,7 @@ DO NOT include markdown backticks or any conversational text. ONLY return valid 
     }
     contents.push({ text: prompt });
 
-    const response = await ai.models.generateContent({
+    const response = await generateContentWithRetry(ai, {
       model: 'gemini-3.5-flash',
       contents: contents,
       config: {
@@ -740,7 +771,7 @@ Return a valid JSON object matching this schema:
 
 DO NOT include markdown backticks or any extra text outside the JSON.`;
 
-    const response = await ai.models.generateContent({
+    const response = await generateContentWithRetry(ai, {
       model: 'gemini-3.5-flash',
       contents: prompt,
       config: {
@@ -799,7 +830,7 @@ Return a valid JSON object:
 }
 If no items match, return {"matched_ids": []}. Return ONLY valid JSON.`;
 
-    const response = await ai.models.generateContent({
+    const response = await generateContentWithRetry(ai, {
       model: 'gemini-3.5-flash',
       contents: prompt,
     });
