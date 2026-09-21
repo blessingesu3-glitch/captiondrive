@@ -276,22 +276,10 @@ export default function App() {
   // this session (see /api/drive/sync).
   const handleConnectDrive = async () => {
     try {
-      if (user.isDriveConnected) {
-        try {
-          const driveRes = await authedFetch('/api/drive/files');
-          const driveData = await driveRes.json();
-          if (driveData.files) {
-            setMediaItems(driveData.files);
-            alert('Google Drive sync complete! Loaded latest files.');
-          } else {
-            alert('Failed to sync files from Google Drive. Please reconnect.');
-          }
-        } catch (err) {
-          console.error('Direct sync failed:', err);
-        }
-        return;
-      }
-
+      // Always request a fresh access token and re-sync, even if already
+      // connected -- Google's tokens expire in about an hour, and reusing
+      // a stale stored token here was exactly what caused "sync complete"
+      // to show with zero files loaded.
       const res = await authedFetch('/api/drive/connect-url');
 
       if (res.status === 401) {
@@ -321,6 +309,9 @@ export default function App() {
         }));
         if (syncData.files) {
           setMediaItems(syncData.files);
+        }
+        if (user.isDriveConnected) {
+          alert(`Google Drive sync complete! Loaded ${syncData.files?.length ?? 0} files.`);
         }
       } else {
         alert(syncData.error || 'Could not connect Google Drive.');
