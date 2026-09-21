@@ -249,7 +249,7 @@ Return a valid JSON object matching this schema EXACTLY:
 DO NOT include markdown backticks or any conversational text. ONLY return valid JSON.`;
 
         const response = await ai.models.generateContent({
-          model: 'gemini-3.6-flash',
+          model: 'gemini-3.5-flash',
           contents: prompt,
           config: { responseMimeType: 'application/json' }
         });
@@ -562,25 +562,21 @@ app.post('/api/ai/analyze', requireAuth, async (req, res) => {
         oauth2Client.setCredentials({ access_token: user.driveAccessToken });
         const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
-        const fileMetadata = await drive.files.get({
-          fileId: drive_file_id,
-          fields: 'thumbnailLink,mimeType'
-        });
-
-        const thumbnailLink = fileMetadata.data.thumbnailLink;
-        if (thumbnailLink) {
-          const imgResponse = await fetch(thumbnailLink);
-          if (imgResponse.ok) {
-            const contentType = imgResponse.headers.get('content-type') || 'image/jpeg';
-            const arrayBuffer = await imgResponse.arrayBuffer();
-            imagePart = {
-              inlineData: {
-                mimeType: contentType,
-                data: Buffer.from(arrayBuffer).toString('base64')
-              }
-            };
+        // Full-resolution file content, not the small thumbnailLink preview
+        // -- a low-res or oddly-cropped thumbnail is exactly the kind of
+        // thing that makes Gemini's analysis miss or misread what's
+        // actually in the image.
+        const fileMetadata = await drive.files.get({ fileId: drive_file_id, fields: 'mimeType' });
+        const fileResponse = await drive.files.get(
+          { fileId: drive_file_id, alt: 'media' },
+          { responseType: 'arraybuffer' }
+        );
+        imagePart = {
+          inlineData: {
+            mimeType: fileMetadata.data.mimeType || 'image/jpeg',
+            data: Buffer.from(fileResponse.data as ArrayBuffer).toString('base64')
           }
-        }
+        };
       } else if (preview_url && (preview_url.startsWith('http://') || preview_url.startsWith('https://'))) {
         const imgResponse = await fetch(preview_url);
         if (imgResponse.ok) {
@@ -627,7 +623,7 @@ DO NOT include markdown backticks or any conversational text. ONLY return valid 
     contents.push({ text: prompt });
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-3.5-flash',
       contents: contents,
       config: {
         responseMimeType: 'application/json'
@@ -742,7 +738,7 @@ Return a valid JSON object matching this schema:
 DO NOT include markdown backticks or any extra text outside the JSON.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-3.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json'
@@ -801,7 +797,7 @@ Return a valid JSON object:
 If no items match, return {"matched_ids": []}. Return ONLY valid JSON.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-3.5-flash',
       contents: prompt,
     });
 
