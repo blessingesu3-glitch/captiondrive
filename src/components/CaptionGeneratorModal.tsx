@@ -3,7 +3,6 @@ import { authedFetch } from '../lib/api';
 import { LogoIcon } from './Logo';
 import { 
   X, 
-  Sparkles, 
   Copy, 
   Check, 
   RefreshCw, 
@@ -314,10 +313,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
                   <span>Generating Captions...</span>
                 </>
               ) : (
-                <>
-                  <Sparkles className="w-4 h-4 fill-current" strokeWidth={2} />
-                  <span>Generate Captions</span>
-                </>
+                <span>Generate Captions</span>
               )}
             </button>
 
@@ -506,9 +502,7 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-[#E2E6EC] rounded-2xl space-y-3 bg-[#F5F7FA]/30">
-                <div className="w-12 h-12 rounded-2xl bg-[#EDEDF8] text-[#14137B] flex items-center justify-center mx-auto border border-[#C9C8E8]">
-                  <Sparkles className="w-6 h-6 fill-current" strokeWidth={2} />
-                </div>
+                <LogoIcon size={44} />
                 <h3 className="text-base font-bold text-[#111111]">
                   Ready to Generate Captions
                 </h3>
