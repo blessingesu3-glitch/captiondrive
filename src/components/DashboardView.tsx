@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  Sparkles, 
   FolderOpen, 
   Plus, 
   ArrowRight, 
@@ -260,9 +259,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Quick Actions List card */}
           <div className="p-6 rounded-2xl bg-white border border-[#E2E6EC] space-y-4">
-            <h3 className="text-xs font-bold tracking-tight text-[#111111] uppercase border-b border-[#E2E6EC] pb-3 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#14137B]" />
-              <span>Quick Actions</span>
+            <h3 className="text-xs font-bold tracking-tight text-[#111111] uppercase border-b border-[#E2E6EC] pb-3">
+              Quick Actions
             </h3>
 
             <div className="space-y-2">
@@ -281,7 +279,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left text-xs font-bold hover:bg-[#FAF8F5] transition-all-fast cursor-pointer"
               >
                 <div className="w-7 h-7 rounded-lg bg-[#EDEDF8] flex items-center justify-center text-[#14137B]">
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <FileText className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-[#111111]">Generate Captions</span>
               </button>
