@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { authedFetch } from '../lib/api';
+import { LogoIcon } from './Logo';
 import { 
   X, 
   Sparkles, 
@@ -162,15 +163,10 @@ export const CaptionGeneratorModal: React.FC<CaptionGeneratorModalProps> = ({
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-[#E2E6EC] flex items-center justify-between bg-white">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#EDEDF8] flex items-center justify-center text-[#14137B] font-bold shadow-xs">
-              <Sparkles className="w-4 h-4 fill-current" strokeWidth={2} />
-            </div>
+            <LogoIcon size={32} />
             <div>
-              <h2 className="text-base font-bold text-[#111111] flex items-center gap-2">
-                <span>AI Caption Studio</span>
-                <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-[#EDEDF8] text-[#14137B] border border-[#C9C8E8]">
-                  Gemini Vision
-                </span>
+              <h2 className="text-base font-bold text-[#111111]">
+                AI Caption Studio
               </h2>
               <p className="text-xs text-gray-500">
                 Tailor platform-native captions based on visual media context

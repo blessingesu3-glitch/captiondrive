@@ -159,9 +159,9 @@ function generateFallbackCaptions(media: any, settings: any) {
     {
       id: `var_${Date.now()}_1`,
       style_title: 'High-Impact Hook',
-      hook: `Stop scrolling if you care about ${title.toLowerCase()}! 🚀`,
-      body: `Here is the key takeaway about ${title}: when you align clear focus with rapid execution, results compound exponentially.${notes}\n\nKey takeaways for ${audience}:\n• Stay consistent even when results take time.\n• Focus on quality over sheer volume.\n• Leverage AI tools to streamline your workflow daily.`,
-      cta: `What is your primary goal this week? Drop a comment below! 👇`,
+      hook: `Stop scrolling if you care about ${title.toLowerCase()}.`,
+      body: `Here is the key takeaway about ${title}: when you align clear focus with rapid execution, results compound exponentially.${notes}\n\nKey takeaways for ${audience}:\n- Stay consistent even when results take time.\n- Focus on quality over sheer volume.\n- Leverage AI tools to streamline your workflow daily.`,
+      cta: `What is your primary goal this week? Drop a comment below.`,
       hashtags
     },
     {
@@ -169,7 +169,7 @@ function generateFallbackCaptions(media: any, settings: any) {
       style_title: 'Storytelling Angle',
       hook: `Behind every moment in "${title}", there is a lesson worth sharing...`,
       body: `Working on ${title} reminded me that breakthrough progress happens in small, consistent sessions.\n\nTo all the ${audience.toLowerCase()} building out there: keep pushing forward. The effort you invest behind the scenes shows up in your compounding results.`,
-      cta: `Save this post for when you need a quick spark of motivation! 📌`,
+      cta: `Save this post for when you need a quick spark of motivation.`,
       hashtags
     },
     {
@@ -177,7 +177,7 @@ function generateFallbackCaptions(media: any, settings: any) {
       style_title: 'Actionable Value Breakdown',
       hook: `3 quick rules for ${audience.toLowerCase()} working on ${title}:`,
       body: `1. Simplify your process: Cut out friction points early.\n2. Leverage smart automation: Let AI handle repetitive copywriting.${notes}\n3. Measure impact: Focus on authentic community engagement over vanity metrics.`,
-      cta: `Which of these 3 rules resonates most with you today? Reply below! 💬`,
+      cta: `Which of these 3 rules resonates most with you today? Reply below.`,
       hashtags
     }
   ];
@@ -717,7 +717,6 @@ ${brandVoice ? `USER BRAND VOICE PROFILE (MUST EMULATE):
 - Key Voice Traits: ${JSON.stringify(brandVoice.voiceTraits)}
 ${brandVoice.writingSample ? `- Creator Writing Sample Reference: "${brandVoice.writingSample}"` : ''}
 ${brandVoice.inferredStyle?.summary ? `- Inferred Style Summary: "${brandVoice.inferredStyle.summary}"` : ''}
-${brandVoice.inferredStyle?.emojiUsage ? `- Emoji Policy: "${brandVoice.inferredStyle.emojiUsage}"` : ''}
 ${brandVoice.inferredStyle?.ctaStyle ? `- Call To Action Style: "${brandVoice.inferredStyle.ctaStyle}"` : ''}
 ` : ''}
 MEDIA DETAILS:
@@ -731,7 +730,7 @@ MEDIA DETAILS:
 ${media?.ai_analysis?.transcript ? `- Video Transcript/Points: "${media.ai_analysis.transcript}"` : ''}
 
 CAPTION PREFERENCES:
-- Target Platform: ${platform || 'Instagram'} (Tailor layout, emoji style, line breaks, and hashtag density specifically for ${platform})
+- Target Platform: ${platform || 'Instagram'} (Tailor layout, line breaks, and hashtag density specifically for ${platform})
 - Tone of Voice: ${tone || 'Inspirational'}
 - Desired Length: ${length || 'Medium'}
 - Target Audience: ${target_audience || 'Creators'}
@@ -739,6 +738,8 @@ ${custom_notes ? `- Creator Custom Notes/Angle: "${custom_notes}"` : ''}
 
 TASK:
 Generate EXACTLY 3 distinct high-converting caption variations. Each variation should offer a unique hook style (e.g. Option 1: High-Impact Question/Contrarian Hook, Option 2: Personal Storytelling Angle, Option 3: Actionable Value Breakdown).
+
+STRICT RULE — NO EMOJIS: Do not use any emoji anywhere in the output — not in the hook, the body, the CTA, or the hashtags. This applies no matter how casual, playful, or upbeat the requested tone is. If you want to present a list, sequence, or set of steps, use plain numbers ("1.", "2.", "3.") or a hyphen bullet ("-"), never an emoji as a bullet, checkmark, or number substitute. Use real figures and numerals (e.g. "3 tips", "48 hours") instead of decorative symbols.
 
 Return a valid JSON object matching this schema:
 {
