@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { requireAuth } from './lib/authMiddleware.js';
 import * as store from './lib/firestoreStore.js';
 import * as instagram from './lib/instagram.js';
+import * as linkedin from './lib/linkedin.js';
 
 dotenv.config({ quiet: true });
 
@@ -892,6 +893,8 @@ let oauthCredentialsStore: Record<string, { clientId: string; clientSecret: stri
 app.get('/api/social/accounts', requireAuth, async (req, res) => {
   const user = await store.getUser(req.uid!) as any;
   const ig = user?.instagramConnection;
+  const li = user?.linkedinConnection;
+  const liExpired = li && new Date(li.expiresAt).getTime() < Date.now();
   const accounts = [
     ig
       ? {
@@ -913,7 +916,28 @@ app.get('/api/social/accounts', requireAuth, async (req, res) => {
           is_connected: false,
           page_type: 'Instagram Business Account'
         },
-    ...socialAccountsStore
+    li
+      ? {
+          id: 'soc_linkedin',
+          platform: 'LinkedIn',
+          account_name: li.name,
+          handle: li.name,
+          avatar: li.pictureUrl || '',
+          is_connected: !liExpired,
+          needs_reconnect: liExpired,
+          connected_at: li.connectedAt,
+          page_type: 'Personal Profile'
+        }
+      : {
+          id: 'soc_linkedin',
+          platform: 'LinkedIn',
+          account_name: 'Your LinkedIn',
+          handle: '',
+          avatar: '',
+          is_connected: false,
+          page_type: 'Personal Profile'
+        },
+    ...socialAccountsStore.filter((a) => a.platform !== 'LinkedIn')
   ];
   res.json({ accounts, credentials: oauthCredentialsStore });
 });
@@ -1023,6 +1047,97 @@ app.get(['/api/social/instagram/callback', '/api/social/instagram/callback/'], a
 
 app.post('/api/social/instagram/disconnect', requireAuth, async (req, res) => {
   await store.clearInstagramConnection(req.uid!);
+  res.json({ success: true });
+});
+
+// ---- Real LinkedIn OAuth (self-serve Share on LinkedIn, personal profile
+// posting only -- company page posting needs w_organization_social, which
+// is gated behind LinkedIn's separate partner approval process) ----
+app.get('/api/social/linkedin/connect-url', requireAuth, async (req, res) => {
+  try {
+    const clientId = linkedin.getLinkedInClientId();
+    const state = await store.createOAuthState(req.uid!, 'LinkedIn');
+    const redirectUri = `${getAppBaseUrl(req)}/api/social/linkedin/callback`;
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      state,
+      // openid+profile: Sign In with LinkedIn (identity). w_member_social:
+      // Share on LinkedIn (posting to the member's own feed).
+      scope: 'openid profile w_member_social',
+    });
+    res.json({ url: `https://www.linkedin.com/oauth/v2/authorization?${params}` });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'LinkedIn is not configured on the server yet.' });
+  }
+});
+
+app.get(['/api/social/linkedin/callback', '/api/social/linkedin/callback/'], async (req, res) => {
+  const { code, state, error, error_description } = req.query;
+  const redirectUri = `${getAppBaseUrl(req)}/api/social/linkedin/callback`;
+
+  const sendResult = (success: boolean, message: string) => {
+    res.send(`
+      <!doctype html>
+      <html>
+        <head>
+          <title>LinkedIn Connection</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 40px; background: #0f172a; color: white; }
+            .card { background: #1e293b; padding: 24px; border-radius: 12px; border: 1px solid #334155; display: inline-block; max-width: 420px; }
+            .btn { background: #4f46e5; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h2>${success ? 'LinkedIn Connected!' : 'Connection Failed'}</h2>
+            <p>${message}</p>
+            <p>This popup window will close automatically.</p>
+            <button class="btn" onclick="window.close()">Close Window</button>
+          </div>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ type: 'LINKEDIN_AUTH_${success ? 'SUCCESS' : 'FAILURE'}' }, '*');
+              setTimeout(function() { window.close(); }, 2000);
+            }
+          </script>
+        </body>
+      </html>
+    `);
+  };
+
+  if (error) {
+    return sendResult(false, String(error_description || error));
+  }
+
+  try {
+    const stateData = await store.consumeOAuthState(String(state));
+    if (!stateData) {
+      return sendResult(false, 'This connection link expired or was already used. Please try connecting again.');
+    }
+
+    const { accessToken, expiresInSeconds } = await linkedin.exchangeCodeForAccessToken(String(code), redirectUri);
+    const profile = await linkedin.getUserInfo(accessToken);
+
+    await store.setLinkedInConnection(stateData.uid, {
+      memberId: profile.memberId,
+      name: profile.name,
+      pictureUrl: profile.pictureUrl,
+      accessToken,
+      expiresAt: new Date(Date.now() + expiresInSeconds * 1000).toISOString(),
+      connectedAt: new Date().toISOString(),
+    });
+
+    sendResult(true, `Connected as ${profile.name}.`);
+  } catch (err: any) {
+    console.error('LinkedIn OAuth callback error:', err);
+    sendResult(false, err.message || 'Something went wrong connecting your LinkedIn account.');
+  }
+});
+
+app.post('/api/social/linkedin/disconnect', requireAuth, async (req, res) => {
+  await store.clearLinkedInConnection(req.uid!);
   res.json({ success: true });
 });
 
@@ -1239,11 +1354,95 @@ app.post('/api/social/publish', requireAuth, async (req, res) => {
     }
   }
 
-  // ---- LinkedIn/X/Facebook: still simulated, but now persisted per-user ----
+  // ---- Real LinkedIn publishing (personal profile only) ----
+  if (platform === 'LinkedIn') {
+    const user = await store.getUser(req.uid!) as any;
+    const li = user?.linkedinConnection;
+    if (!li) {
+      return res.status(400).json({ error: 'Connect your LinkedIn account first.' });
+    }
+    if (new Date(li.expiresAt).getTime() < Date.now()) {
+      return res.status(400).json({ error: 'Your LinkedIn connection has expired. Please reconnect it in Settings.' });
+    }
+
+    // Same full-resolution swap as Instagram -- LinkedIn's image upload
+    // also benefits from the real file rather than a small cropped preview.
+    let absoluteMediaUrl: string | null = null;
+    if (media_thumbnail) {
+      const driveThumbMatch = media_thumbnail.match(/\/api\/drive\/thumbnail\/([^/?]+)/);
+      const resolvedMediaUrl = driveThumbMatch
+        ? `/api/drive/full-image/${driveThumbMatch[1]}?uid=${req.uid}`
+        : media_thumbnail;
+      absoluteMediaUrl = /^https?:\/\//.test(resolvedMediaUrl)
+        ? resolvedMediaUrl
+        : `${getAppBaseUrl(req)}${resolvedMediaUrl.startsWith('/') ? '' : '/'}${resolvedMediaUrl}`;
+    }
+
+    if (isScheduled) {
+      const post = await store.addSocialPost(req.uid!, {
+        platform: 'LinkedIn',
+        mediaUrl: absoluteMediaUrl || '',
+        mediaFilename: media_filename || '',
+        accountHandle: li.name,
+        tone: tone || undefined,
+        caption: caption_text || '',
+        status: 'scheduled',
+        scheduledFor: new Date(scheduled_for).toISOString(),
+      });
+      return res.json({
+        success: true,
+        post,
+        message: `Post scheduled for ${new Date(scheduled_for).toLocaleString()} on LinkedIn (${li.name}).`
+      });
+    }
+
+    try {
+      let result: { postUrn: string; postUrl: string };
+      if (absoluteMediaUrl) {
+        // LinkedIn's upload endpoint needs the actual bytes, not a URL --
+        // fetch the image ourselves first.
+        const imgRes = await fetch(absoluteMediaUrl);
+        if (!imgRes.ok) throw new Error('Could not fetch the image to upload to LinkedIn.');
+        const imageBuffer = Buffer.from(await imgRes.arrayBuffer());
+        result = await linkedin.publishImagePost(li.memberId, li.accessToken, imageBuffer, caption_text || '');
+      } else {
+        result = await linkedin.publishTextPost(li.memberId, li.accessToken, caption_text || '');
+      }
+      const post = await store.addSocialPost(req.uid!, {
+        platform: 'LinkedIn',
+        mediaUrl: absoluteMediaUrl || '',
+        mediaFilename: media_filename || '',
+        accountHandle: li.name,
+        tone: tone || undefined,
+        caption: caption_text || '',
+        status: 'published',
+        publishedAt: new Date().toISOString(),
+        postUrl: result.postUrl,
+      });
+      return res.json({
+        success: true,
+        post,
+        message: `Published live to LinkedIn (${li.name})!`
+      });
+    } catch (err: any) {
+      console.error('LinkedIn publish failed:', err);
+      await store.addSocialPost(req.uid!, {
+        platform: 'LinkedIn',
+        mediaUrl: absoluteMediaUrl || '',
+        mediaFilename: media_filename || '',
+        accountHandle: li.name,
+        tone: tone || undefined,
+        caption: caption_text || '',
+        status: 'failed',
+        error: err.message,
+      });
+      return res.status(500).json({ error: err.message || 'LinkedIn publish failed.' });
+    }
+  }
+
+  // ---- X/Facebook: still simulated, but now persisted per-user ----
   const postId = `post_${Date.now()}`;
-  const mockPostUrl = platform === 'LinkedIn'
-    ? `https://linkedin.com/feed/update/urn:li:activity:${Date.now()}`
-    : platform === 'X'
+  const mockPostUrl = platform === 'X'
     ? `https://x.com/user/status/${Date.now()}`
     : `https://facebook.com/posts/${postId}`;
 

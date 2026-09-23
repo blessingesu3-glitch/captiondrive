@@ -26,6 +26,7 @@ export interface UserDoc {
   brandVoiceProfile?: any;
   favoriteIds: string[];
   instagramConnection?: InstagramConnection;
+  linkedinConnection?: LinkedInConnection;
 }
 
 export interface InstagramConnection {
@@ -38,6 +39,21 @@ export interface InstagramConnection {
   // but Meta doesn't formally guarantee that, so connectedAt is kept to
   // support a future "reconnect if older than N days" prompt.
   pageAccessToken: string;
+  connectedAt: string;
+}
+
+export interface LinkedInConnection {
+  // "sub" from the OpenID Connect userinfo response — LinkedIn's member id,
+  // used as the author URN (urn:li:person:{memberId}) when publishing.
+  memberId: string;
+  name: string;
+  pictureUrl?: string;
+  accessToken: string;
+  // LinkedIn access tokens are valid 60 days; there's no refresh token on
+  // the self-serve Share on LinkedIn product, so this supports a future
+  // "reconnect, your LinkedIn access has expired" prompt rather than a
+  // silent failure the way the original Drive connection did.
+  expiresAt: string;
   connectedAt: string;
 }
 
@@ -230,6 +246,15 @@ export async function setInstagramConnection(uid: string, connection: InstagramC
 
 export async function clearInstagramConnection(uid: string) {
   await usersCol().doc(uid).update({ instagramConnection: FieldValue.delete() });
+}
+
+// ---- LinkedIn connection (stored on the user doc) ----
+export async function setLinkedInConnection(uid: string, connection: LinkedInConnection) {
+  await updateUser(uid, { linkedinConnection: connection });
+}
+
+export async function clearLinkedInConnection(uid: string) {
+  await usersCol().doc(uid).update({ linkedinConnection: FieldValue.delete() });
 }
 
 // ---- Social posts (subcollection: users/{uid}/socialPosts) ----

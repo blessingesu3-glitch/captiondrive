@@ -79,6 +79,8 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
       }
       if (event.data?.type === 'INSTAGRAM_AUTH_SUCCESS') {
         onRefreshAccounts().catch(console.error);
+      } else if (event.data?.type === 'LINKEDIN_AUTH_SUCCESS') {
+        onRefreshAccounts().catch(console.error);
       } else if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
         const plat = (event.data.platform as SocialPlatform) || 'LinkedIn';
         onConnectAccount(plat, `@${plat.toLowerCase()}_official`, `${plat} Creator Page`);
@@ -103,7 +105,9 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
     setIsConnecting(plat);
     try {
       const res = await authedFetch(
-        plat === 'Instagram' ? '/api/social/instagram/connect-url' : `/api/social/oauth/url?platform=${plat}`
+        plat === 'Instagram' ? '/api/social/instagram/connect-url'
+          : plat === 'LinkedIn' ? '/api/social/linkedin/connect-url'
+          : `/api/social/oauth/url?platform=${plat}`
       );
       const data = await res.json();
 
@@ -330,7 +334,9 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                 ) : (
                   <div className="p-3.5 rounded-xl bg-[#F5F7FA]/40 border border-dashed border-[#E2E6EC] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     <p className="text-xs text-gray-500">
-                      {hasKeys ? 'Custom Client ID configured' : 'Connect via OAuth popup or custom handle'}
+                      {plat === 'Instagram' || plat === 'LinkedIn'
+                        ? 'Connect via OAuth popup'
+                        : hasKeys ? 'Custom Client ID configured' : 'Connect via OAuth popup or custom handle'}
                     </p>
                     <div className="flex items-center gap-2">
                       <button
@@ -341,14 +347,16 @@ export const SocialPublishView: React.FC<SocialPublishViewProps> = ({
                         <Lock className="w-3.5 h-3.5" />
                         <span>OAuth</span>
                       </button>
-                      
-                      <button
-                        onClick={() => handleOpenConnect(plat)}
-                        className="px-3 h-8.5 rounded-lg text-xs font-bold bg-white hover:bg-[#F5F7FA] text-gray-700 border border-[#E2E6EC] flex items-center gap-1.5 transition-colors cursor-pointer"
-                      >
-                        <PlusCircle className="w-3.5 h-3.5 text-gray-500" />
-                        <span>Link Account</span>
-                      </button>
+
+                      {plat !== 'Instagram' && plat !== 'LinkedIn' && (
+                        <button
+                          onClick={() => handleOpenConnect(plat)}
+                          className="px-3 h-8.5 rounded-lg text-xs font-bold bg-white hover:bg-[#F5F7FA] text-gray-700 border border-[#E2E6EC] flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <PlusCircle className="w-3.5 h-3.5 text-gray-500" />
+                          <span>Link Account</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

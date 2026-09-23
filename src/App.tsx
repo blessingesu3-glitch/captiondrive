@@ -473,7 +473,9 @@ export default function App() {
 
   const handleDisconnectAccount = async (platform: SocialPlatform) => {
     try {
-      const endpoint = platform === 'Instagram' ? '/api/social/instagram/disconnect' : '/api/social/disconnect';
+      const endpoint = platform === 'Instagram' ? '/api/social/instagram/disconnect'
+        : platform === 'LinkedIn' ? '/api/social/linkedin/disconnect'
+        : '/api/social/disconnect';
       const res = await authedFetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
